@@ -140,9 +140,12 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
         {/* School Year Dropdown */}
         <div className="lead-dashboard-dropdown-wrapper">
-        <button className="lead-dashboard-dropdown-btn" onClick={() => setIsSchoolYearOpen((prev) => !prev)}>
-        {schoolYear || "Select School Year"}
-        <FaChevronDown className={`lead-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
+        <button
+        className="esl-dashboard-dropdown-btn"
+        onClick={() => setIsSchoolYearOpen((prev) => !prev)}
+        >
+        {schoolYear ? schoolYear.replace('/', '-') : "Select School Year"}
+        <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
         </button>
         {isSchoolYearOpen && (
             <div className="lead-dashboard-dropdown-menu">
@@ -195,11 +198,11 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
         <div className="relative group">
         <button
-        className="lead-dashboard-refresh-btn"
+        className="eie-head-dashboard-refresh-btn"
         onClick={handleRefresh}
         disabled={loading}
         >
-        <IoRefresh className="lead-dashboard-refresh-icon" />
+        <IoRefresh className="eie-head-dashboard-refresh-icon" />
         {loading ? 'Refreshing...' : ''}
         </button>
         {/* Custom Tooltip */}

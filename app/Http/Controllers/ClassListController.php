@@ -4,12 +4,18 @@ namespace App\Http\Controllers;
 use App\Imports\ClassListImport;
 use App\Models\ClassLists;
 use App\Models\EIEHeads;
+use App\Models\HistoricalClassLists;
 use App\Models\CollegePOCs;
 use App\Models\ImplementingSubjects;
+use App\Models\EieScorecardClassReport;
+use App\Models\HistoricalScorecard;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\EpgfRubric;
+use App\Models\EieReport;
 
 class ClassListController extends Controller
 {
@@ -62,7 +68,7 @@ class ClassListController extends Controller
 
             // Get class lists based on department
             $students = ClassLists::where('department', $eieHead->department)
-            ->select('class_lists_id', 'student_id', 'firstname', 'middlename', 'lastname', 'status', 'year_level', 'classification', 'gender', 'reason_for_shift_or_drop', 'course_code', 'epgf_average', 'proficiency_level', 'pronunciation', 'grammar', 'fluency', 'program', 'candidate_for_graduating')
+            ->select('class_lists_id', 'student_id', 'firstname', 'middlename', 'lastname', 'status', 'year_level', 'classification', 'gender', 'reason_for_shift_or_drop', 'course_code', 'epgf_average', 'proficiency_level', 'pronunciation_average', 'grammar_average', 'fluency_average', 'program', 'candidate_for_graduating')
             ->get();
 
             return response()->json($students, 200);
@@ -74,21 +80,34 @@ class ClassListController extends Controller
 
     public function uploadClassList(Request $request)
     {
-        // Validate file
         $request->validate([
             'file' => 'required|file|mimes:csv,xlsx,xls|max:10240',
         ]);
 
         try {
-            // Import the class list using Laravel Excel
-            Excel::import(new ClassListImport, $request->file('file'));
+            // Determine current year and semester based on current date
+            $currentDate = Carbon::now();
+
+            $year = $currentDate->year;
+
+            // Determine semester: 1st Semester Aug-Dec, 2nd Semester Jan-May
+            $month = $currentDate->month;
+            if ($month >= 8 && $month <= 12) {
+                $semester = '1st Semester';
+            } elseif ($month >= 1 && $month <= 5) {
+                $semester = '2nd Semester';
+            } else {
+                // If outside typical semester months, decide fallback or throw error
+                return response()->json(['message' => 'Current date is outside of defined semesters.'], 422);
+            }
+
+            Excel::import(new ClassListImport($year, $semester), $request->file('file'));
 
             return response()->json(['message' => 'Class List uploaded successfully!'], 200);
         } catch (\Exception $e) {
-            // Log the exception for debugging
-            Log::error('Error uploading file: ' . $e->getMessage());
+            \Log::error('Error uploading class list: ' . $e->getMessage());
 
-            return response()->json(['message' => 'Error uploading file: ' . $e->getMessage()], 500);            
+            return response()->json(['message' => 'Error uploading file: ' . $e->getMessage()], 500);
         }
     }
 
@@ -130,15 +149,16 @@ class ClassListController extends Controller
                 'lastname',
                 'status',
                 'year_level',
+                'program',
                 'classification',
                 'gender',
                 'reason_for_shift_or_drop',
                 'course_code',
                 'epgf_average',
                 'proficiency_level',
-                'pronunciation',
-                'grammar',
-                'fluency',
+                'pronunciation_average',
+                'grammar_average',
+                'fluency_average',
             )
             ->whereIn('course_code', $excludedCourseCodes)
             ->get();
@@ -464,5 +484,356 @@ class ClassListController extends Controller
         ]);
     }
 
+    public function getStudentsByMonth(Request $request)
+    {
+        $request->validate([
+            'course_code' => 'required|string|max:10',
+            'month' => 'required|string',
+        ]);
 
+        $months = [
+            'january' => 1, 'february' => 2, 'march' => 3, 'april' => 4, 'may' => 5,
+            'june' => 6, 'july' => 7, 'august' => 8, 'september' => 9,
+            'october' => 10, 'november' => 11, 'december' => 12,
+        ];
+
+        $inputMonth = strtolower($request->month);
+
+        if (is_numeric($inputMonth)) {
+            $month = (int) $inputMonth;
+        } elseif (array_key_exists($inputMonth, $months)) {
+            $month = $months[$inputMonth];
+        } else {
+            return response()->json(['error' => 'Invalid month provided. Use full month name or number.'], 422);
+        }
+
+        if ($month < 1 || $month > 12) {
+            return response()->json(['error' => 'Month must be between 1 and 12.'], 422);
+        }
+
+        // Use current year internally, no year input from request
+        $year = date('Y');
+
+        if ($month >= 8 && $month <= 12) {
+            $semester = '1st Semester';
+            $startDate = Carbon::create($year, 8, 1)->startOfDay();
+            $endDate = Carbon::create($year, 12, 31)->endOfDay();
+        } elseif ($month >= 1 && $month <= 5) {
+            $semester = '2nd Semester';
+            $startDate = Carbon::create($year, 1, 1)->startOfDay();
+            $endDate = Carbon::create($year, 5, 31)->endOfDay();
+        } else {
+            return response()->json(['error' => 'Invalid month. Must be between January–May or August–December.'], 422);
+        }
+
+        $results = HistoricalClassLists::where('course_code', $request->course_code)
+        ->where('status', 'active')
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->whereMonth('created_at', $month)
+        ->orderBy('lastname', 'asc')
+        ->get();
+
+        \Log::info('Fetching students', [
+            'course_code' => $request->course_code,
+            'month' => $month,
+            'semester' => $semester,
+            'year' => $year,
+            'count' => $results->count(),
+        ]);
+
+        return response()->json([
+            'semester' => $semester,
+            'year' => $year,
+            'records' => $results,
+        ]);
+    }
+
+    protected $epgfProficiencyLevels = [
+        ['threshold' => 0.0, 'level' => 'Beginning'],
+        ['threshold' => 0.5, 'level' => 'Low Acquisition'],
+        ['threshold' => 0.75, 'level' => 'High Acquisition'],
+        ['threshold' => 1.0, 'level' => 'Emerging'],
+        ['threshold' => 1.25, 'level' => 'Low Developing'],
+        ['threshold' => 1.5, 'level' => 'High Developing'],
+        ['threshold' => 1.75, 'level' => 'Low Proficient'],
+        ['threshold' => 2.0, 'level' => 'Proficient'],
+        ['threshold' => 2.25, 'level' => 'High Proficient'],
+        ['threshold' => 2.5, 'level' => 'Advanced'],
+        ['threshold' => 3.0, 'level' => 'High Advanced'],
+        ['threshold' => 4.0, 'level' => 'Native/Bilingual'],
+    ];
+
+    protected function getProficiencyLevel(float $epgfAverage): string
+    {
+        $levels = $this->epgfProficiencyLevels;
+
+        // Sort descending by threshold
+        usort($levels, function ($a, $b) {
+            return $b['threshold'] <=> $a['threshold'];
+        });
+
+        foreach ($levels as $level) {
+            if ($epgfAverage >= $level['threshold']) {
+                return $level['level'];
+            }
+        }
+
+        return 'Unknown';
+    }
+
+    public function saveData(Request $request)
+    {
+        try {
+            $data = $request->input('data');
+            \Log::info('Received data for saveData:', ['data' => $data]);
+
+            $now = Carbon::now();
+
+            // Determine current semester
+            $month = $now->month;
+            if ($month >= 8 && $month <= 12) {
+                $currentSemester = '1st Semester';
+            } elseif ($month >= 1 && $month <= 5) {
+                $currentSemester = '2nd Semester';
+            } else {
+                $currentSemester = '2nd Semester'; // default for June & July
+            }
+
+            // Get active rubric id
+            $activeRubric = EpgfRubric::where('status', 'active')->first();
+            $activeRubricId = $activeRubric ? $activeRubric->epgf_rubric_id : null;
+
+            foreach ($data as $record) {
+                $epgfAverage = floatval($record['epgf_average'] ?? 0);
+
+                $schoolYear = $record['school_year'] ?? $now->year;
+                $semester = $record['semester'] ?? $currentSemester;
+
+                $courseTitle = null;
+                if (!empty($record['course_code'])) {
+                    $subject = ImplementingSubjects::where('course_code', $record['course_code'])->first();
+                    if ($subject) {
+                        $courseTitle = $subject->course_title;
+                    }
+                }
+
+                $proficiency = $this->getProficiencyLevel($epgfAverage);
+
+                HistoricalClassLists::updateOrCreate(
+                    ['historical_class_lists_id' => $record['historical_class_lists_id']],
+                    [
+                        'consistency_rating' => $record['consistency_rating'],
+                        'clarity_rating' => $record['clarity_rating'],
+                        'articulation_rating' => $record['articulation_rating'],
+                        'intonation_and_stress_rating' => $record['intonation_and_stress_rating'],
+                        'pronunciation_average' => $record['pronunciation_average'],
+                        'accuracy_rating' => $record['accuracy_rating'],
+                        'clarity_of_thought_rating' => $record['clarity_of_thought_rating'],
+                        'syntax_rating' => $record['syntax_rating'],
+                        'grammar_average' => $record['grammar_average'],
+                        'quality_of_response_rating' => $record['quality_of_response_rating'],
+                        'detail_of_response_rating' => $record['detail_of_response_rating'],
+                        'fluency_average' => $record['fluency_average'],
+                        'epgf_average' => $epgfAverage,
+                        'type' => $record['type'],
+                        'task_title' => $record['task_title'] ?? null,
+                        'consistency_descriptor' => $record['consistency_descriptor'],
+                        'clarity_descriptor' => $record['clarity_descriptor'],
+                        'articulation_descriptor' => $record['articulation_descriptor'],
+                        'intonation_and_stress_descriptor' => $record['intonation_and_stress_descriptor'],
+                        'accuracy_descriptor' => $record['accuracy_descriptor'],
+                        'clarity_of_thought_descriptor' => $record['clarity_of_thought_descriptor'],
+                        'syntax_descriptor' => $record['syntax_descriptor'],
+                        'quality_of_response_descriptor' => $record['quality_of_response_descriptor'],
+                        'detail_of_response_descriptor' => $record['detail_of_response_descriptor'],
+                        'comment' => $record['comment'],
+                        'proficiency_level' => $proficiency,
+                        'epgf_rubric_id' => $activeRubricId,
+                        'semester' => $semester,
+                        'school_year' => $schoolYear,
+                        'course_title' => $courseTitle,
+                        'change_note' => $record['month'],
+                    ]
+                );
+            }
+
+            return response()->json(['message' => 'Data saved successfully!'], 200);
+        } catch (\Exception $e) {
+            \Log::error("Error saving data: " . $e->getMessage());
+            return response()->json(['message' => 'Failed to save data'], 500);
+        }
+    }
+
+    public function submitData(Request $request)
+    {
+        $request->validate([
+            'data' => 'required|array',
+            'data.*.student_id' => 'required|integer',
+            'data.*.course_code' => 'nullable|string',
+            'data.*.task_title' => 'required|string',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $data = $request->input('data');
+            \Log::info('Received data for saveData:', ['data' => $data]);
+
+            $now = Carbon::now();
+            $month = $now->month;
+
+            // Determine current semester
+            if ($month >= 8 && $month <= 12) {
+                $currentSemester = '1st Semester';
+            } elseif ($month >= 1 && $month <= 5) {
+                $currentSemester = '2nd Semester';
+            } else {
+                $currentSemester = '2nd Semester'; // June & July default
+            }
+
+            // Get active rubric ID
+            $activeRubric = EpgfRubric::where('status', 'active')->first();
+            $activeRubricId = $activeRubric ? $activeRubric->epgf_rubric_id : null;
+
+            $historicalData = [];
+
+            foreach ($data as $record) {
+                $epgfAverage = floatval($record['epgf_average'] ?? 0);
+
+                $courseTitle = null;
+                if (!empty($record['course_code'])) {
+                    $subject = ImplementingSubjects::where('course_code', $record['course_code'])->first();
+                    $courseTitle = $subject ? $subject->course_title : null;
+                }
+
+                $proficiency = $this->getProficiencyLevel($epgfAverage);
+
+                $commonData = [
+                    'course_code' => $record['course_code'] ?? null,
+                    'epgf_rubric_id' => $activeRubricId,
+                    'student_id' => $record['student_id'],
+                    'department' => $record['department'] ?? null,
+                    'task_title' => $record['task_title'] ?? null,
+                    'type' => $record['type'] ?? null,
+                    'comment' => $record['comment'] ?? null,
+                    'epgf_average' => $epgfAverage,
+                    'proficiency_level' => $proficiency,
+                    'program' => $record['program'] ?? null,
+                    'course_title' => $courseTitle,
+                    'year_level' => $record['year_level'] ?? null,
+
+                    // Pronunciation
+                    'consistency_descriptor' => $record['consistency_descriptor'] ?? '',
+                    'consistency_rating' => $record['consistency_rating'] ?? 0,
+                    'clarity_descriptor' => $record['clarity_descriptor'] ?? '',
+                    'clarity_rating' => $record['clarity_rating'] ?? 0,
+                    'articulation_descriptor' => $record['articulation_descriptor'] ?? '',
+                    'articulation_rating' => $record['articulation_rating'] ?? 0,
+                    'intonation_and_stress_descriptor' => $record['intonation_and_stress_descriptor'] ?? '',
+                    'intonation_and_stress_rating' => $record['intonation_and_stress_rating'] ?? 0,
+                    'pronunciation_average' => $record['pronunciation_average'] ?? 0,
+
+                    // Grammar
+                    'accuracy_descriptor' => $record['accuracy_descriptor'] ?? '',
+                    'accuracy_rating' => $record['accuracy_rating'] ?? 0,
+                    'clarity_of_thought_descriptor' => $record['clarity_of_thought_descriptor'] ?? '',
+                    'clarity_of_thought_rating' => $record['clarity_of_thought_rating'] ?? 0,
+                    'syntax_descriptor' => $record['syntax_descriptor'] ?? '',
+                    'syntax_rating' => $record['syntax_rating'] ?? 0,
+                    'grammar_average' => $record['grammar_average'] ?? 0,
+
+                    // Fluency
+                    'quality_of_response_descriptor' => $record['quality_of_response_descriptor'] ?? '',
+                    'quality_of_response_rating' => $record['quality_of_response_rating'] ?? 0,
+                    'detail_of_response_descriptor' => $record['detail_of_response_descriptor'] ?? '',
+                    'detail_of_response_rating' => $record['detail_of_response_rating'] ?? 0,
+                    'fluency_average' => $record['fluency_average'] ?? 0,
+                ];
+
+                // Upsert scorecard class report
+                $uniqueKeys = [
+                    'student_id' => $record['student_id'],
+                    'course_code' => $record['course_code'],
+                    'epgf_rubric_id' => $activeRubricId,
+                    'task_title' => $record['task_title'],
+                ];
+
+                EieScorecardClassReport::updateOrCreate($uniqueKeys, $commonData);
+
+                // Prepare for batch insert into HistoricalScorecard
+                $historicalData[] = $commonData;
+            }
+
+            // Insert all historical records in one batch
+            HistoricalScorecard::insert($historicalData);
+
+            // === Update ClassLists student averages ===
+            $studentIds = HistoricalClassLists::distinct()->pluck('student_id');
+            foreach ($studentIds as $studentId) {
+                $averages = HistoricalClassLists::where('student_id', $studentId)
+                ->select(
+                    DB::raw('AVG(COALESCE(pronunciation_average, 0)) as avg_pronunciation'),
+                         DB::raw('AVG(COALESCE(grammar_average, 0)) as avg_grammar'),
+                         DB::raw('AVG(COALESCE(fluency_average, 0)) as avg_fluency'),
+                         DB::raw('AVG(COALESCE(epgf_average, 0)) as avg_epgf')
+                )
+                ->first();
+
+                ClassLists::where('student_id', $studentId)
+                ->update([
+                    'pronunciation_average' => $averages->avg_pronunciation,
+                    'grammar_average'       => $averages->avg_grammar,
+                    'fluency_average'       => $averages->avg_fluency,
+                    'epgf_average'          => $averages->avg_epgf,
+                ]);
+
+                // ✅ Also update EieScorecardClassReport per student
+                EieScorecardClassReport::where('student_id', $studentId)
+                ->update([
+                    'pronunciation_average' => $averages->avg_pronunciation,
+                    'grammar_average'       => $averages->avg_grammar,
+                    'fluency_average'       => $averages->avg_fluency,
+                    'epgf_average'          => $averages->avg_epgf,
+                ]);
+            }
+
+            // === Update EieReport per course_code ===
+            $courseCodes = HistoricalClassLists::distinct()->pluck('course_code');
+            foreach ($courseCodes as $courseCode) {
+                $averages = HistoricalClassLists::where('course_code', $courseCode)
+                ->select(
+                    DB::raw('AVG(COALESCE(pronunciation_average, 0)) as avg_pronunciation'),
+                         DB::raw('AVG(COALESCE(grammar_average, 0)) as avg_grammar'),
+                         DB::raw('AVG(COALESCE(fluency_average, 0)) as avg_fluency'),
+                         DB::raw('AVG(COALESCE(epgf_average, 0)) as avg_epgf')
+                )
+                ->first();
+
+                $submitted = ClassLists::where('course_code', $courseCode)
+                ->where('status', 'Active')
+                ->where('epgf_average', '>', 0)
+                ->count();
+
+                $population = ClassLists::where('course_code', $courseCode)->count();
+
+                $completionRate = $population > 0
+                ? round(($submitted / $population) * 100, 2)
+                : 0;
+
+                EieReport::where('course_code', $courseCode)
+                ->update([
+                    'epgf_average'    => $averages->avg_epgf,
+                    'completion_rate' => $completionRate,
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Data saved successfully!'], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Error saving data: " . $e->getMessage());
+            return response()->json(['message' => 'Failed to save data'], 500);
+        }
+    }
 }

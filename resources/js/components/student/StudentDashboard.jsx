@@ -6,6 +6,7 @@ import CardOne from "./eie-monthly-performance-summary/monthly-performance-summa
 import CardTwo from "./current-implementing-subject/current-student-subject";
 import CardThree from "./eie-performance-summary/eie-performance-summary";
 import CardFour from "./eie-evaluations-scores/evaluation-scores";
+import CardFive from "./diagnostics-report/diagnostics-report";
 
 const StudentDashboard = () => {
   return (
@@ -22,7 +23,7 @@ const StudentDashboard = () => {
     <CardTwo />
     <CardThree />
     <CardFour />
-    <br/><br/>
+    <CardFive />
     </div>
     </div>
   );

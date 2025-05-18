@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './TableComponent.css';
 import SubmitButton from '../buttons/submit-button';
-import checkIcon from "@assets/check.png";
 
 const TableComponent = ({ course_code, taskTitle, department, course_title, searchQuery }) => {
   const [courseTitle, setCourseTitle] = useState(null);
@@ -20,7 +19,6 @@ const TableComponent = ({ course_code, taskTitle, department, course_title, sear
   const [detailOfResponseOptions, setDetailOfResponseOptions] = useState([]);
   const [submittedRows, setSubmittedRows] = useState({});
   const [submittedIds, setSubmittedIds] = useState([]);
-  const [rowData, setRowData] = useState({});
 
   useEffect(() => {
     const savedStates = localStorage.getItem('submittedRows');
@@ -320,6 +318,7 @@ const TableComponent = ({ course_code, taskTitle, department, course_title, sear
       try {
         const response = await fetch('/api/submitted-scorecards');
         const data = await response.json();
+        console.log(data);
         setSubmittedIds(data); // Array of student IDs who already submitted
       } catch (error) {
         console.error('Error fetching submitted student IDs:', error);
@@ -334,6 +333,7 @@ const TableComponent = ({ course_code, taskTitle, department, course_title, sear
     'Full Name',
     'Student ID',
     'Year Level',
+    'Program',
     'PGF Average',
     'Proficiency',
     'Type',
@@ -362,19 +362,11 @@ const TableComponent = ({ course_code, taskTitle, department, course_title, sear
     'Actions',
   ];
 
-const updateData = (rowIndex, field, value) => {
-  const studentId = students[rowIndex].student_id;
-
-  setRowData(prev => ({
-    ...prev,
-    [studentId]: {
-      ...prev[studentId],
-      [field]: value
-    }
-  }));
-};
-
-  const active_students = students.length;
+  const updateData = (rowIndex, columnId, newValue) => {
+    const updatedStudents = [...students];
+    updatedStudents[rowIndex][columnId] = newValue;
+    setStudents(updatedStudents);
+  };
 
 
   if (loading) {
@@ -444,7 +436,7 @@ const updateData = (rowIndex, field, value) => {
     </tr>
     </thead>
     <tbody>
-      {filteredStudents.map((student, rowIndex) => {
+    {filteredStudents.map((student, rowIndex) => {
 
       {/* Pronunciation */}
       const consistencySelectedOption = consistencyOptions?.find(option => option.id === student.consistency);
@@ -553,7 +545,7 @@ const updateData = (rowIndex, field, value) => {
           proficiency_level: getProficiencyLevel(epgfAverage).level,
           type: student.type || 'Reading',
 
-          // Pronunciation
+                          // Pronunciation
           consistency_descriptor: selectedConsistency ? selectedConsistency.descriptor : 'N/A',
           consistency_rating: selectedConsistency ? selectedConsistency.rating : '0.00',
           clarity_descriptor: selectedClarity ? selectedClarity.descriptor : 'N/A',
@@ -564,7 +556,7 @@ const updateData = (rowIndex, field, value) => {
           intonation_and_stress_rating: selectedIntonationAndStress ? selectedIntonationAndStress.rating : '0.00',
           pronunciation_average: pronunciationAverage.toFixed(2),
 
-          // Grammar
+                          // Grammar
           accuracy_descriptor: selectedAccuracy ? selectedAccuracy.descriptor : 'N/A',
           accuracy_rating: selectedAccuracy ? selectedAccuracy.rating : '0.00',
           clarity_of_thought_descriptor: selectedClarityOfThought ? selectedClarityOfThought.descriptor : 'N/A',
@@ -573,7 +565,7 @@ const updateData = (rowIndex, field, value) => {
           syntax_rating: selectedSyntax ? selectedSyntax.rating : '0.00',
           grammar_average: grammarAverage.toFixed(2),
 
-          // Fluency
+                          // Fluency
           quality_of_response_descriptor: selectedQualityOfResponse ? selectedQualityOfResponse.descriptor : 'N/A',
           quality_of_response_rating: selectedQualityOfResponse ? selectedQualityOfResponse.rating : '0.00',
           detail_of_response_descriptor: selectedDetailOfResponse ? selectedDetailOfResponse.descriptor : 'N/A',
@@ -584,12 +576,11 @@ const updateData = (rowIndex, field, value) => {
           course_code: course_code,
           task_title: taskTitle || "No Title",
           epgf_rubric_id: version,
-          student_id: `${student.student_id}`,  // Corrected with backticks
-          department: `${student.department}`,  // Corrected with backticks
-          program: `${student.program}`,        // Corrected with backticks
-          active_students: active_students,
+          student_id: `${student.student_id}`,
+          department: `${student.department}`,
+          program: `${student.program}`,
           course_title: course_title,
-          year_level: `${student.year_level}`,  // Corrected with backticks
+          year_level: `${student.year_level}`,
         };
 
         // Helper function to check for '0.00' or 'N/A'
@@ -608,7 +599,6 @@ const updateData = (rowIndex, field, value) => {
           'student_id',
           'department',
           'program',
-          'active_students',
         ];
 
         // Check if any of the relevant fields (not in the excluded list) have '0.00' or 'N/A'
@@ -651,35 +641,11 @@ const updateData = (rowIndex, field, value) => {
 
       return (
         <tr key={rowIndex}>
-        <td>
-        <div
-        title="Evaluated"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-        }}
-        >
-        {rowIndex + 1}
-        {submittedIds.includes(students[rowIndex].student_id) && (
-          <img
-          src={checkIcon}
-          alt="Evaluated"
-          style={{
-            width: "16px",
-            height: "16px",
-            marginLeft: "5px",
-            verticalAlign: "middle",
-            pointerEvents: "auto",
-          }}
-          />
-        )}
-        </div>
-        </td>
+        <td>{rowIndex + 1}</td>
         <td><div style={{ textAlign: 'center' }}>{`${student.firstname} ${student.lastname}`}</div></td>
         <td><div style={{ textAlign: 'center' }}>{student.student_id}</div></td>
         <td><div style={{ textAlign: 'center' }}>{student.year_level}</div></td>
-
+        <td><div style={{ textAlign: 'center' }}>{student.program}</div></td>
         {/* PGF Average */}
         <td>
         <div style={{ textAlign: 'center', fontWeight: '600' }}> {epgfAverage.toFixed(2)} </div>
@@ -706,59 +672,58 @@ const updateData = (rowIndex, field, value) => {
         })()}
         </td>
 
-      <td>
+        <td>
         <select
-          value={rowData[student.student_id]?.type || student.type || ''}
-          onChange={(e) => updateData(rowIndex, 'type', e.target.value)}
-          style={{ width: '100px', padding: '4px', backgroundColor: 'transparent' }}
+        value={student.type || ''}
+        onChange={(e) => updateData(rowIndex, 'type', e.target.value)}
+        style={{ width: '100px', padding: '4px', backgroundColor: 'transparent' }}
         >
-          <option value="Reading">Reading</option>
-          <option value="Writing">Writing</option>
-          <option value="Listening">Listening</option>
+        <option value="Reading">Reading</option>
+        <option value="Writing">Writing</option>
+        <option value="Listening">Listening</option>
         </select>
-      </td>
+        </td>
 
-      <td>
+        <td>
         <select
-          value={rowData[student.student_id]?.consistency ?? student.consistency ?? ''}
-          onChange={(e) => {
-            const selectedId = Number(e.target.value);
-            const selectedOption = consistencyLookup[selectedId];
+        value={student.consistency || ''}
+        onChange={(e) => {
+          const selectedId = Number(e.target.value);
+          const selectedOption = consistencyLookup[selectedId];
 
-            if (selectedOption) {
-              updateData(rowIndex, 'consistency', selectedId);
-              updateData(rowIndex, 'consistencyRating', selectedOption.rating); // Optional
-            }
-          }}
-          style={{
-            padding: '4px',
-            backgroundColor: 'transparent',
-            width: '350px',
-          }}
-        >
-          {consistencyOptions.length === 0 ? (
-            <option disabled>EPGF Rubric Version Not Set</option>
-          ) : (
-            consistencyOptions.map(option => (
-              <option
-                key={option.id}
-                value={option.id}
-                style={{ fontSize: '10px', whiteSpace: 'pre-line' }}
-              >
-                {option.descriptor.split('.').join(' \n')}
-              </option>
-            ))
-          )}
-        </select>
-
-        <span style={{ fontSize: '12px', marginTop: '4px', display: 'block', textAlign: 'left' }}>
-          Rating: {
-            (rowData[student.student_id]?.consistency
-              ? consistencyLookup[rowData[student.student_id].consistency]?.rating
-              : consistencyLookup[student.consistency]?.rating) || '0.00'
+          if (selectedOption) {
+            // Update consistency state
+            updateData(rowIndex, 'consistency', selectedId); // Store the ID, not the descriptor string
+            // Now update the displayed rating directly below the select
+            updateData(rowIndex, 'consistencyRating', selectedOption.rating); // Assuming you want to update the rating as well
           }
+        }}
+        style={{
+          padding: '4px',
+          backgroundColor: 'transparent',
+          width: '350px',
+        }}
+        >
+        {consistencyOptions.length === 0 ? (
+          <option disabled>EPGF Rubric Version Not Set</option> // Loading state if options are not yet available
+        ) : (
+          consistencyOptions.map(option => (
+            <option
+            key={option.id}
+            value={option.id}
+            style={{ fontSize: '10px', whiteSpace: 'pre-line' }}
+            >
+            {option.descriptor.split('.').join(' \n')}
+            </option>
+          ))
+        )}
+        </select>
+
+        {/* Display only the rating without consistency descriptor */}
+        <span style={{ fontSize: '12px', marginTop: '4px', display: 'block', textAlign: 'left' }}>
+        Rating: {student.consistency ? consistencyLookup[student.consistency]?.rating || '0.00' : '0.00'}
         </span>
-      </td>
+        </td>
 
         <td> <div style={{ textAlign: 'center', fontWeight: '600' }}> {consistencyRating} </div></td>
 
@@ -936,16 +901,16 @@ const updateData = (rowIndex, field, value) => {
         </td>
 
         <td>
-          <div style={{ textAlign: 'center', fontWeight: '600' }}>
-            {intonationAndStressRating}
-          </div>
+        <div style={{ textAlign: 'center', fontWeight: '600' }}>
+        {intonationAndStressRating}
+        </div>
         </td>
 
         {/* Pronunciation Average */}
         <td>
-          <div style={{ textAlign: 'center', fontWeight: '600' }}>
-            {pronunciationAverage.toFixed(2)}
-          </div>
+        <div style={{ textAlign: 'center', fontWeight: '600' }}>
+        {pronunciationAverage.toFixed(2)}
+        </div>
         </td>
 
         {/* Grammar */}
@@ -1075,9 +1040,9 @@ const updateData = (rowIndex, field, value) => {
         </td>
 
         <td>
-          <div style={{ textAlign: 'center', fontWeight: '600' }}>
-            {clarityofthoughtRating}
-          </div>
+        <div style={{ textAlign: 'center', fontWeight: '600' }}>
+        {clarityofthoughtRating}
+        </div>
         </td>
 
         {/* syntax */}
@@ -1323,7 +1288,7 @@ const updateData = (rowIndex, field, value) => {
     })}
     </tbody>
 
-    </table>    
+    </table>
     </div>
   );
 };

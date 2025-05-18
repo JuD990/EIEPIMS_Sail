@@ -49,28 +49,23 @@ class StudentController extends Controller
     public function getCurrentSubjects($student_id)
     {
         try {
-            // Fetch course_code and epgf_average from ClassLists based on student_id
-            $classList = ClassLists::where('student_id', $student_id)->first();
+            // Check if student has any records
+            $hasRecord = HistoricalScorecard::where('student_id', $student_id)->exists();
 
-            if (!$classList) {
-                return response()->json(['message' => 'Class list not found for this student'], 404);
+            if (!$hasRecord) {
+                return response()->json(['message' => 'Student not found'], 404);
             }
 
-            // Fetch subject based on course_code
-            $subject = ImplementingSubjects::where('course_code', $classList->course_code)->first();
-
-            if (!$subject) {
-                return response()->json(['message' => 'No current Subject'], 404);
-            }
+            // Calculate average of epgf_average column for this student
+            $average = HistoricalScorecard::where('student_id', $student_id)
+            ->avg('epgf_average');
 
             return response()->json([
-                'course_code' => $classList->course_code,
-                'epgf_average' => $classList->epgf_average,
-                'course_title' => $subject->course_title,
+                'student_id' => $student_id,
+                'epgf_average' => round($average, 2)  // Rounded to 2 decimal places
             ]);
         } catch (\Exception $e) {
-            // Return any errors that occur during the process
-            return response()->json(['error' => 'Something went wrong: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'An error occurred', 'error' => $e->getMessage()], 500);
         }
     }
 

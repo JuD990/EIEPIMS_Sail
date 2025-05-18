@@ -7,12 +7,10 @@ const UploadingButton = () => {
   const classListFileInputRef = useRef(null);
   const [classListLoading, setClassListLoading] = useState(false);
 
-  // Handle button click for uploading class list
   const handleClassListButtonClick = () => {
     classListFileInputRef.current.click();
   };
 
-  // Handle file change for class list
   const handleClassListFileChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -28,19 +26,18 @@ const UploadingButton = () => {
         },
       });
       alert("Class List uploaded successfully!");
-      window.location.reload(); // Refresh the page
+      window.location.reload();
     } catch (error) {
       console.error("Error uploading class list:", error.response?.data || error.message);
       alert("Failed to upload class list.");
     } finally {
       setClassListLoading(false);
-      event.target.value = ""; // Clear the file input after upload
+      event.target.value = ""; // Clear input
     }
   };
 
   return (
     <div className="upload-buttons-container">
-    {/* Upload Class List Button */}
     <button onClick={handleClassListButtonClick} className="class-list-subjects-upload-button">
     {classListLoading ? (
       <span>Uploading...</span>

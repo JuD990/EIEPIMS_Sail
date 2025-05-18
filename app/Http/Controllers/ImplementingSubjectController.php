@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ImplementingSubjects;
+use App\Models\HistoricalClassLists;
 use App\Models\EieReport;
 use App\Models\ClassLists;
 use App\Models\Students;
@@ -152,125 +153,208 @@ class ImplementingSubjectController extends Controller
         }
     }
 
-    public function upload(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:csv,txt|max:2048',
-        ]);
+        public function upload(Request $request)
+        {
+            $request->validate([
+                'file' => 'required|mimes:csv,txt|max:2048',
+            ]);
 
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $path = $file->storeAs('uploads', $file->getClientOriginalName());
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $path = $file->storeAs('uploads', $file->getClientOriginalName());
 
-            if (($handle = fopen($file->getRealPath(), 'r')) !== false) {
-                $header = fgetcsv($handle);
+                if (($handle = fopen($file->getRealPath(), 'r')) !== false) {
+                    $header = fgetcsv($handle);
 
-                $expectedColumns = [
-                    'course_code', 'code', 'course_title',
-                    'semester', 'year_level', 'program',
-                    'department', 'employee_id', 'assigned_poc',
-                    'email',
-                ];
+                    $expectedColumns = [
+                        'course_code', 'code', 'course_title',
+                        'semester', 'year_level', 'program',
+                        'department', 'employee_id', 'assigned_poc',
+                        'email',
+                    ];
 
-                if ($header !== $expectedColumns) {
+                    if ($header !== $expectedColumns) {
+                        fclose($handle);
+                        Log::warning('CSV upload failed: invalid format.', ['header' => $header]);
+                        return response()->json(['message' => 'Invalid CSV format.'], 400);
+                    }
+
+                    $csvCourseCodes = [];
+                    $rowCount = 0;
+
+                    while (($row = fgetcsv($handle)) !== false) {
+                        $rowCount++;
+                        $csvCourseCodes[] = $row[0]; // Track course_code for cleanup
+
+                        ImplementingSubjects::updateOrCreate(
+                            ['course_code' => $row[0]],
+                            [
+                                'code'              => $row[1],
+                                'course_title'      => $row[2],
+                                'semester'          => $row[3],
+                                'year_level'        => $row[4],
+                                'program'           => $row[5],
+                                'department'        => $row[6],
+                                'employee_id'       => $row[7],
+                                'assigned_poc'      => $row[8],
+                                'email'             => $row[9],
+                            ]
+                        );
+
+                        HistoricalImplementingSubjects::updateOrCreate(
+                            ['course_code' => $row[0]],
+                            [
+                                'code'              => $row[1],
+                                'course_title'      => $row[2],
+                                'semester'          => $row[3],
+                                'year_level'        => $row[4],
+                                'program'           => $row[5],
+                                'department'        => $row[6],
+                                'employee_id'       => $row[7],
+                                'assigned_poc'      => $row[8],
+                                'email'             => $row[9],
+                            ]
+                        );
+                    }
+
                     fclose($handle);
-                    Log::warning('CSV upload failed: invalid format.', ['header' => $header]);
-                    return response()->json(['message' => 'Invalid CSV format.'], 400);
+
+                    if ($rowCount > 0) {
+                        ImplementingSubjects::whereNotIn('course_code', $csvCourseCodes)->delete();
+                        Log::info("CSV sync complete. {$rowCount} rows processed. Old records removed.");
+                    } else {
+                        ImplementingSubjects::truncate();
+                        Log::info("CSV was empty. All records truncated.");
+                    }
+
+                    return response()->json(['message' => 'Data synced successfully!', 'path' => $path], 200);
                 }
 
-                $csvCourseCodes = [];
-                $rowCount = 0;
-
-                while (($row = fgetcsv($handle)) !== false) {
-                    $rowCount++;
-                    $csvCourseCodes[] = $row[0]; // Track course_code for cleanup
-
-                    ImplementingSubjects::updateOrCreate(
-                        ['course_code' => $row[0]],
-                        [
-                            'code'              => $row[1],
-                            'course_title'      => $row[2],
-                            'semester'          => $row[3],
-                            'year_level'        => $row[4],
-                            'program'           => $row[5],
-                            'department'        => $row[6],
-                            'employee_id'       => $row[7],
-                            'assigned_poc'      => $row[8],
-                            'email'             => $row[9],
-                        ]
-                    );
-
-                    HistoricalImplementingSubjects::updateOrCreate(
-                        ['course_code' => $row[0]],
-                        [
-                            'code'              => $row[1],
-                            'course_title'      => $row[2],
-                            'semester'          => $row[3],
-                            'year_level'        => $row[4],
-                            'program'           => $row[5],
-                            'department'        => $row[6],
-                            'employee_id'       => $row[7],
-                            'assigned_poc'      => $row[8],
-                            'email'             => $row[9],
-                        ]
-                    );
-                }
-
-                fclose($handle);
-
-                if ($rowCount > 0) {
-                    ImplementingSubjects::whereNotIn('course_code', $csvCourseCodes)->delete();
-                    Log::info("CSV sync complete. {$rowCount} rows processed. Old records removed.");
-                } else {
-                    ImplementingSubjects::truncate();
-                    Log::info("CSV was empty. All records truncated.");
-                }
-
-                return response()->json(['message' => 'Data synced successfully!', 'path' => $path], 200);
+                return response()->json(['message' => 'Failed to read the file.'], 400);
             }
 
-            return response()->json(['message' => 'Failed to read the file.'], 400);
+            return response()->json(['message' => 'No file uploaded.'], 400);
         }
 
-        return response()->json(['message' => 'No file uploaded.'], 400);
-    }
-
-        // Get class data based on employee_id and subjects semester
         public function getClassData($employee_id)
         {
             try {
+                $requestedSemester = request()->query('semester');
+                if (!$requestedSemester) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Semester parameter is required.'
+                    ], 422);
+                }
 
-                // Determine the current semester based on the current month
-                $currentMonth = now()->month;
+                // Get semester months based on the requested semester
+                $semesterMonths = $this->getSemesterMonths($requestedSemester);
+                if (empty($semesterMonths)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid semester format.'
+                    ], 422);
+                }
 
-                if ($currentMonth >= 1 && $currentMonth <= 5) {
-                    $currentSemester = '2nd Semester'; // January to May
-                } elseif ($currentMonth >= 8 && $currentMonth <= 12) {
-                    $currentSemester = '1st Semester'; // August to December
-                } else {
+                $year = date('Y'); // Get the current year
+                $month = Carbon::now()->month; // Get the current month
+
+                // Fetch class data for the employee
+                $classData = ImplementingSubjects::where('employee_id', $employee_id)
+                ->where('semester', $requestedSemester)
+                ->get();
+
+                if ($classData->isEmpty()) {
                     return response()->json([
                         'success' => false,
                         'message' => 'No Classes Available'
-                    ]);
+                    ], 404);
                 }
 
-                // Query for subjects associated with the given employee_id and current semester
-                $classData = ImplementingSubjects::where('employee_id', $employee_id)
-                ->where('semester', $currentSemester)
-                ->get();
+                // Set the start and end date based on the current month
+                list($startDate, $endDate, $semester) = $this->getSemesterStartEndDate($month, $year);
 
-                if ($classData->isNotEmpty()) {
-                    return response()->json([
-                        'success' => true,
-                        'classData' => $classData
-                    ]);
+                // Iterate through each class subject to calculate EPGF and completion rates
+                foreach ($classData as $subject) {
+                    $epgfByMonth = [];
+                    $completionByMonth = [];
+                    $totalCompletion = 0;
+                    $totalEpgf = 0;
+                    $totalMonths = count($semesterMonths);
+
+                    // For each month in the semester, fetch relevant historical data
+                    foreach ($semesterMonths as $month) {
+                        // Fetch students based on the month in the 'created_at' field
+                        $histData = HistoricalClassLists::where('course_code', $subject->course_code)
+                        ->where('status', 'active')
+                        ->whereBetween('created_at', [$startDate, $endDate])
+                        ->whereMonth('created_at', $month)
+                        ->orderBy('lastname', 'asc')
+                        ->get();
+
+                        $totalEnrolledInMonth = $histData->count(); // Total number of students enrolled this month
+
+                        // Count students who have a non-null epgf_average (i.e., completed students)
+                        $numberOfCompletedStudents = $histData->filter(function ($student) {
+                            // Exclude students with "0.00" value for epgf_average
+                            return !is_null($student->epgf_average) && $student->epgf_average !== '' && $student->epgf_average !== '0.00';
+                        })->count();
+
+                        // Calculate the completion rate for this month
+                        $monthCompletionRate = $totalEnrolledInMonth > 0 ? ($numberOfCompletedStudents / $totalEnrolledInMonth) * 100 : 0;
+
+                        // Calculate the average EPGF for the month
+                        $epgf = $histData->isEmpty() ? 0 : $histData->avg('epgf_average');
+
+                        // Store monthly data
+                        $epgfByMonth[$month] = $epgf;
+                        $completionByMonth[$month] = round($monthCompletionRate, 2); // Round the completion rate to 2 decimal places
+
+                        // Accumulate totals for overall average calculation
+                        $totalEpgf += $epgf;
+                        $totalCompletion += $monthCompletionRate;
+                    }
+
+                    // Calculate overall averages
+                    $epgfAverage = $totalEpgf / $totalMonths;
+                    $completionRate = $totalCompletion / $totalMonths;
+
+                    // Save or update the ImplementingSubjects record
+                    $implementingSubject = ImplementingSubjects::updateOrCreate(
+                        [
+                            'course_code' => $subject->course_code,
+                            'semester' => $requestedSemester
+                        ],
+                        [
+                            'epgf_average' => $epgfAverage, // Overall EPGF average
+                            'completion_rate' => $completionRate, // Overall completion rate
+                        ]
+                    );
+
+                    // Saving the same data in HistoricalImplementingSubjects (Historical data)
+                    $historicalSubject = HistoricalImplementingSubjects::updateOrCreate(
+                        [
+                            'course_code' => $subject->course_code,
+                            'semester' => $requestedSemester
+                        ],
+                        [
+                            'epgf_average' => $epgfAverage, // Overall EPGF average
+                            'completion_rate' => $completionRate, // Overall completion rate
+                        ]
+                    );
+
+                    // Attach monthly data to the response (not saved in DB)
+                    $subject->epgf_by_month = $epgfByMonth;
+                    $subject->completion_by_month = $completionByMonth;
                 }
 
+                // Return the class data with the computed values
                 return response()->json([
-                    'success' => false,
-                    'message' => 'No Classes Available'
+                    'success' => true,
+                    'classData' => $classData
                 ]);
             } catch (\Exception $e) {
+                Log::error("Error in getClassData: " . $e->getMessage());
                 return response()->json([
                     'success' => false,
                     'message' => 'Server error: ' . $e->getMessage()
@@ -278,31 +362,62 @@ class ImplementingSubjectController extends Controller
             }
         }
 
-        public function getClassDataGraph($employee_id)
+        // Helper function to get start and end dates based on the current month
+        private function getSemesterStartEndDate($month, $year)
+        {
+            if ($month >= 8 && $month <= 12) {
+                $semester = '1st Semester';
+                $startDate = Carbon::create($year, 8, 1)->startOfDay();
+                $endDate = Carbon::create($year, 12, 31)->endOfDay();
+            } elseif ($month >= 1 && $month <= 5) {
+                $semester = '2nd Semester';
+                $startDate = Carbon::create($year, 1, 1)->startOfDay();
+                $endDate = Carbon::create($year, 5, 31)->endOfDay();
+            } else {
+                return response()->json(['error' => 'Invalid month. Must be between January–May or August–December.'], 422);
+            }
+
+            return [$startDate, $endDate, $semester];
+        }
+
+        // Helper function for getting the semester months
+        private function getSemesterMonths($semester)
+        {
+            return match (strtolower(trim($semester))) {
+                '1st semester' => [8, 9, 10, 11, 12],  // August to December
+                '2nd semester' => [1, 2, 3, 4, 5],     // January to May
+                default => []
+            };
+        }
+
+        public function getClassDataGraph($employee_id, Request $request)
         {
             try {
-                // Determine the current semester based on current month
-                $currentMonth = now()->month;
-                $currentSemester = null;
+                // Get the school year and semester from the request
+                $schoolYear = $request->query('schoolYear');  // e.g., '2024/2025'
+                $semester = $request->query('semester');      // e.g., '2nd Semester'
 
-                if ($currentMonth >= 1 && $currentMonth <= 5) {
-                    $currentSemester = '2nd Semester'; // Jan–May
-                } elseif ($currentMonth >= 8 && $currentMonth <= 12) {
-                    $currentSemester = '1st Semester'; // Aug–Dec
-                }
-
-                if (!$currentSemester) {
+                // Validate the school year format (e.g., 2024/2025)
+                if (!preg_match('/^\d{4}\/\d{4}$/', $schoolYear)) {
                     return response()->json([
                         'success' => false,
-                        'message' => 'No valid semester for the current month.'
                     ]);
                 }
 
-                // Get all subjects for the employee filtered by semester
-                $classData = ImplementingSubjects::where('employee_id', $employee_id)
-                ->where('semester', $currentSemester)
-                ->get(['course_code', 'course_title']);
+                // Split the school year into start and end years
+                list($startYear, $endYear) = explode('/', $schoolYear);
 
+                // Get the start and end dates of the academic year
+                $startDate = Carbon::createFromFormat('Y', $startYear)->startOfYear();
+                $endDate = Carbon::createFromFormat('Y', $endYear)->endOfYear();
+
+                // Query data from ImplementingSubjects table
+                $classData = ImplementingSubjects::where('employee_id', $employee_id)
+                ->where('semester', $semester)
+                ->whereBetween('created_at', [$startDate, $endDate])  // Filter by created_at range
+                ->get(['course_code', 'course_title', 'created_at']);  // Add 'created_at' for reference if needed
+
+                // Return data if available
                 if ($classData->isNotEmpty()) {
                     return response()->json([
                         'success' => true,
@@ -310,8 +425,8 @@ class ImplementingSubjectController extends Controller
                     ]);
                 } else {
                     return response()->json([
-                        'success' => true,  // Set success to true even when no classes are available
-                        'classData' => []   // Return an empty array
+                        'success' => true,
+                        'classData' => []  // Empty array if no data found
                     ]);
                 }
             } catch (\Exception $e) {
@@ -322,6 +437,7 @@ class ImplementingSubjectController extends Controller
                 ], 500);
             }
         }
+
 
         public function getEmployeeDepartment($userType, $employeeId)
         {
@@ -536,15 +652,17 @@ class ImplementingSubjectController extends Controller
 
         public function getSchoolYears()
         {
+            // Get the current year
+            $currentYear = date('Y');
+
             // Extract unique years from the created_at column using Eloquent
-            $schoolYears = EieReport::selectRaw("DISTINCT CONCAT(YEAR(created_at), '/', YEAR(created_at) + 1) AS school_year")
+            $schoolYears = EieReport::selectRaw("DISTINCT CONCAT(YEAR(created_at) - 1, '/', YEAR(created_at)) AS school_year")
             ->orderBy('school_year', 'desc')
             ->pluck('school_year');
 
             // Fallback if no records are found
             if ($schoolYears->isEmpty()) {
-                $currentYear = date('Y');
-                $schoolYears = collect(["$currentYear/" . ($currentYear + 1)]);
+                $schoolYears = collect(["$currentYear/" . ($currentYear - 1)]);
             }
 
             return response()->json($schoolYears);

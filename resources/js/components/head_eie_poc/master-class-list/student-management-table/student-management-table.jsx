@@ -241,7 +241,7 @@ const StudentManagementTable = ({
     () => [
       {
         Header: "No.",
-        accessor: "class_lists_id",
+        Cell: ({ row }) => row.index + 1,
       },
       {
         Header: "Full Name",
@@ -302,15 +302,15 @@ const StudentManagementTable = ({
       },
       {
         Header: "Pronunciation",
-        accessor: "pronunciation",
+        accessor: "pronunciation_average",
       },
       {
         Header: "Grammar",
-        accessor: "grammar",
+        accessor: "grammar_average",
       },
       {
         Header: "Fluency",
-        accessor: "fluency",
+        accessor: "fluency_average",
       },
       {
         Header: "EPGF Average",

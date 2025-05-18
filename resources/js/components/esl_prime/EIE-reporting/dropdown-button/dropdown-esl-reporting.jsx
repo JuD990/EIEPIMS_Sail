@@ -140,8 +140,11 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
         {/* School Year Dropdown */}
         <div className="esl-dashboard-dropdown-wrapper">
-        <button className="esl-dashboard-dropdown-btn" onClick={() => setIsSchoolYearOpen((prev) => !prev)}>
-        {schoolYear || "Select School Year"}
+        <button
+        className="esl-dashboard-dropdown-btn"
+        onClick={() => setIsSchoolYearOpen((prev) => !prev)}
+        >
+        {schoolYear ? schoolYear.replace('/', '-') : "Select School Year"}
         <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
         </button>
         {isSchoolYearOpen && (
@@ -195,16 +198,16 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
         <div className="relative group">
         <button
-        className="esl-dashboard-refresh-btn"
+        className="eie-head-dashboard-refresh-btn"
         onClick={handleRefresh}
         disabled={loading}
         >
-        <IoRefresh className="esl-dashboard-refresh-icon" />
+        <IoRefresh className="eie-head-dashboard-refresh-icon" />
         {loading ? 'Refreshing...' : ''}
         </button>
         {/* Custom Tooltip */}
         <div className="absolute bottom-full mb-2 hidden group-hover:block bg-white text-black text-sm rounded px-2 py-1 z-10 whitespace-nowrap shadow-lg right-0 mr-4">
-        {loading ? 'Refreshing Reports...' : 'Click to refresh'}
+        {loading ? 'Refreshing dashboard...' : 'Click to refresh'}
         </div>
         </div>
 

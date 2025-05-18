@@ -1,5 +1,5 @@
 /* Base Card Styling */
-.student-monthly-performance-summary-card-1 {
+.student-monthly-performance-summary-card-5 {
     background-color: white;
     border: 1px solid black;
     border-radius: 10px;
@@ -11,10 +11,11 @@
     justify-content: flex-start; /* Align text at the top */
     padding: 20px;
     font-family: 'Poppins', sans-serif;
+    margin-bottom: 50px;
 }
 
 /* Individual Card Sizes */
-.card-1 {
+.card-5 {
     width: 900px;
     height: 400px;
     background-color: white;
@@ -22,7 +23,7 @@
 }
 
 /* Title Styling */
-.card-title-1 {
+.card-title-5 {
     font-size: 22px;
     font-weight: bold;
     font-family: "Poppins";
@@ -32,15 +33,15 @@
     margin: 0;
 }
 
-.card-header {
-    margin-bottom: 0; /* Remove any bottom margin */
+.card-header-5 {
+    margin-top: 50px; /* Remove any bottom margin */
     background-color: #F4F7FC; /* Background color for the header */
     padding: 10px;
     border-radius: 8px;
     width: 100%; /* Ensure it stretches across the card */
 }
 
-.card-body {
+.card-body-5 {
     display: flex;
     justify-content: center; /* Center the table horizontally */
     align-items: flex-start; /* Align the table at the top */
@@ -50,21 +51,4 @@
     padding-top: 0; /* Removed any padding at the top */
     margin-top: 0; /* Ensures there’s no extra space */
     text-align: center;
-}
-
-table {
-    width: 100%; /* Maximizes the table width to fit the card */
-    border-collapse: collapse;
-    margin-bottom: 30px; /* Remove any margin at the top */
-}
-
-th, td {
-    padding: 8px;
-    text-align: center;
-    border-bottom: 1px solid #ddd; /* Optional: Adds a thin border between rows */
-}
-
-th {
-    background-color: #F4F7FC; /* Set the background color for the table header */
-    font-weight: bold;
 }

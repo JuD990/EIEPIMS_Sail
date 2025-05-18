@@ -3,13 +3,28 @@ import axios from "axios";
 import "./student-management-dropdown.css";
 import { FaChevronDown } from "react-icons/fa";
 
-const StudentManagementDropdown = ({ selectedTitle, selectedCode, onTitleChange, onCodeChange }) => {
+const StudentManagementDropdown = ({ selectedTitle, selectedCode, selectedProgram, onTitleChange, onCodeChange, onProgramChange }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isProgramDropdownOpen, setIsProgramDropdownOpen] = useState(false);  // New state for program dropdown
   const [courses, setCourses] = useState([]);
+  const [programs, setPrograms] = useState([]); // For storing program data
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        const response = await axios.get("/api/classlists/departments");
+
+        if (response.data && response.data.programs) {
+          setPrograms(response.data.programs);
+        }
+      } catch (err) {
+        console.error("Error fetching programs:", err);
+        setError("Failed to load programs. Please try again.");
+      }
+    };
+
     const fetchCourses = async () => {
       try {
         const employeeId = localStorage.getItem("employee_id");
@@ -41,16 +56,22 @@ const StudentManagementDropdown = ({ selectedTitle, selectedCode, onTitleChange,
       }
     };
 
+    fetchPrograms();
     fetchCourses();
   }, []);
 
   const handleReset = () => {
     onTitleChange(null);
     onCodeChange(null);
+    onProgramChange(null);  // Reset program as well
   };
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
+  };
+
+  const toggleProgramDropdown = () => {
+    setIsProgramDropdownOpen((prev) => !prev);
   };
 
   const getSelectedText = () => {
@@ -61,10 +82,40 @@ const StudentManagementDropdown = ({ selectedTitle, selectedCode, onTitleChange,
   return (
     <div className="eie-head-student-dropdown-container">
     {isLoading ? (
-      <p>Loading courses...</p>
+      <p>Loading...</p>
     ) : (
       <>
-      {/* Single Merged Dropdown */}
+      {/* Program Dropdown */}
+      <div className="student-dropdown-wrapper">
+      <button className="student-dropdown-btn" onClick={toggleProgramDropdown}>
+      {selectedProgram || "Select Program"}
+      <FaChevronDown
+      className={`dropdown-arrow ${isProgramDropdownOpen ? "open" : ""}`}
+      />
+      </button>
+      {isProgramDropdownOpen && (
+        <div className="student-dropdown-menu">
+        {programs.length === 0 ? (
+          <p className="student-dropdown-item">No programs available</p>
+        ) : (
+          programs.map((program, index) => (
+            <p
+            key={index}
+            className={`student-dropdown-item ${selectedProgram === program ? "selected" : ""}`}
+            onClick={() => {
+              onProgramChange(program);
+              setIsProgramDropdownOpen(false);
+            }}
+            >
+            {program}
+            </p>
+          ))
+        )}
+        </div>
+      )}
+      </div>
+
+      {/* Course Dropdown */}
       <div className="student-dropdown-wrapper">
       <button className="student-dropdown-btn" onClick={toggleDropdown}>
       {getSelectedText()}
@@ -80,12 +131,10 @@ const StudentManagementDropdown = ({ selectedTitle, selectedCode, onTitleChange,
           courses.map((course, index) => (
             <p
             key={index}
-            className={`student-dropdown-item ${
-              selectedCode === course.code ? "selected" : ""
-            }`}
+            className={`student-dropdown-item ${selectedCode === course.code ? "selected" : ""}`}
             onClick={() => {
               onTitleChange(course.title);
-              onCodeChange(course.code); // this is the actual value
+              onCodeChange(course.code);
               setIsDropdownOpen(false);
             }}
             >

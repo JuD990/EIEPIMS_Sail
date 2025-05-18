@@ -1,150 +1,213 @@
 @import url('https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 /* Parent container for subjects */
 .example-subjects {
-    display: flex; /* Use Flexbox for layout */
-    flex-direction: column; /* Arrange subjects in a column */
-    justify-content: center; /* Center subjects vertically */
-    align-items: center; /* Center subjects horizontally */
-    padding: 20px; /* Add some padding around the container */
-    margin-top: 50px; /* Add space from the top */
-    width: 100%; /* Make subjects take up the full width of the container */
-    max-width: 2000px; /* Optional: Limit the maximum width */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 20px;
+    margin-top: 50px;
+    width: 100%;
+    max-width: 2000px;
     gap: 40px;
+    margin-left: 150px;
+    box-sizing: border-box;
 }
-
 
 /* Combined card styling */
 .combined-card {
-    background-color: white; /* White background for the entire card */
-    border-radius: 15px; /* Rounded corners */
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); /* Shadow for depth */
-    padding: 0; /* Remove padding */
-    display: flex; /* Flexbox for content alignment inside */
-    justify-content: flex-start; /* Align content to the left side */
-    align-items: center; /* Vertically center-align children */
-}
-
-/* Interior card (blue part) aligned to the left */
-.combined-card .interior-card {
-    background-color: #FFA047; /* Light blue background */
-    border-radius: 15px; /* Rounded corners */
-    width: 50px; /* Set width for the blue card */
-    height: 200px; /* Set height for the blue card */
-}
-
-/* Content area inside the white card (centered) */
-.combined-card .content {
-    background-color: white; /* White background for content area */
-    display: flex; /* Use flexbox for horizontal layout */
-    justify-content: center;
-    align-items: center;
-    flex-direction: column; /* Stack content vertically */
-}
-
-/* Implementing subject content in a row */
-.implementing-subject-1 {
+    background-color: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+    padding: 0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
     width: 950px;
+    box-sizing: border-box;
 }
 
-/* Optional: Add styles for the image if necessary */
-.implementing-subject-1 img {
-    width: 30px; /* Set width of the image */
-    height: auto; /* Maintain aspect ratio */
+/* Interior card (colored part) */
+.combined-card .interior-card {
+    background-color: var(--course-color, #FFA047);
+    border-radius: 15px 0 0 15px;
+    width: 60px;
+    min-height: 200px;
+    flex-shrink: 0;
 }
 
-/* Aligning subject name, subject code, and student number in a row */
-.subject-info {
-    display: flex; /* Flexbox layout for row alignment */
-    align-items: center; /* Vertically center-align the items */
-    text-decoration: none;  /* Removes the underline */
-    color: inherit;         /* Inherits the color from the parent element */
-    
-}
-
-.subject-info-1 {
-    display: flex; /* Flexbox layout for row alignment */
-    align-items: center; /* Vertically center-align the items */
-    justify-content: flex-start; /* Align items to the left */
-    padding-left: 150px; /* Adds space to the left inside the element */
-}
-
-/* Subject name styling with proper spacing */
-.course-title{
-    margin: 10px 15px; /* Horizontal space between subject name and others */
-    text-align: left; /* Align text to the left */
-    margin-left: 32px;
-    font-size: 25px; /* Adjust font size for subject name */
-    font-family: "Epilogue";
+/* Content area inside the white card */
+.implementing-subject-1 {
+    padding: 20px 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: "Poppins", sans-serif;
     color: #383838;
+}
+
+/* Subject info container */
+.subject-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: nowrap;
     white-space: nowrap;
 }
 
-/* Subject code styling */
+/* Course title styling */
+.course-title {
+    font-family: "Epilogue", sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: #383838;
+    margin: 0;
+    min-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Course code styling */
 .course-code {
-    margin: 0 15px; /* Horizontal space between subject code and others */
-    padding: 0; /* Remove padding */
-    text-align: left; /* Align text to the left */
-    color: #8E8E8E;
-    font-size: 20px; /* Adjust font size for subject code */
-    font-family: "Poppins";
+    font-family: "Poppins", sans-serif;
+    font-size: 18px;
     font-weight: 400;
-}
-
-
-/* Student number styling */
-.student-number {
-    margin: 0; /* Horizontal space between student number and others */
-    text-align: left; /* Align text to the left */
-    display: flex; /* Use flex to align the image and number in a row */
-    align-items: center; /* Vertically center-align the image and number */
-    margin-top: 15px;
-    font-size: 24px;
     color: #8E8E8E;
-    font-family: "Poppins";
+    margin: 0 10px;
+    white-space: nowrap;
 }
 
-/* Optional: Style the image inside student-number */
+/* Student number container */
+.student-number {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: "Poppins", sans-serif;
+    font-size: 22px;
+    color: #8E8E8E;
+    min-width: 90px;
+}
+
+.student-number p {
+    margin-top: 13px;
+}
+
+/* Student number icon */
 .student-number img {
-    width: 50px; /* Adjust the width of the image */
-    height: auto; /* Maintain aspect ratio */
-    margin-bottom: 15px;
-    margin-right: 10px; /* Space between the icon and the number */
-    
+    width: 40px;
+    height: auto;
 }
 
-/* Class performance section styling */
+/* Class performance section */
 .class-performance {
-    width: 100%; /* Full width */
-    margin-top: 45px; /* Space before class performance */
+    margin-top: 40px;
+    width: 100%;
 }
 
 .eie-averages {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
+    gap: 20px;
 }
 
-.pgf-average, .completion-rate, .proficiency-level {
+.pgf-average,
+.completion-rate,
+.proficiency-level {
+    flex: 1;
     text-align: center;
-    flex: 1; /* Distribute space evenly */
 }
 
-.pgf-average p, .completion-rate p, .proficiency-level p {
+.pgf-average p:first-child,
+.completion-rate p:first-child,
+.proficiency-level p:first-child {
+    font-weight: 700;
+    font-size: 22px;
     margin: 0;
-    font-size: 18px; /* Adjust text size */
-    font-family: 'Poppins';
+    color: #383838;
 }
 
-.pgf-average p:first-child, .completion-rate p:first-child, .proficiency-level p:first-child {
-    font-weight: bold; /* Make the metric (e.g., PGF Average) bold */
-    font-size: 20px; /* Adjust text size */
+.pgf-average p:last-child,
+.completion-rate p:last-child,
+.proficiency-level p:last-child {
+    font-weight: 400;
+    font-size: 14px;
+    margin: 4px 0 0;
+    color: #8E8E8E;
 }
 
-.no-class-available{
+/* Scrollable row for months */
+.scroll-row {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 15px 0;
+    width: 950px;
+    box-sizing: border-box;
+}
+
+/* Month box styling */
+.month-box {
+    min-width: 140px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    color: #383838;
+    text-decoration: none;
+    transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 15px;
+}
+
+/* Hover effect using the same color */
+.month-box:hover {
+    box-shadow: 0 4px 12px var(--course-color, rgba(255, 160, 71, 0.6));
+    transition: box-shadow 0.3s ease;
+}
+
+/* Month title */
+.month-box h2 {
+    color: var(--course-color);
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.stat-box {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-box p {
+    margin: 0;
+    font-weight: 700;
+    font-size: 18px;
+    color: #383838;
+}
+
+.stat-box strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #8E8E8E;
+}
+
+/* No classes available message */
+.no-class-available {
     margin-top: 50px;
     text-align: center;
     font-size: 24px;
-    font-family: 'Poppins';
-    margin-left: 250px;
+    font-family: 'Poppins', sans-serif;
+    color: #8E8E8E;
+    margin-left: 0;
+    width: 100%;
+    max-width: 950px;
 }

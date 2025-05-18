@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import axios from "axios";
 import "./graph-dropdown.css";
-import apiService from "@services/apiServices";
+
+export const semesters = ["1st Semester", "2nd Semester"]; // Export semesters for reuse
 
 const GraphDropdown = ({
     selectedSchoolYear,
@@ -13,7 +14,11 @@ const GraphDropdown = ({
     const [isSchoolYearOpen, setIsSchoolYearOpen] = useState(false);
     const [isSemesterOpen, setIsSemesterOpen] = useState(false);
     const [schoolYears, setSchoolYears] = useState([]);
-    const semesters = ["1st Semester", "2nd Semester"];
+
+    const getDefaultSemester = () => {
+        const currentMonth = new Date().getMonth() + 1;
+        return currentMonth >= 8 && currentMonth <= 12 ? "1st Semester" : "2nd Semester";
+    };
 
     const initializeDefaults = async () => {
         try {
@@ -25,12 +30,9 @@ const GraphDropdown = ({
                 const selectedYear = schoolYearList[0];
                 setSelectedSchoolYear(selectedYear);
 
+                // Only set semester if it's not set or invalid
                 if (!selectedSemester || !semesters.includes(selectedSemester)) {
-                    const currentMonth = new Date().getMonth() + 1;
-                    const defaultSemester = currentMonth >= 8 && currentMonth <= 12
-                    ? "1st Semester"
-                    : "2nd Semester";
-                    setSelectedSemester(defaultSemester);
+                    setSelectedSemester(getDefaultSemester());
                 }
             }
         } catch (error) {
@@ -40,17 +42,13 @@ const GraphDropdown = ({
 
     useEffect(() => {
         initializeDefaults();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const resetFilters = () => {
         if (schoolYears.length > 0) {
             setSelectedSchoolYear(schoolYears[0]);
-
-            const currentMonth = new Date().getMonth() + 1;
-            const defaultSemester = currentMonth >= 8 && currentMonth <= 12
-            ? "1st Semester"
-            : "2nd Semester";
-            setSelectedSemester(defaultSemester);
+            setSelectedSemester(getDefaultSemester());
         }
     };
 

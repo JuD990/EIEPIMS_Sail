@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './month-semesters.css';
 
 const data = {
@@ -27,31 +28,31 @@ const SemestralStats = () => {
 
   return (
     <div className="semestral-wrapper">
-      <div className="header">
-        <h1 className="title">Class Record</h1>
-        <select className="dropdown" value={semester} onChange={handleChange}>
-          <option value="1st Semester">1st Semester</option>
-          <option value="2nd Semester">2nd Semester</option>
-        </select>
-      </div>
+    <div className="header">
+    <h1 className="title">Class Record</h1>
+    <select className="dropdown" value={semester} onChange={handleChange}>
+    <option value="1st Semester">1st Semester</option>
+    <option value="2nd Semester">2nd Semester</option>
+    </select>
+    </div>
 
-      <div className="scroll-row">
-        {data[semester].map(({ month, epgf, completion }) => (
-            <div className="month-box" key={month}>
-            <h2>{month}</h2>
-                <div className="stats-row">
-                <div className="stat-box">
-                    <p>{epgf}</p>
-                    <strong>EPGF Average</strong>
-                </div>
-                <div className="stat-box">
-                    <p>{completion}%</p>
-                    <strong>Completion Rate</strong>
-                </div>
-                </div>
-            </div>
-        ))}
+    <div className="scroll-row">
+    {data[semester].map(({ month, epgf, completion }) => (
+      <Link to={`/monthly-scorecard?month=${month}`} className="month-box" key={month}>
+      <h2>{month}</h2>
+      <div className="stats-row">
+      <div className="stat-box">
+      <p>{epgf}</p>
+      <strong>EPGF Average</strong>
       </div>
+      <div className="stat-box">
+      <p>{completion}%</p>
+      <strong>Completion Rate</strong>
+      </div>
+      </div>
+      </Link>
+    ))}
+    </div>
     </div>
   );
 };

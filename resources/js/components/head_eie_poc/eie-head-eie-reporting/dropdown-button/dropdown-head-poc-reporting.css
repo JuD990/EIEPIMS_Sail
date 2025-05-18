@@ -65,3 +65,20 @@
     font-weight: bold;
     background-color: #e0e0e0;
 }
+
+.eie-head-dashboard-refresh-btn {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #DC2626;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 55px;
+}
+
+.eie-head-dashboard-refresh-btn:hover {
+    background-color: #FF474A;
+}

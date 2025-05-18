@@ -140,8 +140,11 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
         {/* School Year Dropdown */}
         <div className="esl-dashboard-dropdown-wrapper">
-        <button className="esl-dashboard-dropdown-btn" onClick={() => setIsSchoolYearOpen((prev) => !prev)}>
-        {schoolYear || "Select School Year"}
+        <button
+        className="esl-dashboard-dropdown-btn"
+        onClick={() => setIsSchoolYearOpen((prev) => !prev)}
+        >
+        {schoolYear ? schoolYear.replace('/', '-') : "Select School Year"}
         <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
         </button>
         {isSchoolYearOpen && (

@@ -37,43 +37,6 @@ const eslPrimeDiagnostics = () => {
         detailOfResponse: "",
     });
 
-    const [remarks, setRemarks] = useState({
-        "PGF Specific Remarks": "",
-        "School Year Highlight": "",
-        "School Year Lowlight": "",
-        "SPARK Highlight": "",
-        "SPARK Lowlight": "",
-        "Usage in School/Online (When in School)": "",
-        "Usage Offline (Home or Outside)": "",
-        "Support Needed": ""
-    });
-
-    const handleClear = () => {
-        setRatings({});
-        setOverallAverage("0.00");
-        setDropdownValues({
-            consistency: "",
-            clarity: "",
-            articulation: "",
-            intonationAndStress: "",
-            accuracy: "",
-            clarityOfThought: "",
-            syntax: "",
-            qualityOfResponse: "",
-            detailOfResponse: "",
-        });
-        setRemarks({
-            "PGF Specific Remarks": "",
-            "School Year Highlight": "",
-            "School Year Lowlight": "",
-            "SPARK Highlight": "",
-            "SPARK Lowlight": "",
-            "Usage in School/Online (When in School)": "",
-                   "Usage Offline (Home or Outside)": "",
-                   "Support Needed": ""
-        });
-    };
-
     useEffect(() => {
         const fetchVersionAndOptions = async () => {
             try {
@@ -142,6 +105,43 @@ const eslPrimeDiagnostics = () => {
 
     const handleCategoryAveragesChange = (averages) => {
         setCategoryAverages(averages);
+    };
+
+    const [remarks, setRemarks] = useState({
+        "PGF Specific Remarks": "",
+        "School Year Highlight": "",
+        "School Year Lowlight": "",
+        "SPARK Highlight": "",
+        "SPARK Lowlight": "",
+        "Usage in School/Online (When in School)": "",
+        "Usage Offline (Home or Outside)": "",
+        "Support Needed": ""
+    });
+
+    const handleClear = () => {
+        setRatings({});
+        setOverallAverage("0.00");
+        setDropdownValues({
+            consistency: "",
+            clarity: "",
+            articulation: "",
+            intonationAndStress: "",
+            accuracy: "",
+            clarityOfThought: "",
+            syntax: "",
+            qualityOfResponse: "",
+            detailOfResponse: "",
+        });
+        setRemarks({
+            "PGF Specific Remarks": "",
+            "School Year Highlight": "",
+            "School Year Lowlight": "",
+            "SPARK Highlight": "",
+            "SPARK Lowlight": "",
+            "Usage in School/Online (When in School)": "",
+            "Usage Offline (Home or Outside)": "",
+            "Support Needed": ""
+        });
     };
 
     const [formData, setFormData] = useState({

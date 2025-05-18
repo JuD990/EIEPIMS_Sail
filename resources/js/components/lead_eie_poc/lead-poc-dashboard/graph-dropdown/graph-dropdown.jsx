@@ -89,13 +89,11 @@ const GraphDropdown = ({
         {/* School Year Dropdown */}
         <div className="eie-head-graph-dropdown-wrapper">
         <button
-        className="eie-head-graph-dropdown-btn"
+        className="esl-dashboard-dropdown-btn"
         onClick={() => setIsSchoolYearOpen((prev) => !prev)}
         >
-        {formattedSchoolYear}
-        <FaChevronDown
-        className={`eie-head-graph-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`}
-        />
+        {schoolYear ? schoolYear.replace('/', '-') : "Select School Year"}
+        <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
         </button>
         {isSchoolYearOpen && (
             <div className="eie-head-graph-dropdown-menu">

@@ -110,34 +110,6 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
     return (
         <div className="esl-dashboard-controls">
         <div className="esl-dashboard-dropdown-container">
-        {/* Department Dropdown */}
-        <div className="esl-dashboard-dropdown-wrapper">
-        <button className="esl-dashboard-dropdown-btn" onClick={() => setIsDepartmentOpen((prev) => !prev)}>
-        {department || "Select Department"}
-        <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isDepartmentOpen ? "open" : ""}`} />
-        </button>
-        {isDepartmentOpen && (
-            <div className="esl-dashboard-dropdown-menu">
-            {departments.length > 0 ? (
-                departments.map((dept, index) => (
-                    <p
-                    key={index}
-                    className={`esl-dashboard-dropdown-item ${department === dept ? "esl-dashboard-selected" : ""}`}
-                    onClick={() => {
-                        setDepartment(dept);
-                        setSelectedDepartment(dept);
-                        setIsDepartmentOpen(false);
-                    }}
-                    >
-                    {dept}
-                    </p>
-                ))
-            ) : (
-                <p className="esl-dashboard-dropdown-item">No Departments</p>
-            )}
-            </div>
-        )}
-        </div>
 
         {/* School Year Dropdown */}
         <div className="esl-dashboard-dropdown-wrapper">

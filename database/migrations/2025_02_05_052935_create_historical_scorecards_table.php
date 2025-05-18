@@ -23,7 +23,6 @@ return new class extends Migration
             $table->decimal('epgf_average', 5, 2);
             $table->string('proficiency_level');
             $table->string('program');
-            $table->integer('active_students');
             $table->string('course_title');
             $table->string('year_level');
 

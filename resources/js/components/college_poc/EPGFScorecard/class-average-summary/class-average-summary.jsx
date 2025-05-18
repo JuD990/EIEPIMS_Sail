@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import './class-average-summary.css';
 
-const ClassAverageSummary = ({ course_code, average, studentCount, evaluatedCount, studentCountActive }) => {
+const ClassAverageSummary = ({ course_code, average, studentCount, evaluatedCount, studentCountActive, month }) => {
   const [epgfAverage, setEpgfAverage] = useState(0); // Default to 0
 
   const epgfProficiencyLevels = [
@@ -39,12 +39,13 @@ const ClassAverageSummary = ({ course_code, average, studentCount, evaluatedCoun
   useEffect(() => {
     const sendDataToBackend = async () => {
       try {
-        const response = await axios.post('/api/store-class-data', {
+        const response = await axios.post('/api/store-class-data-month', {
           course_code,
           completionRate,
           proficiencyLevel: level,
           enrolled_students: studentCount,
           active_students: studentCountActive,
+          month: month,
         });
 
         // Capture epgf_average from response and update state
@@ -66,17 +67,13 @@ const ClassAverageSummary = ({ course_code, average, studentCount, evaluatedCoun
 const epgfAverageValue = isNaN(Number(epgfAverage)) ? 0 : Number(epgfAverage);
 
   // Safely format epgfAverage value with default if it's not valid
-  const formattedEpgfAverage = epgfAverageValue.toFixed(2);
+  const formattedEpgfAverage = average.toFixed(2);
 
   return (
     <div style={{ fontWeight: '600' }} className="class-average-summary-card">
       <div className="class-pgf-average-column">
         <div><strong>{formattedEpgfAverage}</strong></div>
         <div>PGF Average</div>
-      </div>
-      <div className="class-completion-rate-column">
-        <div><strong>{completionRate}%</strong></div>
-        <div>Completion Rate</div>
       </div>
       <div className="class-proficiency-level-column">
         <div style={{ color: color }}><strong>{level}</strong></div>

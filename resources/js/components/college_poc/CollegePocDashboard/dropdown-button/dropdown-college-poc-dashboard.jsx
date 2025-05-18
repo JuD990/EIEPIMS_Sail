@@ -65,7 +65,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
             setSchoolYears(schoolYearList);
 
             if (schoolYearList.length > 0) {
-                const selectedYear = schoolYearList[0]; // Use the first fetched school year
+                const selectedYear = schoolYearList[0];
                 setSchoolYear(selectedYear);
                 setSelectedSchoolYear(selectedYear);
 
@@ -85,36 +85,31 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
     useEffect(() => {
         const currentMonth = new Date().getMonth() + 1;
-
-        fetchDepartments(); // Fetch departments first
-        fetchSchoolYears(currentMonth); // Then fetch school years
+        fetchDepartments();
+        fetchSchoolYears(currentMonth);
     }, []);
 
     const handleRefresh = async () => {
-        setLoading(true); // Start the loading state
-        setError(null); // Reset any previous error
-
+        setLoading(true);
+        setError(null);
         try {
-            // Call API to refresh data
-            const reportResponse = await apiService.post('/eie-reports/store-or-update');
-            window.location.reload();  // Refreshes the page
+            await apiService.post('/eie-reports/store-or-update');
+            window.location.reload();
         } catch (reportError) {
             console.error("Failed to update EIE Reports: ", reportError);
             setError('Failed to update reports');
         } finally {
-            setLoading(false); // Ensure loading state is reset after the process completes
+            setLoading(false);
         }
     };
 
     const handleResetFilters = () => {
-        // Reset Department to its default value (first department in the list)
         if (departments.length > 0) {
             const defaultDepartment = departments[0];
             setDepartment(defaultDepartment);
             setSelectedDepartment(defaultDepartment);
         }
 
-        // Reset School Year to the first one in the list
         if (schoolYears.length > 0) {
             const defaultYear = schoolYears[0];
             setSchoolYear(defaultYear);
@@ -125,6 +120,12 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
             setSemester(defaultSemester);
             setSelectedSemester(defaultSemester);
         }
+    };
+
+    const handleSchoolYearSelect = (year) => {
+        setSchoolYear(year);
+        setSelectedSchoolYear(year);
+        setIsSchoolYearOpen(false);
     };
 
     return (
@@ -160,7 +161,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
                     }`}
                     onClick={() => handleSchoolYearSelect(year)}
                     >
-                    {year.replace("/", "-")} {/* Convert the slash to a dash */}
+                    {year.replace("/", "-")}
                     </p>
                 ))
             ) : (
@@ -194,7 +195,6 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
             </div>
         )}
         </div>
-
         </div>
 
         <div className="relative group">
@@ -206,14 +206,12 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
         <IoRefresh className="eie-head-dashboard-refresh-icon" />
         {loading ? 'Refreshing...' : ''}
         </button>
-        {/* Custom Tooltip */}
         <div className="absolute bottom-full mb-2 hidden group-hover:block bg-white text-black text-sm rounded px-2 py-1 z-10 whitespace-nowrap shadow-lg right-0 mr-4">
         {loading ? 'Refreshing dashboard...' : 'Click to refresh'}
         </div>
         </div>
 
         {error && <p className="error-message">{error}</p>}
-
         </div>
     );
 };

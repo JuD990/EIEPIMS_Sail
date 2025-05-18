@@ -18,100 +18,106 @@ use Illuminate\Support\Collection;
 
 class EieReportController extends Controller
 {
-public function storeOrUpdatePrograms()
-{
-    $currentMonth = Carbon::now()->month;
-    $currentYear = Carbon::now()->year;
-    $programs = ImplementingSubjects::all();
+    public function storeOrUpdatePrograms()
+    {
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        $programs = ImplementingSubjects::all();
 
-    if ($programs->isEmpty()) {
-        return response()->json(['error' => 'No programs found in ImplementingSubjects'], 404);
-    }
-
-    $updatedEntries = [];
-    $newEntries = [];
-
-    foreach ($programs as $program) {
-        if (empty($program->course_code)) {
-            return response()->json([
-                'error' => "Course code is required for program: {$program->program}, year level: {$program->year_level}"
-            ], 422);
+        if ($programs->isEmpty()) {
+            return response()->json(['error' => 'No programs found in ImplementingSubjects'], 404);
         }
 
-        // Count submitted reports
-        $submittedCount = EieScorecardClassReport::where('course_code', $program->course_code)->count();
-        $activeStudents = $program->active_students ?? 0;
+        $updatedEntries = [];
+        $newEntries = [];
 
-        // Calculate completion rate
-        $completionRate = $activeStudents > 0 ? round(($submittedCount / $activeStudents) * 100, 2) : 0;
-        $completionRateExpectation = ($completionRate == 100) ? "Meets Expectation" : "Below Expectation";
+        foreach ($programs as $program) {
+            if (empty($program->course_code)) {
+                return response()->json([
+                    'error' => "Course code is required for program: {$program->program}, year level: {$program->year_level}"
+                ], 422);
+            }
 
-        // Calculate average epgf_average for the course
-        $epgfAverage = ClassLists::where('course_code', $program->course_code)
-            ->avg('epgf_average') ?? 0;
+            // Count only rows with epgf_average > 0
+            $submittedCount = EieScorecardClassReport::where('course_code', $program->course_code)
+            ->where('epgf_average', '>', 0.00)
+            ->count();
 
-        // Determine proficiency level from the average
-        $proficiencyLevel = $this->determineProficiencyLevel($epgfAverage);
+            $activeStudents = $program->active_students ?? 0;
 
-        // Fetch Champion Student
-        $champion = ClassLists::where('course_code', $program->course_code)
-            ->where('epgf_average', '>', 0)
-            ->orderByDesc('epgf_average')
+            // Calculate completion rate
+            $completionRate = $activeStudents > 0
+            ? round(($submittedCount / $activeStudents) * 100, 2)
+            : 0;
+            $completionRateExpectation = ($completionRate == 100) ? "Meets Expectation" : "Below Expectation";
+
+            // Calculate average epgf_average for the course
+            $epgfAverage = ClassLists::where('course_code', $program->course_code)
+            ->select(DB::raw('AVG(COALESCE(epgf_average, 0)) as avg_epgf'))
+            ->value('avg_epgf');
+
+            // Determine proficiency level from the average
+            $proficiencyLevel = $this->determineProficiencyLevel($epgfAverage);
+
+            // Fetch Champion Student
+            $champion = ClassLists::where('course_code', $program->course_code)
+                ->where('epgf_average', '>', 0)
+                ->orderByDesc('epgf_average')
+                ->first();
+
+            $championFullName = $champion ? "{$champion->firstname} {$champion->middlename} {$champion->lastname}" : null;
+            $championId = $champion->class_lists_id ?? null;
+            $championStudentId = $champion->student_id ?? null;
+            $championEpgfAverage = $champion->epgf_average ?? 0;
+            $championProficiencyLevel = $champion ? $this->determineProficiencyLevel($champion->epgf_average) : null;
+
+            // Check if record exists for current month/year
+            $existingRecord = EieReport::where([
+                ['program', $program->program],
+                ['year_level', $program->year_level],
+                ['semester', $program->semester],
+                ['course_code', $program->course_code],
+            ])
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
             ->first();
 
-        $championFullName = $champion ? "{$champion->firstname} {$champion->middlename} {$champion->lastname}" : null;
-        $championId = $champion->class_lists_id ?? null;
-        $championStudentId = $champion->student_id ?? null;
-        $championEpgfAverage = $champion->epgf_average ?? 0;
-        $championProficiencyLevel = $champion ? $this->determineProficiencyLevel($champion->epgf_average) : null;
+            $reportData = [
+                'program' => $program->program,
+                'semester' => $program->semester,
+                'year_level' => $program->year_level,
+                'department' => $program->department,
+                'assigned_poc' => $program->assigned_poc,
+                'course_title' => $program->course_title,
+                'course_code' => $program->course_code,
+                'enrolled_students' => $program->enrolled_students ?? 0,
+                'active_students' => $activeStudents,
+                'completion_rate' => $completionRate,
+                'completion_rate_expectation' => $completionRateExpectation,
+                'epgf_average' => $epgfAverage,
+                'proficiency_level' => $proficiencyLevel,
+                'champion' => $championFullName,
+                'champion_id' => $championId,
+                'champion_student_id' => $championStudentId,
+                'champion_epgf_average' => $championEpgfAverage,
+                'champion_proficiency_level' => $championProficiencyLevel,
+                'submitted' => $submittedCount,
+            ];
 
-        // Check if record exists for current month/year
-        $existingRecord = EieReport::where([
-            ['program', $program->program],
-            ['year_level', $program->year_level],
-            ['semester', $program->semester],
-            ['course_code', $program->course_code],
-        ])
-        ->whereYear('created_at', $currentYear)
-        ->whereMonth('created_at', $currentMonth)
-        ->first();
-
-        $reportData = [
-            'program' => $program->program,
-            'semester' => $program->semester,
-            'year_level' => $program->year_level,
-            'department' => $program->department,
-            'assigned_poc' => $program->assigned_poc,
-            'course_title' => $program->course_title,
-            'course_code' => $program->course_code,
-            'enrolled_students' => $program->enrolled_students ?? 0,
-            'active_students' => $activeStudents,
-            'completion_rate' => $completionRate,
-            'completion_rate_expectation' => $completionRateExpectation,
-            'epgf_average' => $epgfAverage,
-            'proficiency_level' => $proficiencyLevel,
-            'champion' => $championFullName,
-            'champion_id' => $championId,
-            'champion_student_id' => $championStudentId,
-            'champion_epgf_average' => $championEpgfAverage,
-            'champion_proficiency_level' => $championProficiencyLevel,
-            'submitted' => $submittedCount,
-        ];
-
-        if ($existingRecord) {
-            $existingRecord->update($reportData);
-            $updatedEntries[] = $existingRecord->fresh();
-        } else {
-            $newEntries[] = EieReport::create($reportData);
+            if ($existingRecord) {
+                $existingRecord->update($reportData);
+                $updatedEntries[] = $existingRecord->fresh();
+            } else {
+                $newEntries[] = EieReport::create($reportData);
+            }
         }
-    }
 
-    return response()->json([
-        'message' => 'EIE Reports processed successfully',
-        'updated_entries' => $updatedEntries,
-        'new_entries' => $newEntries
-    ]);
-}
+        return response()->json([
+            'message' => 'EIE Reports processed successfully',
+            'updated_entries' => $updatedEntries,
+            'new_entries' => $newEntries
+        ]);
+    }
 
 
 
@@ -407,6 +413,102 @@ public function storeOrUpdatePrograms()
         ]);
     }
 
+
+    public function getEieReportingCollegePOC(Request $request)
+    {
+        $department = $request->input('department');
+        $semester = $request->input('semester');
+        $schoolYear = $request->input('schoolYear');
+        $employeeId = $request->input('employee_id');
+
+        // Validate input parameters
+        if (!$department || !$semester || !$schoolYear || !$employeeId) {
+            return response()->json(['success' => false, 'message' => 'Invalid parameters'], 400);
+        }
+
+        // Validate school year format
+        $years = explode('/', $schoolYear);
+        if (count($years) != 2 || !is_numeric($years[0]) || !is_numeric($years[1])) {
+            return response()->json(['success' => false, 'message' => 'Invalid school year format'], 400);
+        }
+        list($startYear, $endYear) = $years;
+
+        // Fetch the course codes from ImplementingSubjects based on the employee_id
+        $courseCodes = ImplementingSubjects::where('employee_id', $employeeId)->pluck('course_code')->toArray();
+
+        if (empty($courseCodes)) {
+            return response()->json(['success' => false, 'message' => 'No courses found for the specified employee'], 404);
+        }
+
+        // Modify the query to filter by course_codes fetched above
+        $reports = EieReport::where('department', $department)
+        ->where('semester', $semester)
+        ->whereYear('created_at', '>=', (int)$startYear)
+        ->whereYear('created_at', '<=', (int)$endYear)
+        ->whereIn('course_code', $courseCodes) // Filter by course_code
+        ->get();
+
+        if ($reports->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'No data found for the specified parameters'], 404);
+        }
+
+        // Define months based on semester
+        $firstSem = ["August", "September", "October", "November", "December"];
+        $secondSem = ["January", "February", "March", "April", "May"];
+        $months = $semester === '1st Semester' ? $firstSem : $secondSem;
+
+        // Group reports by year level and program, and calculate monthly statistics
+        $groupedData = $reports->groupBy('year_level')->map(function ($yearLevelReports) use ($months) {
+            return $yearLevelReports->groupBy('program')->map(function ($programReports) use ($months) {
+                // Initialize empty month data
+                $monthData = array_fill_keys($months, [
+                    'submitted' => 0,
+                    'completionRate' => 0,
+                    'epgfAverage' => 0,
+                    'proficiencyLevel' => null,
+                    'champion' => null,
+                    'champion_epgf_average' => 0,
+                    'champion_proficiency_level' => null,
+                ]);
+
+                $firstReport = $programReports->first();
+                $enrolledStudents = $firstReport->enrolled_students;
+                $assignedPOC = $firstReport->assigned_poc;
+
+                // Calculate monthly stats and determine champions
+                foreach ($programReports as $report) {
+                    $monthName = \Carbon\Carbon::parse($report->created_at)->format('F');
+                    if (in_array($monthName, $months)) {
+                        $monthData[$monthName]['submitted'] += $report->submitted;
+                        $monthData[$monthName]['completionRate'] += $report->completion_rate;
+                        $monthData[$monthName]['epgfAverage'] += $report->epgf_average;
+                        $monthData[$monthName]['proficiencyLevel'] = $this->determineProficiencyLevel($report->epgf_average);
+
+                        // Update champion if a higher PGF average is found
+                        if ($report->champion_epgf_average > $monthData[$monthName]['champion_epgf_average']) {
+                            $monthData[$monthName]['champion'] = $report->champion;
+                            $monthData[$monthName]['champion_epgf_average'] = $report->champion_epgf_average;
+                            $monthData[$monthName]['champion_proficiency_level'] = $this->determineProficiencyLevel($report->champion_epgf_average);
+                        }
+                    }
+                }
+
+                return [
+                    'program' => $firstReport->program,
+                    'courseTitle' => $firstReport->course_title,
+                    'assignedPOC' => $assignedPOC,
+                    'enrolledStudents' => $enrolledStudents,
+                    'monthData' => $monthData,
+                ];
+            });
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $groupedData,
+        ]);
+    }
+
     public function destroy($id)
     {
         $classList = ClassLists::findOrFail($id);
@@ -499,42 +601,34 @@ public function storeOrUpdatePrograms()
 
     public function fetchFilteredReports(Request $request)
     {
-        // Validate the request parameters
         $request->validate([
             'course_code' => 'required|string',
             'semester' => 'required|string',
             'school_year' => 'required|string',
         ]);
 
-        // Split the school year into start and end years
         [$startYear, $endYear] = explode('/', $request->school_year);
 
-        // Define months for each semester
         $semesterMonths = [
             '1st Semester' => ['August', 'September', 'October', 'November', 'December'],
             '2nd Semester' => ['January', 'February', 'March', 'April', 'May'],
         ];
 
-        // Get the months based on the semester
         $months = $semesterMonths[$request->semester];
 
         try {
-            // Array to hold data for each month
             $monthlyReports = [];
 
-            // Loop over each month and get the data
-            foreach ($months as $month) {
-                // Get the first and last day of the month
-                $startDate = "$startYear-" . array_search($month, $months) + 1 . "-01";
-                $endDate = "$startYear-" . array_search($month, $months) + 1 . "-31"; // Example for the end of the month
+            foreach ($months as $index => $month) {
+                $monthIndex = $index + 1;
+                $monthIndexPadded = str_pad($monthIndex, 2, '0', STR_PAD_LEFT);
 
-                // If the month is in January to May, change to next year for the second semester
-                if ($month == 'January') {
-                    $startDate = "$endYear-01-01";  // Adjust for the 2nd Semester
-                    $endDate = "$endYear-01-31";
-                }
+                // Adjust year for 2nd semester (Jan-May)
+                $year = in_array($month, ['January', 'February', 'March', 'April', 'May']) ? $endYear : $startYear;
 
-                // Fetch data for the month
+                $startDate = "$year-$monthIndexPadded-01";
+                $endDate = date("Y-m-t", strtotime($startDate));
+
                 $reports = EieReport::where('course_code', $request->course_code)
                 ->where('semester', $request->semester)
                 ->whereBetween('created_at', [$startDate, $endDate])
@@ -552,20 +646,17 @@ public function storeOrUpdatePrograms()
                     'updated_at',
                 ]);
 
-                // Store the data for each month
                 $monthlyReports[] = [
                     'month' => $month,
                     'data' => $reports,
                 ];
             }
 
-            // Return the results
             return response()->json([
                 'success' => true,
                 'data' => $monthlyReports,
             ]);
         } catch (\Exception $e) {
-            // Catch any exceptions and log the error message
             \Log::error("Error fetching reports: " . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -573,6 +664,7 @@ public function storeOrUpdatePrograms()
             ], 500);
         }
     }
+
 
     public function getDashboardReportGrandTotals(Request $request)
     {
@@ -672,10 +764,10 @@ public function storeOrUpdatePrograms()
         $semester = $request->input('semester');  // Trim any extra spaces
         $school_year = $request->input('schoolYear'); // Example: "2025/2026"
 
-        \Log::info('Received Parameters', [
+        \Log::info('YearTotals Received Parameters', [
             'department' => $request->input('department'),
-                   'semester' => $request->input('semester'),
-                   'school_year' => $request->input('schoolYear'),
+            'semester' => $request->input('semester'),
+            'school_year' => $request->input('schoolYear'),
         ]);
 
         // Validate the semester parameter
@@ -708,8 +800,8 @@ public function storeOrUpdatePrograms()
             $startDate = "{$startYear}-08-01"; // Start of 1st Semester (August)
             $endDate = "{$startYear}-12-31"; // End of 1st Semester (December)
         } elseif ($semester === '2nd Semester') {
-            $startDate = "{$startYear}-01-01"; // Start of 2nd Semester (January)
-            $endDate = "{$startYear}-05-31"; // End of 2nd Semester (May)
+            $startDate = "{$endYear}-01-01"; // use endYear
+            $endDate = "{$endYear}-05-31";
         }
 
         // Fetch programs based on the department and school_year, no semester filter
@@ -781,10 +873,81 @@ public function storeOrUpdatePrograms()
         ]);
     }
 
+    public function getProficiencyDistribution(): JsonResponse
+    {
+        $totalStudents = ClassLists::count();
+
+        $students = ClassLists::select('department', 'epgf_average')->get();
+
+        $departments = [];
+
+        foreach ($students as $student) {
+            $dept = $student->department;
+
+            // Treat null as 0
+            $score = is_null($student->epgf_average) ? 0 : (float) $student->epgf_average;
+
+            if (!isset($departments[$dept])) {
+                $departments[$dept] = [
+                    'total_score' => 0,
+                    'student_count' => 0,
+                    'Beginning' => 0,
+                    'Developing' => 0,
+                    'Approaching' => 0,
+                    'Proficient' => 0,
+                ];
+            }
+
+            // Add score and count every student (including 0 scores)
+            $departments[$dept]['total_score'] += $score;
+            $departments[$dept]['student_count']++;
+
+            // Assign proficiency levels including zero scores
+            if ($score < 1) {
+                $departments[$dept]['Beginning']++;
+            } elseif ($score >= 1 && $score < 2) {
+                $departments[$dept]['Developing']++;
+            } elseif ($score >= 2 && $score <= 2.5) {
+                $departments[$dept]['Approaching']++;
+            } elseif ($score > 2.5 && $score < 3) {
+                // Handle gap: assign to Approaching or Proficient as per your rubric
+                $departments[$dept]['Approaching']++;
+            } elseif ($score >= 3 && $score <= 4) {
+                $departments[$dept]['Proficient']++;
+            } else {
+                // Optional: handle scores outside expected range if any
+            }
+        }
+
+        $result = [];
+        foreach ($departments as $dept => $data) {
+            $studentCount = $data['student_count'];
+            $avgScore = $studentCount > 0 ? round($data['total_score'] / $studentCount, 2) : 0;
+
+            $result[] = [
+                'department' => $dept,
+                'epgf_average' => $avgScore,
+                'Beginning' => $studentCount > 0 ? round(($data['Beginning'] / $studentCount) * 100, 2) : 0,
+                'Developing' => $studentCount > 0 ? round(($data['Developing'] / $studentCount) * 100, 2) : 0,
+                'Approaching' => $studentCount > 0 ? round(($data['Approaching'] / $studentCount) * 100, 2) : 0,
+                'Proficient' => $studentCount > 0 ? round(($data['Proficient'] / $studentCount) * 100, 2) : 0,
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'total_students' => $totalStudents,
+            'data' => $result,
+        ]);
+    }
+
     public function getUniqueDepartments(): JsonResponse
     {
-        $departments = EieReport::pluck('department')->unique()->values();
-        return response()->json($departments);
+        $departments = ImplementingSubjects::pluck('department')->unique()->values();
+        return response()->json([
+            'success' => true,
+            'departments' => $departments
+        ]);
     }
 
     public function getFullUniqueDepartments(): JsonResponse

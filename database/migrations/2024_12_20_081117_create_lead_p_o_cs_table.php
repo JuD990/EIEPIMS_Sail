@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->string('email', 50)->unique();
             $table->string('department', 50);
+            $table->string('program', 50)->nullable();
             $table->string('role')->default('Lead POC');
             $table->timestamps();
         });

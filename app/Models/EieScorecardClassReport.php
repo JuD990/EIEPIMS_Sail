@@ -22,7 +22,6 @@ class EieScorecardClassReport extends Model
         'epgf_average',
         'proficiency_level',
         'program',
-        'active_students',
         'course_title',
         'year_level',
 

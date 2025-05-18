@@ -46,14 +46,23 @@ const PerformanceSummary = () => {
                     datasets: [
                         {
                             label: "Performance Summary",
-                            data: ratingValues, // Use the rating values without the "Average" value
+                            data: ratingValues,
                             borderColor: "#DC2626",
-                                 backgroundColor: "#DC2626",
-                                 fill: true,
+                            backgroundColor: "#DC2626",
+                            fill: true,
+                            tension: 0.3, // smooths the line slightly
+                            pointRadius: 4, // size of the data points
+                            pointHoverRadius: 6,
                         },
                     ],
                     options: {
                         responsive: true,
+                        legend: {
+                            position: "top", // or "bottom"
+                            labels: {
+                                padding: 1130,
+                            },
+                        },
                         scales: {
                             y: {
                                 min: minRating,
@@ -70,10 +79,20 @@ const PerformanceSummary = () => {
                         },
                         plugins: {
                             legend: {
-                                position: "top",
+                                position: "top", // Or "bottom" if preferred
+                                labels: {
+                                    padding: 20, // 👈 This adds space between legend and chart
+                                },
+                            },
+                            tooltip: {
+                                enabled: true,
+                            },
+                            datalabels: {
+                                display: false,
                             },
                         },
-                    },
+                    }
+
                     });
                 })
                 .catch((error) => console.error("Error fetching ratings data:", error));

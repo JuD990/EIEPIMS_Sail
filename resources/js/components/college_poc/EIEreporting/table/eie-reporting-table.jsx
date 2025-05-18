@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import "./TableComponent.css";
 import axios from "axios";
+import "./TableComponent.css";
 
 const TableComponent = ({ department, schoolYear, semester }) => {
     const [target, setTarget] = useState(100);
@@ -14,15 +14,16 @@ const TableComponent = ({ department, schoolYear, semester }) => {
     const months = semester === "1st Semester" ? firstSemesterMonths : secondSemesterMonths;
 
     useEffect(() => {
-        if (department && schoolYear && semester) {
-            fetchTableData();
+        const employeeId = localStorage.getItem("employee_id");  // Retrieve the employee_id from localStorage
+        if (department && schoolYear && semester && employeeId) {
+            fetchTableData(employeeId);  // Fetch data with employee_id
         }
     }, [department, schoolYear, semester]);
 
-    const fetchTableData = async () => {
+    const fetchTableData = async (employeeId) => {
         try {
-            const response = await axios.get('/api/eie-report', {
-                params: { department, semester, schoolYear }
+            const response = await axios.get('/api/eie-assigned-report', {
+                params: { department, semester, schoolYear, employee_id: employeeId }  // Pass employee_id
             });
 
             if (response.data.success) {
@@ -58,8 +59,7 @@ const TableComponent = ({ department, schoolYear, semester }) => {
         <th>Program</th>
         <th>Expected</th>
         <th>Target</th>
-        <th>Implementing Subject</th>
-        <th>Faculty</th>
+        <th>Assigned Implementing Subjects</th>
         {months.flatMap((month, index) => [
             <th key={`submitted-${month}-${index}`}>Submitted/Participated</th>,
             <th key={`rate-${month}-${index}`}>% Rate</th>,
@@ -86,7 +86,6 @@ const TableComponent = ({ department, schoolYear, semester }) => {
                     <td style={{ textAlign: 'left' }}>
                     {programData.courseTitle || "-"}
                     </td>
-                    <td style={{ textAlign: 'center' }}>{programData.assignedPOC || "-"}</td>
 
                     {months.flatMap((month, monthIndex) => {
                         const monthInfo = programData.monthData[month] || {};

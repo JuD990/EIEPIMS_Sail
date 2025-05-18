@@ -24,13 +24,15 @@ Route::get('esl/employee/{employee_id}', [EieDiagnosticReportController::class, 
 Route::post('/eie-reports/store-or-update', [EieReportController::class, 'storeOrUpdatePrograms']);
 Route::get('/dashboard-report', [EieReportController::class, 'getDashboardReport']);
 Route::get('/eie-report', [EieReportController::class, 'getEieReporting']);
+Route::get('/eie-assigned-report', [EieReportController::class, 'getEieReportingCollegePOC']);
+
 Route::get('/dashboard-report-grand-totals', [EieReportController::class, 'getDashboardReportGrandTotals']);
 Route::get('/dashboard-report-year-totals', [EieReportController::class, 'getDashboardReportYearTotals']);
 Route::get('/fetch-filtered-eie-reports', [EieReportController::class, 'fetchFilteredReports']);
 Route::get('/department-eie-reports', [EieReportController::class, 'getDepartmentReport']);
 Route::get('/get-departments', [EieReportController::class, 'getUniqueDepartments']);
 Route::get('/get-full-departments', [EieReportController::class, 'getFullUniqueDepartments']);
-
+Route::get('/department-proficiency-distribution', [EieReportController::class, 'getProficiencyDistribution']);
 
 // Delete Data Settings
 Route::delete('/data-settings/class-lists', [EieReportController::class, 'deleteClassLists']);
@@ -130,6 +132,7 @@ Route::get('/get-student-count-active', [EpgfScoreCardController::class, 'getStu
 Route::get('/get-class-average', [EpgfScoreCardController::class, 'getClassAverageByCourseCode']);
 Route::get('/get-evaluated-count', [EpgfScoreCardController::class, 'getEvaluatedCount']);
 Route::post('/store-class-data', [EpgfScoreCardController::class, 'storeClassData']);
+Route::post('/store-class-data-month', [EpgfScoreCardController::class, 'storeClassDataMonth']);
 Route::get('/submitted-scorecards', [EpgfScoreCardController::class, 'getSubmittedStudentIds']);
 Route::get('/scorecards/{student_id}', [EieScorecardClassReportController::class, 'getByStudentId']);
 
@@ -144,6 +147,9 @@ Route::get('/get-courses-by-department', [ClassListController::class, 'getCourse
 Route::get('/get-courses-by-department-poc', [ClassListController::class, 'getCoursesPOC']);
 Route::get('/get-courses-by-department-student', [ClassListController::class, 'getCoursesByDepartmentStudent']);
 Route::get('/student-statistics', [ClassListController::class, 'getStudentStatistics']);
+Route::get('/classlists', [ClassListController::class, 'getStudentsByMonth']);
+Route::post('/evaluate/save', [ClassListController::class, 'saveData']);
+Route::post('/evaluate/submit', [ClassListController::class, 'submitData']);
 
 // ImplementingSubject routes
 Route::get('/implementing-subject/{employee_id}', [ImplementingSubjectController::class, 'getClassData']);

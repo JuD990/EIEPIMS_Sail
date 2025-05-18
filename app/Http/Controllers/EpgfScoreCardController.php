@@ -254,7 +254,6 @@ class EpgfScoreCardController extends Controller
 
     public function storeClassData(Request $request)
     {
-        // Validate the incoming request data
         $validated = $request->validate([
             'course_code' => 'required|string',
             'completionRate' => 'required|numeric',
@@ -263,38 +262,85 @@ class EpgfScoreCardController extends Controller
             'active_students' => 'required|integer',
         ]);
 
-        // Fetch the average epgf_average for the given course_code
-        $epgfAverage = ClassLists::where('course_code', $validated['course_code'])
-            ->avg('epgf_average') ?? 0;
+        // Compute average treating null as 0
+        $epgfAverage = HistoricalClassLists::where('course_code', $validated['course_code'])
+        ->select(DB::raw('AVG(COALESCE(epgf_average, 0)) as avg_epgf'))
+        ->value('avg_epgf');
 
-        // Check if epgf_average is 0 and set it to null
+        // If avg is zero, set it to null
         $epgfAverage = ($epgfAverage == 0) ? null : $epgfAverage;
 
-        // Check if proficiencyLevel is "Beginning" and set it to null
-        $proficiencyLevel = ($validated['proficiencyLevel'] == 'Beginning') ? null : $validated['proficiencyLevel'];
-
-        // Fetch the completion rate and set it to null if it's 0
+        // Normalize fields
+        $proficiencyLevel = ($validated['proficiencyLevel'] === 'Beginning') ? null : $validated['proficiencyLevel'];
         $completionRate = ($validated['completionRate'] == 0) ? null : $validated['completionRate'];
 
-        // Find or create ImplementingSubjects
-        $subject = ImplementingSubjects::updateOrCreate(
+        // Shared data to update
+        $dataToUpdate = [
+            'epgf_average' => $epgfAverage,
+            'completion_rate' => $completionRate,
+            'proficiency_level' => $proficiencyLevel,
+            'enrolled_students' => $validated['enrolled_students'],
+            'active_students' => $validated['active_students'],
+        ];
+
+        // Update or create in ImplementingSubjects
+        $implementingSubject = ImplementingSubjects::updateOrCreate(
             ['course_code' => $validated['course_code']],
-            [
+            $dataToUpdate
+        );
+
+        // Update or create in HistoricalImplementingSubjects
+        $historicalSubject = HistoricalImplementingSubjects::updateOrCreate(
+            ['course_code' => $validated['course_code']],
+            $dataToUpdate
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Class data successfully saved or updated!',
+            'data' => [
+                'implementing_subject' => $implementingSubject,
+                'historical_subject' => $historicalSubject,
+                'epgf_average' => $epgfAverage,
+            ],
+        ]);
+    }
+
+    public function storeClassDataMonth(Request $request)
+    {
+        $validated = $request->validate([
+            'course_code' => 'required|string',
+            'completionRate' => 'required|numeric',
+            'proficiencyLevel' => 'required|string',
+            'enrolled_students' => 'required|integer',
+            'active_students' => 'required|integer',
+            'month' => 'required|string',
+        ]);
+
+        $courseCode = $validated['course_code'];
+        $monthName = $validated['month'];
+
+        // Calculate average but DO NOT store it in the DB
+        $epgfAverage = HistoricalClassLists::where('course_code', $courseCode)
+        ->whereRaw("MONTHNAME(created_at) = ?", [$monthName])
+        ->select(DB::raw('AVG(COALESCE(epgf_average, 0)) as avg_epgf'))
+        ->value('avg_epgf');
+
+        $epgfAverage = ($epgfAverage == 0) ? null : $epgfAverage;
+
+        $proficiencyLevel = ($validated['proficiencyLevel'] === 'Beginning') ? null : $validated['proficiencyLevel'];
+        $completionRate = ($validated['completionRate'] == 0) ? null : $validated['completionRate'];
+
+        // No data storage – Just return the calculated results
+        return response()->json([
+            'success' => true,
+            'message' => 'Class data received successfully, but no data stored.',
+            'data' => [
                 'epgf_average' => $epgfAverage,
                 'completion_rate' => $completionRate,
                 'proficiency_level' => $proficiencyLevel,
                 'enrolled_students' => $validated['enrolled_students'],
                 'active_students' => $validated['active_students'],
-            ]
-        );
-
-        // Return a success response with the computed epgf_average
-        return response()->json([
-            'success' => true,
-            'message' => 'Class data successfully saved or updated!',
-            'data' => [
-                'implementing_subject' => $subject,
-                'epgf_average' => $epgfAverage, // Include the computed epgf_average in the response
             ],
         ]);
     }

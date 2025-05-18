@@ -268,7 +268,7 @@ const UserInfo = () => {
       Profile
       </button>
       <div className="logout-user-info-dropdown-item">
-      <img src={logoutIcon} alt="Logout Icon" className="dropdown-icon" />
+      <img src={logoutIcon} alt="Logout Icon" className="logout-dropdown-icon" />
       <LogoutButton />
       </div>
       </div>

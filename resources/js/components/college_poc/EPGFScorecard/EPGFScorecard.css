@@ -108,21 +108,3 @@
     align-items: center;  /* Vertically align the items in the container */
     gap: 20px;            /* Space between elements inside the container */
   }
-
-  .border-box {
-    border: 1px solid transparent;
-    width: 200px;
-    height: 50px;
-    background-color: #FFDED6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 20px;      /* No margin on the right */
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  }
-
-  .border-box p {
-    margin: 0;
-    text-align: center;
-    font-family: 'Poppins';
-  }

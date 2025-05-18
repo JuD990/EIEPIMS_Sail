@@ -68,11 +68,27 @@ const ImpSubjectsPerformance = ({ schoolYear, semester }) => {
     const [pgfMin, setPgfMin] = useState(0.0);
     const [pgfMax, setPgfMax] = useState(4.0);
 
+
     useEffect(() => {
         const fetchInitialClassData = async () => {
             try {
                 const employee_id = localStorage.getItem("employee_id");
-                const classResponse = await axios.get(`/api/implementing-subject-graph/${employee_id}`);
+
+                // Check if employee_id exists
+                if (!employee_id) {
+                    setErrorMessage("Employee ID is missing.");
+                    return;
+                }
+
+                // Construct the query string to send schoolYear and semester
+                const queryParams = new URLSearchParams({
+                    schoolYear: schoolYear,
+                    semester: semester,
+                });
+
+                const classResponse = await axios.get(
+                    `/api/implementing-subject-graph/${employee_id}?${queryParams}`
+                );
 
                 if (classResponse.data.success) {
                     const data = classResponse.data.classData;
@@ -87,7 +103,7 @@ const ImpSubjectsPerformance = ({ schoolYear, semester }) => {
         };
 
         fetchInitialClassData();
-    }, []);
+    }, [schoolYear, semester]);  // Run effect when schoolYear or semester change
 
     useEffect(() => {
         const fetchData = async () => {

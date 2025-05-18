@@ -123,35 +123,6 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
         <div className="eie-head-dashboard-controls">
         <div className="eie-head-dashboard-dropdown-container">
 
-        {/* Department Dropdown */}
-        <div className="eie-head-dashboard-dropdown-wrapper">
-        <button className="eie-head-dashboard-dropdown-btn" onClick={() => setIsDepartmentOpen((prev) => !prev)}>
-        {department || "Select Department"}
-        <FaChevronDown className={`eie-head-dashboard-dropdown-arrow ${isDepartmentOpen ? "open" : ""}`} />
-        </button>
-        {isDepartmentOpen && (
-            <div className="eie-head-dashboard-dropdown-menu">
-            {departments.length > 0 ? (
-                departments.map((dept, index) => (
-                    <p
-                    key={index}
-                    className={`eie-head-dashboard-dropdown-item ${department === dept ? "eie-head-dashboard-selected" : ""}`}
-                    onClick={() => {
-                        setDepartment(dept);
-                        setSelectedDepartment(dept);
-                        setIsDepartmentOpen(false);
-                    }}
-                    >
-                    {dept}
-                    </p>
-                ))
-            ) : (
-                <p className="eie-head-dashboard-dropdown-item">No Departments</p>
-            )}
-            </div>
-        )}
-        </div>
-
         {/* School Year Dropdown */}
         <div className="eie-head-dashboard-dropdown-wrapper">
         <button

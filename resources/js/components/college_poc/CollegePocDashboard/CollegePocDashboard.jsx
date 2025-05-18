@@ -59,8 +59,6 @@ const CollegePocDashboard = () => {
           semester={selectedSemester}
         />
       </div>
-      
-      <br />
     </div>
   );
 };

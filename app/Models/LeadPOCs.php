@@ -24,6 +24,7 @@ class LeadPOCs extends Authenticatable
         'password',
         'email',
         'department',
+        'program',
         'role',
     ];
 }

@@ -140,40 +140,49 @@ const TableComponent = ({ department, schoolYear, semester }) => {
             })
         )}
 
-        {/* Grand Total Row */}
-        {grandTotals && (
-            <tr className="grand-total-row">
-            <td colSpan="2">{department} Total</td>
-            <td>{grandTotals.expectedSubmissions}</td>
-            <td>100%</td>
-            <td></td>
-            {months.map(month => {
+        {/*
+            Grand Total Row
+            {grandTotals && (
+                <tr className="grand-total-row">
+                <td colSpan="2">{department} Total</td>
+                <td>{grandTotals.expectedSubmissions}</td>
+                <td>100%</td>
+                <td></td>
+                {months.map(month => {
                 const submitted = grandTotals.submitted[month] || "-";
-                const completionRate = grandTotals.completionRate[month] ? grandTotals.completionRate[month].toFixed(2)  + '%' : "-";
-                const rateExpectation = completionRate !== '-' ? completionRateExpectation(parseFloat(completionRate)) : "-";
-                const epgfAverage = grandTotals.epgfAverage[month] ? grandTotals.epgfAverage[month].toFixed(2) : "-";
-                const proficiencyLevel = grandTotals.proficiencyLevel[month] || "-";
-                const champion = grandTotals.champion[month] || "-";
+                const completionRate = grandTotals.completionRate[month]
+                ? grandTotals.completionRate[month].toFixed(2) + '%'
+                : "-";
+                const rateExpectation = completionRate !== '-'
+                ? completionRateExpectation(parseFloat(completionRate))
+    : "-";
+    const epgfAverage = grandTotals.epgfAverage[month]
+    ? grandTotals.epgfAverage[month].toFixed(2)
+    : "-";
+    const proficiencyLevel = grandTotals.proficiencyLevel[month] || "-";
+    const champion = grandTotals.champion[month] || "-";
 
-                return (
-                    <React.Fragment key={month}>
-                    <td>{submitted}</td>
-                    <td>
-                    {completionRate}
-                    <br/>
-                    {rateExpectation}
-                    </td>
-                    <td>
-                    {epgfAverage}
-                    <br/>
-                    {proficiencyLevel}
-                    </td>
-                    <td>{champion}</td>
-                    </React.Fragment>
-                );
-            })}
-            </tr>
-        )}
+    return (
+        <React.Fragment key={month}>
+        <td>{submitted}</td>
+        <td>
+        {completionRate}
+        <br />
+        {rateExpectation}
+        </td>
+        <td>
+        {epgfAverage}
+        <br />
+        {proficiencyLevel}
+        </td>
+        <td>{champion}</td>
+        </React.Fragment>
+    );
+        })}
+        </tr>
+    )}
+    */}
+
         </tbody>
         </table>
         </div>
