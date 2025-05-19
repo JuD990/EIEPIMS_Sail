@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import GraduatingRemarks from './GraduatingRemarks';
 import NonGraduatingRemarks from './NonGraduatingRemarks';
 
@@ -8,27 +8,32 @@ const RemarksDropdown = ({ setRemarks, yearLevel }) => {
         yearLevel === '4th Year' ? 'graduating' : 'nonGraduating'
     );
 
-    const handleChange = (e) => {
+    // Update selectedOption when dropdown changes
+    const handleSelectChange = (e) => {
         setSelectedOption(e.target.value);
-        setRemarks({});
     };
 
-    const handleGraduatingDataChange = (data) => {
+    // Memoize callbacks to prevent infinite loops
+    const handleGraduatingDataChange = useCallback((data) => {
         setRemarks(data);
-    };
+    }, [setRemarks]);
 
-    const handleNonGraduatingDataChange = (data) => {
+    const handleNonGraduatingDataChange = useCallback((data) => {
         setRemarks(data);
-    };
+    }, [setRemarks]);
 
     useEffect(() => {
         // Update selectedOption if yearLevel changes
         setSelectedOption(yearLevel === '4th Year' ? 'graduating' : 'nonGraduating');
-    }, [yearLevel]); // Re-run when yearLevel changes
+    }, [yearLevel]);
 
     return (
         <div style={{ textAlign: 'left', marginTop: '-40px' }}>
-        <select onChange={handleChange} value={selectedOption} style={{ width: '200px', backgroundColor: "#FBF7F7" }}>
+        <select
+        onChange={handleSelectChange}
+        value={selectedOption}
+        style={{ width: '200px', backgroundColor: "#FBF7F7" }}
+        >
         <option value="graduating">Graduating</option>
         <option value="nonGraduating">Non-Graduating</option>
         </select>

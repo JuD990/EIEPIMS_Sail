@@ -220,8 +220,6 @@ const TableComponent = ({ department, schoolYear, semester }) => {
             })
         )}
 
-        {/*
-            Grand Total Row
             {grandTotals && (
                 <tr className="grand-total-row">
                 <td colSpan="2">{department} Total</td>
@@ -261,7 +259,7 @@ const TableComponent = ({ department, schoolYear, semester }) => {
         })}
         </tr>
     )}
-    */}
+
         </tbody>
         </table>
         </div>

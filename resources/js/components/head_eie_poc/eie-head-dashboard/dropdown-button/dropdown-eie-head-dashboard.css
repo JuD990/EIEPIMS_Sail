@@ -4,12 +4,14 @@
     align-items: center;
     justify-content: flex-start;
     margin-right: auto;
+    margin-left: 700px;
     white-space: nowrap;
     padding: 8px;
 }
 
 .eie-head-dashboard-dropdown-wrapper {
     position: relative;
+    margin-right: 200px;
 }
 
 .eie-head-dashboard-dropdown-btn {
@@ -25,6 +27,7 @@
     gap: 8px;
     width: 200px;
     height: 50px;
+    margin-left: -700px;
 }
 
 .eie-head-dashboard-dropdown-btn .esl-dashboard-dropdown-arrow {
@@ -91,6 +94,7 @@
 
 .eie-head2-reset-link-container {
     text-align: right;
+    margin-left: -700px;
 }
 
 .eie-head2-reset-link {

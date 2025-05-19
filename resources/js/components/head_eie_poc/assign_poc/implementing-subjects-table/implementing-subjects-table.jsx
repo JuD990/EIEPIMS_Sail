@@ -24,6 +24,7 @@ const ImplementingSubjectsTable = ({
   const [csvErrors, setCsvErrors] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const employeeId = localStorage.getItem("employee_id");
+
   const fetchData = async () => {
     const employeeId = localStorage.getItem("employee_id");
     if (!employeeId) {
@@ -33,16 +34,19 @@ const ImplementingSubjectsTable = ({
       return;
     }
     setIsLoading(true);
-    setError(null); // Reset previous error
+    setError(null);
     try {
       const response = await axios.get("/api/implementing-subjects", {
         headers: {
           'X-Employee-ID': employeeId,
-          'Accept': 'application/json', // Ensure we're sending JSON
+          'Accept': 'application/json',
         },
       });
 
-      const filteredData = response.data.filter((item) => {
+      // Extract the array of subjects from the response data
+      const subjects = response.data.subjects ?? [];
+
+      const filteredData = subjects.filter((item) => {
         const matchesSearch = searchQuery
         ? [
           item.course_title,
@@ -73,17 +77,13 @@ const ImplementingSubjectsTable = ({
       setData(filteredData);
     } catch (error) {
       console.error("❌ Error fetching data:", error);
-
-      // Log full error response for better debugging
       console.error("Error Response:", error.response?.data);
-
       setError(error.response?.data?.error || "Failed to fetch data.");
-      setData([]); // Prevent crash: ensure empty array
+      setData([]);
     } finally {
       setIsLoading(false);
     }
   };
-
 
   useEffect(() => {
     const fetchFilteredPocs = async () => {

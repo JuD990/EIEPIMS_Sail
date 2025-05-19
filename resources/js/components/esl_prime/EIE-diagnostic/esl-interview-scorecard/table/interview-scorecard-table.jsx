@@ -10,8 +10,7 @@ const Table = ({
     dropdownValues,
     setDropdownValues,
     onCategoryAveragesChange,
-    remarks,
-    setRemarks
+    studenId
 }) => {
 
     const categories = [

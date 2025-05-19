@@ -65,9 +65,9 @@ const LeadEiePocDashboard = () => {
     <div className="dashboard-table-container">
     <div style={{ marginBottom: "10px" }}>
     <h2 style={{ textAlign: "left", fontFamily: "Poppins", fontWeight: "700" }}>
-    Table Form - {selectedSemester}, {selectedDepartment} {selectedSchoolYear.replace('/', '-')}
+    Summary overall performance by month
     </h2>
-
+    <h4>{selectedSemester}, {selectedDepartment} {selectedSchoolYear.replace('/', '-')}</h4>
     <DashboardDropdown
     setSelectedDepartment={setSelectedDepartment}
     setSelectedSchoolYear={setSelectedSchoolYear}

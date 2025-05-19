@@ -469,6 +469,7 @@ class UserManagement extends Controller
             'email' => 'required|email',
             'employee_id' => 'required|string|max:255',
             'department' => 'required|string|max:255',
+            'program' => 'required|string|max:255',
         ]);
 
         // Find by employee_id

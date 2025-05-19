@@ -135,20 +135,26 @@ const ImplementingSubjects = ({ semester }) => {
           style={{ "--course-color": classColors[userClass.course_code] || "#FFA047" }}
           >
           <div className="interior-card"></div>
-          <div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+          {/* FLEX CONTAINER */}
+
           <div className="implementing-subject-1">
           <div className="subject-info">
           <p className="course-title">{userClass.course_title}</p>
-          <div className="subject-info code-row">
-          <p className="course-code">{userClass.code}</p>
-          <p className="course-code">{userClass.course_code}</p>
           <div className="student-number">
           <img src={studentnoicon} alt="Student Number" />
           <p>{activeStudentCounts[userClass.course_code] || 0}</p>
           </div>
           </div>
+
+          <div className="code-row">
+          <p className="course-code">{userClass.code}</p>
+          <p className="course-code">{userClass.course_code}</p>
           </div>
           </div>
+
+          {/* 🔻 class-performance moved outside implementing-subject-1 */}
           <div className="class-performance">
           <div className="eie-averages">
           <div className="pgf-average">
@@ -168,6 +174,7 @@ const ImplementingSubjects = ({ semester }) => {
           </div>
           </div>
           </div>
+
 
           {/* Month-based EPGF and Completion Rate */}
           <div className="scroll-row">

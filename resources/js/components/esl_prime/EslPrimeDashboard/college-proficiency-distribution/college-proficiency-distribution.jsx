@@ -33,10 +33,58 @@ const CollegeProficiencyChart = () => {
     const [selectedSchoolYear, setSelectedSchoolYear] = useState(defaultSchoolYear);
     const [selectedSemester, setSelectedSemester] = useState('');
     const [departments, setDepartments] = useState([]);
-    const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [loading, setLoading] = useState(true);
     const [pgfMin, setPgfMin] = useState(0);
     const [pgfMax, setPgfMax] = useState(4.0);
+
+    // Default chart data (used also when no data is returned)
+    const defaultChartData = {
+        labels: ['No Data'],
+        datasets: [
+            {
+                label: 'Beginning',
+                data: [0],
+                backgroundColor: '#FF474A',
+                yAxisID: 'y1',
+                order: 2,
+            },
+            {
+                label: 'Developing',
+                data: [0],
+                backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                yAxisID: 'y1',
+                order: 2,
+            },
+            {
+                label: 'Approaching',
+                data: [0],
+                backgroundColor: '#0E9E48',
+                yAxisID: 'y1',
+                order: 2,
+            },
+            {
+                label: 'Proficient',
+                data: [0],
+                backgroundColor: '#0187F1',
+                yAxisID: 'y1',
+                order: 2,
+            },
+            {
+                label: 'PGF Average',
+                type: 'line',
+                data: [0],
+                borderColor: '#000000',
+                borderWidth: 2,
+                fill: false,
+                yAxisID: 'y',
+                pointBackgroundColor: '#000000',
+                tension: 0.3,
+                order: 1,
+            },
+        ],
+    };
+
+    const [chartData, setChartData] = useState(defaultChartData);
 
     useEffect(() => {
         const fetchPGFAverages = async () => {
@@ -62,7 +110,7 @@ const CollegeProficiencyChart = () => {
                     'http://127.0.0.1:8000/api/department-proficiency-distribution'
                 );
 
-                if (response.data.success) {
+                if (response.data.success && response.data.data.length > 0) {
                     const data = response.data.data;
                     const fetchedDepartments = data.map((d) => d.department);
                     setDepartments(fetchedDepartments);
@@ -78,53 +126,55 @@ const CollegeProficiencyChart = () => {
                         datasets: [
                             {
                                 label: 'Beginning',
-              data: beginningData,
-              backgroundColor: '#FF474A',
-              yAxisID: 'y1',
-              order: 2,
+                                data: beginningData,
+                                backgroundColor: '#FF474A',
+                                yAxisID: 'y1',
+                                order: 2,
                             },
                             {
                                 label: 'Developing',
-              data: developingData,
-              backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                                data: developingData,
+                                backgroundColor: 'rgba(255, 206, 86, 0.7)',
               yAxisID: 'y1',
               order: 2,
                             },
                             {
                                 label: 'Approaching',
-              data: approachingData,
-              backgroundColor: '#0E9E48',
-              yAxisID: 'y1',
-              order: 2,
+                                data: approachingData,
+                                backgroundColor: '#0E9E48',
+                                yAxisID: 'y1',
+                                order: 2,
                             },
                             {
                                 label: 'Proficient',
-              data: proficientData,
-              backgroundColor: '#0187F1',
-              yAxisID: 'y1',
-              order: 2,
+                                data: proficientData,
+                                backgroundColor: '#0187F1',
+                                yAxisID: 'y1',
+                                order: 2,
                             },
                             {
                                 label: 'PGF Average',
-              type: 'line',
-              data: pgfAverageData,
-              borderColor: '#000000',
-              borderWidth: 2,
-              fill: false,
-              yAxisID: 'y',
-              pointBackgroundColor: '#000000',
-              tension: 0.3,
-              order: 1,
+                                type: 'line',
+                                data: pgfAverageData,
+                                borderColor: '#000000',
+                                borderWidth: 2,
+                                fill: false,
+                                yAxisID: 'y',
+                                pointBackgroundColor: '#000000',
+                                tension: 0.3,
+                                order: 1,
                             },
                         ],
                     };
 
                     setChartData(dataset);
                 } else {
-                    console.error('API responded with failure');
+                    console.warn("No data received. Falling back to default chart.");
+                    setChartData(defaultChartData);
                 }
             } catch (error) {
                 console.error('Error fetching proficiency distribution:', error);
+                setChartData(defaultChartData);
             } finally {
                 setLoading(false);
             }
@@ -202,7 +252,7 @@ const CollegeProficiencyChart = () => {
         <div className="cpd-chart-header">
         <h2 className="cpd-chart-title">College Proficiency Distribution</h2>
         <p className="cpd-chart-subtitle">
-        {selectedSemester}, S/Y {selectedSchoolYear.replace('/', '-')}
+        {selectedSemester || 'All Semesters'}, S/Y {selectedSchoolYear.replace('/', '-')}
         </p>
         </div>
         <GraphDropdown
@@ -211,7 +261,16 @@ const CollegeProficiencyChart = () => {
         selectedSemester={selectedSemester}
         setSelectedSemester={setSelectedSemester}
         />
-        {!loading && <Bar data={chartData} options={options} />}
+        {!loading && (
+            <>
+            {chartData.labels.includes('No Data') && (
+                <p style={{ textAlign: 'center', fontStyle: 'italic' }}>
+                No data available for the selected filters.
+                </p>
+            )}
+            <Bar data={chartData} options={options} />
+            </>
+        )}
         </div>
     );
 };

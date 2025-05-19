@@ -1,4 +1,4 @@
-.diagnostics-dropdown-container {
+.eie-head-diagnostics-dropdown-container {
     display: flex;
     gap: 20px;
     align-items: center;
@@ -10,11 +10,11 @@
     flex-wrap: wrap; /* Allows wrapping in case of smaller screen sizes */
 }
 
-.diagnostics-dropdown-wrapper {
+.eie-head-diagnostics-dropdown-wrapper {
     position: relative;
 }
 
-.diagnostics-dropdown-btn {
+.eie-head-diagnostics-dropdown-btn {
     padding: 10px 20px;
     background-color: #FBF7F7;
     color: black;
@@ -29,11 +29,11 @@
     height: 50px;
 }
 
-.diagnostics-dropdown-btn .diagnostics-dropdown-arrow {
+.eie-head-diagnostics-dropdown-btn .eie-head-diagnostics-dropdown-arrow {
     margin-left: auto;
 }
 
-.diagnostics-dropdown-menu {
+.eie-head-diagnostics-dropdown-menu {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -48,34 +48,32 @@
     width: 100%;
     visibility: visible;
     opacity: 1;
-    max-height: 200px;         /* 👈 Set the height */
-    overflow-y: auto;          /* 👈 Enable scrolling */
+    max-height: 200px; /* 👈 Set the height */
+    overflow-y: auto;  /* 👈 Enable scrolling */
 }
 
-.diagnostics-dropdown-item {
+.eie-head-diagnostics-dropdown-item {
     padding: 8px 12px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-.diagnostics-dropdown-item:hover {
+.eie-head-diagnostics-dropdown-item:hover {
     background-color: #f0f0f0;
 }
 
-.diagnostics-dropdown-item.diagnostics-dropdown-selected {
+.eie-head-diagnostics-dropdown-item.eie-head-diagnostics-dropdown-selected {
     font-weight: bold;
     background-color: #e0e0e0;
 }
 
 /* Search Input Styles */
-.diagnostics-search-input-container {
+.eie-head-diagnostics-search-input-container {
     display: flex;
     align-items: center;
-    margin-left: 535px;
-
 }
 
-.diagnostics-search-input {
+.eie-head-diagnostics-search-input {
     padding: 10px 20px;
     color: black;
     border: 1px solid black;
@@ -85,3 +83,19 @@
     height: 50px;
     outline: none;
 }
+
+.eie-head-eie-head-dashboard-dropdown-btn {
+    padding: 10px 20px;
+    background-color: #FBF7F7;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 200px;
+    height: 50px;
+}
+

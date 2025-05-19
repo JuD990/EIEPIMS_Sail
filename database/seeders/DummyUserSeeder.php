@@ -128,6 +128,7 @@ class DummyUserSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'email' => 'leadpoc@unc.edu.ph',
                 'department' => 'SCIS',
+                'program' => 'BSCS',
                 'role' => 'Lead POC',
                 'created_at' => now(),
                 'updated_at' => now(),

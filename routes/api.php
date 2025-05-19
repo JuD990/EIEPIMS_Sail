@@ -17,14 +17,15 @@ use App\Http\Controllers\EieDiagnosticReportController;
 Route::get('/reports/first-year-diagnostic-report', [EieDiagnosticReportController::class, 'getFirstYearReports']);
 Route::get('/reports/fourth-year-diagnostic-report', [EieDiagnosticReportController::class, 'getFourthYearReports']);
 
-Route::post('/eie-diagnostic-reports', [EieDiagnosticReportController::class, 'store']);
+Route::post('/eie-diagnostic-non-grad-reports', [EieDiagnosticReportController::class, 'storeNonGradData']);
+Route::post('/eie-diagnostic-grad-reports', [EieDiagnosticReportController::class, 'storeGradData']);
 Route::get('esl/employee/{employee_id}', [EieDiagnosticReportController::class, 'getFullName']);
-
 
 Route::post('/eie-reports/store-or-update', [EieReportController::class, 'storeOrUpdatePrograms']);
 Route::get('/dashboard-report', [EieReportController::class, 'getDashboardReport']);
 Route::get('/eie-report', [EieReportController::class, 'getEieReporting']);
 Route::get('/eie-assigned-report', [EieReportController::class, 'getEieReportingCollegePOC']);
+Route::get('/eie-assigned-program-report', [EieReportController::class, 'getEieReportingLeadPOC']);
 
 Route::get('/dashboard-report-grand-totals', [EieReportController::class, 'getDashboardReportGrandTotals']);
 Route::get('/dashboard-report-year-totals', [EieReportController::class, 'getDashboardReportYearTotals']);
@@ -33,6 +34,7 @@ Route::get('/department-eie-reports', [EieReportController::class, 'getDepartmen
 Route::get('/get-departments', [EieReportController::class, 'getUniqueDepartments']);
 Route::get('/get-full-departments', [EieReportController::class, 'getFullUniqueDepartments']);
 Route::get('/department-proficiency-distribution', [EieReportController::class, 'getProficiencyDistribution']);
+Route::get('/champions-report', [EieReportController::class, 'getChampsdReport']);
 
 // Delete Data Settings
 Route::delete('/data-settings/class-lists', [EieReportController::class, 'deleteClassLists']);
@@ -150,6 +152,8 @@ Route::get('/student-statistics', [ClassListController::class, 'getStudentStatis
 Route::get('/classlists', [ClassListController::class, 'getStudentsByMonth']);
 Route::post('/evaluate/save', [ClassListController::class, 'saveData']);
 Route::post('/evaluate/submit', [ClassListController::class, 'submitData']);
+Route::post('/store-eie-champions', [ClassListController::class, 'storeSelectedChamp']);
+Route::post('/evaluate/check-month', [ClassListController::class, 'checkMonth']);
 
 // ImplementingSubject routes
 Route::get('/implementing-subject/{employee_id}', [ImplementingSubjectController::class, 'getClassData']);
@@ -198,6 +202,8 @@ Route::get('/master-class-list-department', [MasterClassListController::class, '
 Route::get('/master-class-list-school-year', [MasterClassListController::class, 'getSchoolYears']);
 Route::put('/master-class-list/{id}', [MasterClassListController::class, 'updateMasterClassList']);
 Route::put('/update-grad-candidate/{id}', [MasterClassListController::class, 'updateCandidate']);
+Route::get('/top-epgf', [MasterClassListController::class, 'getTopEPGF']);
+
 
 // Authentication routes
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');

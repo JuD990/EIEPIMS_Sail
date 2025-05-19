@@ -27,6 +27,6 @@ class Students extends Model
         'department', 
         'year_level', 
         'program', 
-        'role'
+        'role',
     ];
 }

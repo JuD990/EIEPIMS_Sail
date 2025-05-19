@@ -22,8 +22,9 @@ const TableComponent = ({ department, schoolYear, semester }) => {
 
     const fetchTableData = async () => {
         try {
-            const response = await axios.get('/api/eie-report', {
-                params: { department, semester, schoolYear }
+            const employeeId = localStorage.getItem("employee_id");
+            const response = await axios.get('/api/eie-assigned-program-report', {
+                params: { department, semester, schoolYear, employee_id: employeeId }
             });
 
             if (response.data.success) {
@@ -38,6 +39,7 @@ const TableComponent = ({ department, schoolYear, semester }) => {
             setGrandTotals(null);
         }
     };
+
 
     const data = [
         { yearLevel: "1st Year", rows: Array(4).fill({ program: "", expected: "", target: `${target}%`, implementingSubject: "", faculty: "" }) },

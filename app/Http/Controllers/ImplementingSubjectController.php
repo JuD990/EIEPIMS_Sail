@@ -144,9 +144,22 @@ class ImplementingSubjectController extends Controller
                 return response()->json(['error' => 'No subjects found for this department'], 404);
             }
 
-            Log::info("Fetched subjects for department: $department", ['subjects' => $subjects]);
+            // Fetch count of dropped students per course_code (without storing)
+            $droppedCounts = ClassLists::select('course_code', DB::raw('count(*) as dropped_count'))
+            ->where('status', 'Dropped')  // adjust if needed
+            ->groupBy('course_code')
+            ->pluck('dropped_count', 'course_code');  // returns [course_code => dropped_count]
 
-            return response()->json($subjects);
+            Log::info("Fetched subjects and dropped counts for department: $department", [
+                'subjects' => $subjects,
+                'dropped_counts' => $droppedCounts,
+            ]);
+
+            // Return both subjects and dropped counts
+            return response()->json([
+                'subjects' => $subjects,
+                'dropped_counts' => $droppedCounts,
+            ]);
         } catch (\Exception $e) {
             Log::error("Error fetching implementing subjects: " . $e->getMessage());
             return response()->json(['error' => 'An unexpected error occurred. Please try again later.'], 500);

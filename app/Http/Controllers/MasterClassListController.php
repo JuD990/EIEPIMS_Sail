@@ -109,7 +109,7 @@ class MasterClassListController extends Controller
         // Fallback if no records are found
         if ($schoolYears->isEmpty()) {
             $currentYear = date('Y');
-            $schoolYears = collect(["$currentYear/" . ($currentYear + 1)]);
+            $schoolYears = collect([($currentYear - 1 . "/$currentYear")]);
         }
 
         return response()->json($schoolYears);
@@ -154,5 +154,37 @@ class MasterClassListController extends Controller
         $record->save();
 
         return response()->json($record, 200);
+    }
+
+    public function getTopEPGF(Request $request)
+    {
+        $employeeId = $request->input('employee_id');
+
+        if (!$employeeId) {
+            return response()->json(['message' => 'Employee ID is required.'], 400);
+        }
+
+        // Get the department of the EIE head
+        $eieHead = EIEHeads::where('employee_id', $employeeId)->first();
+
+        if (!$eieHead) {
+            return response()->json(['message' => 'EIE Head not found.'], 404);
+        }
+
+        $department = $eieHead->department;
+
+        // Fetch all students with epgf_average > 0 in that department, ordered by year level and epgf_average
+        $students = ClassLists::where('epgf_average', '>', 0)
+        ->where('department', $department)
+        ->orderBy('year_level')
+        ->orderByDesc('epgf_average')
+        ->get();
+
+        // Group by year_level and take top 3 for each
+        $topStudentsByYear = $students->groupBy('year_level')->map(function ($group) {
+            return $group->take(3)->values();
+        });
+
+        return response()->json($topStudentsByYear);
     }
 }

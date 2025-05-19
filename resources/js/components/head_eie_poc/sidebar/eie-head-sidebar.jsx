@@ -12,6 +12,7 @@ import uncLogo from "@assets/unc-logo.png";
 import assignPOC from "@assets/assign-poc.png";
 import graduating from "@assets/graduating.png";
 import diagnosticReportsIcon from "@assets/EIEDiagnosticReports.png";
+import champIcon from "@assets/champion-icon.png";
 
 const CollegePOCSidebar = () => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ const CollegePOCSidebar = () => {
   useEffect(() => {
     // Automatically expand submenu if its child pages are active
     setShowStudentSubmenu(
-      ["/eie-head-student-management", "/eie-head-master-class-list", "/eie-head-graduating-list"].includes(location.pathname)
+      ["/eie-head-student-management", "/eie-head-master-class-list", "/eie-head-graduating-list", "/eie-head-champion-selection"].includes(location.pathname)
     );
     setActivePage(location.pathname);
   }, [location.pathname]);
@@ -88,6 +89,7 @@ const CollegePOCSidebar = () => {
       "/eie-head-student-management",
       "/eie-head-master-class-list",
       "/eie-head-graduating-list",
+      "/eie-head-champion-selection",
     ].includes(activePage)
     ? "active"
     : ""}`}
@@ -113,6 +115,13 @@ const CollegePOCSidebar = () => {
       >
       <img src={graduating} alt="Graduating List icon" className="master-class-icon" />
       <p>Graduating List</p>
+      </button>
+      <button
+      className={`eie-head-master-class-list-sidebar-button ${activePage === "/eie-head-champion-selection" ? "active" : ""}`}
+      onClick={() => handleNavigation("/eie-head-champion-selection")}
+      >
+      <img src={champIcon} alt="Champion icon" className="master-class-icon" />
+      <p>Select Champion</p>
       </button>
       </div>
     )}

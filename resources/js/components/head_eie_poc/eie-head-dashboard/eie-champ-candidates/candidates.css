@@ -1,0 +1,62 @@
+.champions-container {
+    margin: 1rem 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.champions-header {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.champions-sem-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #444;
+    margin-top: 1rem;
+}
+
+.champions-sem-section {
+    margin-top: 2rem;
+}
+
+.champions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+}
+
+.champions-table th,
+.champions-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+}
+
+.champions-table th {
+    background-color: #F4F7FC;
+    font-weight: bold;
+}
+
+.champions-bold-row {
+    font-weight: bold;
+    background-color: #D9D9D9;
+}
+
+.champions-no-data {
+    text-align: center;
+    font-style: italic;
+    padding: 1rem;
+    color: #777;
+}
+
+.champions-loading {
+    font-style: italic;
+    color: #555;
+}
+
+.champions-error {
+    color: red;
+    font-weight: bold;
+}

@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\Log;
 use App\Models\MasterClassList;
 use App\Models\ESLadmins;
 use Carbon\Carbon;
+use App\Models\DiagnosedGraduate;
 
 class EieDiagnosticReportController extends Controller
 {
-    public function store(Request $request)
+    public function storeNonGradData(Request $request)
     {
         try {
             // Validate the incoming data
@@ -114,6 +115,95 @@ class EieDiagnosticReportController extends Controller
     }
 
 
+    public function storeGradData(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'student_id' => 'nullable|string|max:255',
+            'date_of_interview' => 'nullable|date',
+            'time_of_interview' => 'nullable|string|max:255',
+            'venue' => 'nullable|string|max:255',
+            'department' => 'required|string|max:255',
+            'program' => 'nullable|string|max:255',
+            'interviewer' => 'nullable|string|max:255',
+            'year_level' => 'required|string|max:255',
+
+            // Pronunciation
+            'consistency_descriptor' => 'nullable|string',
+            'consistency_rating' => 'nullable|numeric',
+            'clarity_descriptor' => 'nullable|string',
+            'clarity_rating' => 'nullable|numeric',
+            'articulation_descriptor' => 'nullable|string',
+            'articulation_rating' => 'nullable|numeric',
+            'intonation_and_stress_descriptor' => 'nullable|string',
+            'intonation_and_stress_rating' => 'nullable|numeric',
+            'pronunciation_average' => 'nullable|numeric',
+
+            // Grammar
+            'accuracy_descriptor' => 'nullable|string',
+            'accuracy_rating' => 'nullable|numeric',
+            'clarity_of_thought_descriptor' => 'nullable|string',
+            'clarity_of_thought_rating' => 'nullable|numeric',
+            'syntax_descriptor' => 'nullable|string',
+            'syntax_rating' => 'nullable|numeric',
+            'grammar_average' => 'nullable|numeric',
+
+            // Fluency
+            'quality_of_response_descriptor' => 'nullable|string',
+            'quality_of_response_rating' => 'nullable|numeric',
+            'detail_of_response_descriptor' => 'nullable|string',
+            'detail_of_response_rating' => 'nullable|numeric',
+            'fluency_average' => 'nullable|numeric',
+
+            // Remarks
+            'pgf_specific_remarks' => 'nullable|string',
+            'school_year_highlight' => 'nullable|string',
+            'school_year_lowlight' => 'nullable|string',
+            'reason_for_enrolling' => 'nullable|string',
+            'after_graduation_plans' => 'nullable|string',
+
+            // English Usage
+            'transactions_with_employees_rating' => 'nullable|numeric',
+            'transactions_with_employees_explanation' => 'nullable|string',
+            'employee_student_conversations_rating' => 'nullable|numeric',
+            'employee_student_conversations_explanation' => 'nullable|string',
+            'student_visitor_conversations_rating' => 'nullable|numeric',
+            'student_visitor_conversations_explanation' => 'nullable|string',
+            'classes_rating' => 'nullable|numeric',
+            'classes_explanation' => 'nullable|string',
+            'university_activities_rating' => 'nullable|numeric',
+            'university_activities_explanation' => 'nullable|string',
+            'meetings_and_workshops_rating' => 'nullable|numeric',
+            'meetings_and_workshops_explanation' => 'nullable|string',
+            'written_communications_rating' => 'nullable|numeric',
+            'written_communications_explanation' => 'nullable|string',
+            'consultation_sessions_rating' => 'nullable|numeric',
+            'consultation_sessions_explanation' => 'nullable|string',
+            'informal_conversations_rating' => 'nullable|numeric',
+            'informal_conversations_explanation' => 'nullable|string',
+            'external_representation_rating' => 'nullable|numeric',
+            'external_representation_explanation' => 'nullable|string',
+            'native_language_guidance_rating' => 'nullable|numeric',
+            'native_language_guidance_explanation' => 'nullable|string',
+            'clarify_with_native_language_rating' => 'nullable|numeric',
+            'clarify_with_native_language_explanation' => 'nullable|string',
+            'help_restate_context_rating' => 'nullable|numeric',
+            'help_restate_context_explanation' => 'nullable|string',
+            'immersive_program_rating' => 'nullable|numeric',
+            'immersive_program_explanation' => 'nullable|string',
+            'help_correct_english_usage_rating' => 'nullable|numeric',
+            'help_correct_english_usage_explanation' => 'nullable|string',
+        ]);
+
+        $diagnosedGraduate = DiagnosedGraduate::create($validatedData);
+
+        return response()->json([
+            'message' => 'Data saved successfully.',
+            'data' => $diagnosedGraduate
+        ], 201);
+    }
+
+
     // Fetch 4th Year reports
     public function getFourthYearReports(Request $request)
     {
@@ -124,7 +214,7 @@ class EieDiagnosticReportController extends Controller
             $endDate = Carbon::createFromDate($endYear, 12, 31)->endOfDay();
 
             // Fetch reports from the same table using 'year_level'
-            $reports = EieDiagnosticReport::where('show_status', $request->status)
+            $reports = DiagnosedGraduate::where('show_status', $request->status)
             ->where('department', $request->department)
             ->where('year_level', '4th Year')
             ->whereBetween('created_at', [$startDate, $endDate])

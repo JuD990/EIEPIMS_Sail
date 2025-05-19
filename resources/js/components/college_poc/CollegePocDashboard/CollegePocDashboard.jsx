@@ -50,9 +50,20 @@ const CollegePocDashboard = () => {
       {/* Tabular Data Display */}
       <div className="dashboard-table-container">
         <h2 className="table-title">
-          Tabular Form - {selectedSemester}, {selectedDepartment} {selectedSchoolYear.replace('/', '-')}
+          Summary overall performance by month
         </h2>
-
+        <p
+        style={{
+          fontFamily: 'Poppins',
+          textAlign: 'left',
+          marginTop: '-10px',
+          fontSize: '0.95rem',
+          fontStyle: 'italic',
+          color: '#666666',
+        }}
+        >
+        {selectedSemester}, {selectedSchoolYear.replace('/', '-')}
+        </p>
         <TableComponent
           department={selectedDepartment}
           schoolYear={selectedSchoolYear}

@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ImplementingSubjects;
+use App\Models\LeadPOCs;
 use App\Models\EIEHeads;
 use App\Models\EieReport;
 use App\Models\ClassLists;
 use App\Models\EieScorecardClassReport;
 use App\Models\HistoricalClassLists;
 use App\Models\HistoricalScorecard;
+use App\Models\EieChampions;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -43,7 +45,9 @@ class EieReportController extends Controller
             ->where('epgf_average', '>', 0.00)
             ->count();
 
-            $activeStudents = $program->active_students ?? 0;
+            $activeStudents = ClassLists::where('course_code', $program->course_code)
+            ->where('status', 'active')  // or ->where('is_active', 1) depending on your schema
+            ->count();
 
             // Calculate completion rate
             $completionRate = $activeStudents > 0
@@ -155,8 +159,8 @@ class EieReportController extends Controller
         $grandTotals = [
             'expectedSubmissions' => 0,
             'submitted' => array_fill_keys($months, 0),
-            'completionRate' => array_fill_keys($months, null),
-            'epgfAverage' => array_fill_keys($months, null),
+            'completionRate' => array_fill_keys($months, []),
+            'epgfAverage' => array_fill_keys($months, []),
             'proficiencyLevel' => array_fill_keys($months, null),
             'champion' => array_fill_keys($months, null),
         ];
@@ -165,8 +169,8 @@ class EieReportController extends Controller
             $yearTotals = [
                 'expectedSubmissions' => 0,
                 'submitted' => array_fill_keys($months, 0),
-                'completionRate' => array_fill_keys($months, null),
-                'epgfAverage' => array_fill_keys($months, null),
+                'completionRate' => array_fill_keys($months, []),
+                'epgfAverage' => array_fill_keys($months, []),
                 'proficiencyLevel' => array_fill_keys($months, null),
                 'champion' => array_fill_keys($months, null),
             ];
@@ -176,28 +180,28 @@ class EieReportController extends Controller
 
                 foreach ($months as $month) {
                     $monthData[$month] = [
-                        'submitted' => null,
-                        'completionRate' => null,
-                        'epgfAverage' => null,
+                        'submitted' => 0,
+                        'completionRate' => 0,
+                        'epgfAverage' => 0,
                         'proficiencyLevel' => null,
                         'champion' => null,
-                        'champion_epgf_average' => null,
+                        'champion_epgf_average' => 0,
                     ];
                 }
 
                 $firstReport = $programReports->first();
-                $yearTotals['expectedSubmissions'] += $firstReport->enrolled_students;
-                $grandTotals['expectedSubmissions'] += $firstReport->enrolled_students;
+                $yearTotals['expectedSubmissions'] += $firstReport->active_students;
+                $grandTotals['expectedSubmissions'] += $firstReport->active_students;
 
                 foreach ($programReports as $report) {
                     $monthName = \Carbon\Carbon::parse($report->created_at)->format('F');
                     if (in_array($monthName, $months)) {
-                        // Check for null or empty values and set them as null
-                        $reportCompletionRate = ($report->completion_rate == 0 || is_null($report->completion_rate)) ? null : $report->completion_rate;
-                        $reportEpgfAverage = ($report->epgf_average == 0 || is_null($report->epgf_average)) ? null : $report->epgf_average;
+                        // Treat null as 0, allow 0 in averages
+                        $reportCompletionRate = is_null($report->completion_rate) ? 0 : $report->completion_rate;
+                        $reportEpgfAverage = is_null($report->epgf_average) ? 0 : $report->epgf_average;
 
                         // Aggregate values for monthly data
-                        $monthData[$monthName]['submitted'] += $report->submitted ?? null;
+                        $monthData[$monthName]['submitted'] += $report->submitted ?? 0;
                         $monthData[$monthName]['completionRate'] += $reportCompletionRate;
                         $monthData[$monthName]['epgfAverage'] += $reportEpgfAverage;
                         $monthData[$monthName]['proficiencyLevel'] = $this->determineProficiencyLevel($reportEpgfAverage);
@@ -209,47 +213,35 @@ class EieReportController extends Controller
                         }
 
                         // Aggregate values for year and grand totals
-                        $yearTotals['submitted'][$monthName] += $report->submitted ?? null;
-                        if (!is_null($reportCompletionRate)) {
-                            $yearTotals['completionRate'][$monthName][] = $reportCompletionRate;
-                        }
-                        if (!is_null($reportEpgfAverage)) {
-                            $yearTotals['epgfAverage'][$monthName][] = $reportEpgfAverage;
-                        }
+                        $yearTotals['submitted'][$monthName] += $report->submitted ?? 0;
+                        $yearTotals['completionRate'][$monthName][] = $reportCompletionRate;
+                        $yearTotals['epgfAverage'][$monthName][] = $reportEpgfAverage;
 
-                        $grandTotals['submitted'][$monthName] += $report->submitted ?? null;
-                        if (!is_null($reportCompletionRate)) {
-                            $grandTotals['completionRate'][$monthName][] = $reportCompletionRate;
-                        }
-                        if (!is_null($reportEpgfAverage)) {
-                            $grandTotals['epgfAverage'][$monthName][] = $reportEpgfAverage;
-                        }
+                        $grandTotals['submitted'][$monthName] += $report->submitted ?? 0;
+                        $grandTotals['completionRate'][$monthName][] = $reportCompletionRate;
+                        $grandTotals['epgfAverage'][$monthName][] = $reportEpgfAverage;
                     }
                 }
 
                 return [
                     'program' => $firstReport->program,
                     'courseTitle' => $firstReport->course_title,
-                    'enrolledStudents' => $firstReport->enrolled_students,
+                    'enrolledStudents' => $firstReport->active_students,
                     'monthData' => $monthData,
                 ];
             });
 
             foreach ($months as $month) {
-                // Ensure missing values default to null or "-"
-                $yearTotals['completionRate'][$month] = (!empty($yearTotals['completionRate'][$month]) && count($yearTotals['completionRate'][$month]) > 0)
+                $yearTotals['completionRate'][$month] = count($yearTotals['completionRate'][$month]) > 0
                 ? round(array_sum($yearTotals['completionRate'][$month]) / count($yearTotals['completionRate'][$month]), 2)
-                : null;
+                : 0;
 
-                $yearTotals['epgfAverage'][$month] = (!empty($yearTotals['epgfAverage'][$month]) && count($yearTotals['epgfAverage'][$month]) > 0)
+                $yearTotals['epgfAverage'][$month] = count($yearTotals['epgfAverage'][$month]) > 0
                 ? round(array_sum($yearTotals['epgfAverage'][$month]) / count($yearTotals['epgfAverage'][$month]), 2)
-                : null;
+                : 0;
 
-                $yearTotals['proficiencyLevel'][$month] = $yearTotals['epgfAverage'][$month] !== null
-                ? $this->determineProficiencyLevel($yearTotals['epgfAverage'][$month])
-                : null;
+                $yearTotals['proficiencyLevel'][$month] = $this->determineProficiencyLevel($yearTotals['epgfAverage'][$month]);
 
-                // Determine Year Champion
                 $monthlyChampions = $yearLevelReports->filter(function ($report) use ($month) {
                     return \Carbon\Carbon::parse($report->created_at)->format('F') === $month;
                 });
@@ -264,19 +256,16 @@ class EieReportController extends Controller
         });
 
         foreach ($months as $month) {
-            // Ensure missing grand totals default to null
-            $grandTotals['completionRate'][$month] = !empty($grandTotals['completionRate'][$month]) && count($grandTotals['completionRate'][$month]) > 0
+            $grandTotals['completionRate'][$month] = count($grandTotals['completionRate'][$month]) > 0
             ? round(array_sum($grandTotals['completionRate'][$month]) / count($grandTotals['completionRate'][$month]), 2)
-            : null;
+            : 0;
 
-            $grandTotals['epgfAverage'][$month] = !empty($grandTotals['epgfAverage'][$month]) && count($grandTotals['epgfAverage'][$month]) > 0
+            $grandTotals['epgfAverage'][$month] = count($grandTotals['epgfAverage'][$month]) > 0
             ? round(array_sum($grandTotals['epgfAverage'][$month]) / count($grandTotals['epgfAverage'][$month]), 2)
-            : null;
+            : 0;
 
-            //Compute proficiency level for grand totals
             $grandTotals['proficiencyLevel'][$month] = $this->determineProficiencyLevel($grandTotals['epgfAverage'][$month]);
 
-            // Determine Grand Champion
             $monthlyChampions = $reports->filter(function ($report) use ($month) {
                 return \Carbon\Carbon::parse($report->created_at)->format('F') === $month;
             });
@@ -367,7 +356,7 @@ class EieReportController extends Controller
                 }
 
                 $firstReport = $programReports->first();
-                $enrolledStudents = $firstReport->enrolled_students;
+                $enrolledStudents = $firstReport->active_students;
                 $assignedPOC = $firstReport->assigned_poc;
 
                 foreach ($programReports as $report) {
@@ -472,7 +461,7 @@ class EieReportController extends Controller
                 ]);
 
                 $firstReport = $programReports->first();
-                $enrolledStudents = $firstReport->enrolled_students;
+                $enrolledStudents = $firstReport->active_students;
                 $assignedPOC = $firstReport->assigned_poc;
 
                 // Calculate monthly stats and determine champions
@@ -959,4 +948,255 @@ class EieReportController extends Controller
 
         return response()->json($uniqueDepartments);
     }
+
+    public function getEieReportingLeadPOC(Request $request)
+    {
+        $department = $request->input('department');
+        $semester = $request->input('semester');
+        $schoolYear = $request->input('schoolYear');
+        $employeeId = $request->input('employee_id');
+
+        if (!$department || !$semester || !$schoolYear || !$employeeId) {
+            return response()->json(['success' => false, 'message' => 'Invalid parameters'], 400);
+        }
+
+        $leadPoc = LeadPOCs::where('employee_id', $employeeId)->first();
+
+        if (!$leadPoc) {
+            return response()->json(['success' => false, 'message' => 'No program found for the given employee_id'], 404);
+        }
+
+        $program = $leadPoc->program;
+
+        $years = explode('/', $schoolYear);
+        if (count($years) != 2 || !is_numeric($years[0]) || !is_numeric($years[1])) {
+            return response()->json(['success' => false, 'message' => 'Invalid school year format'], 400);
+        }
+        list($startYear, $endYear) = $years;
+
+        $reports = EieReport::where('department', $department)
+        ->where('semester', $semester)
+        ->where('program', $program)
+        ->whereYear('created_at', '>=', (int)$startYear)
+        ->whereYear('created_at', '<=', (int)$endYear)
+        ->get();
+
+        if ($reports->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'No data found for the specified parameters'], 404);
+        }
+
+        $firstSem = ["August", "September", "October", "November", "December"];
+        $secondSem = ["January", "February", "March", "April", "May"];
+        $months = $semester === '1st Semester' ? $firstSem : $secondSem;
+
+        $groupedData = $reports->groupBy('year_level')->map(function ($yearLevelReports) use ($months) {
+            return $yearLevelReports->groupBy('program')->map(function ($programReports) use ($months) {
+                // Initialize month data with sums and counts for averages
+                $monthData = [];
+                foreach ($months as $month) {
+                    $monthData[$month] = [
+                        'submitted' => 0,
+                        'completionRate' => 0,
+                        'completionCount' => 0,
+                        'epgfAverage' => 0,
+                        'epgfCount' => 0,
+                        'proficiencyLevel' => null,
+                        'champion' => null,
+                        'champion_epgf_average' => 0,
+                        'champion_proficiency_level' => null,
+                    ];
+                }
+
+                $firstReport = $programReports->first();
+                $enrolledStudents = $firstReport->active_students;
+                $assignedPOC = $firstReport->assigned_poc;
+
+                foreach ($programReports as $report) {
+                    $monthName = \Carbon\Carbon::parse($report->created_at)->format('F');
+                    if (in_array($monthName, $months)) {
+                        $monthData[$monthName]['submitted'] += $report->submitted;
+
+                        if ($report->completion_rate !== null) {
+                            $monthData[$monthName]['completionRate'] += $report->completion_rate;
+                            $monthData[$monthName]['completionCount']++;
+                        }
+
+                        if ($report->epgf_average !== null) {
+                            $monthData[$monthName]['epgfAverage'] += $report->epgf_average;
+                            $monthData[$monthName]['epgfCount']++;
+                            $monthData[$monthName]['proficiencyLevel'] = $this->determineProficiencyLevel($report->epgf_average);
+                        }
+
+                        if ($report->champion_epgf_average > $monthData[$monthName]['champion_epgf_average']) {
+                            $monthData[$monthName]['champion'] = $report->champion;
+                            $monthData[$monthName]['champion_epgf_average'] = $report->champion_epgf_average;
+                            $monthData[$monthName]['champion_proficiency_level'] = $this->determineProficiencyLevel($report->champion_epgf_average);
+                        }
+                    }
+                }
+
+                // Calculate averages after summing
+                foreach ($months as $month) {
+                    if ($monthData[$month]['completionCount'] > 0) {
+                        $monthData[$month]['completionRate'] = round($monthData[$month]['completionRate'] / $monthData[$month]['completionCount'], 2);
+                    } else {
+                        $monthData[$month]['completionRate'] = null;
+                    }
+                    if ($monthData[$month]['epgfCount'] > 0) {
+                        $monthData[$month]['epgfAverage'] = round($monthData[$month]['epgfAverage'] / $monthData[$month]['epgfCount'], 2);
+                    } else {
+                        $monthData[$month]['epgfAverage'] = null;
+                        $monthData[$month]['proficiencyLevel'] = null;
+                    }
+                    unset($monthData[$month]['completionCount']);
+                    unset($monthData[$month]['epgfCount']);
+                }
+
+                return [
+                    'program' => $firstReport->program,
+                    'courseTitle' => $firstReport->course_title,
+                    'assignedPOC' => $assignedPOC,
+                    'enrolledStudents' => $enrolledStudents,
+                    'monthData' => $monthData,
+                ];
+            });
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $groupedData,
+        ]);
+    }
+
+    public function getChampsdReport(Request $request)
+    {
+        $department = $request->input('department');
+        $semester = $request->input('semester');
+        $schoolYear = $request->input('schoolYear');
+
+        if (!$department || !$semester || !$schoolYear) {
+            return response()->json(['success' => false, 'message' => 'Invalid parameters'], 400);
+        }
+
+        // Validate school year format
+        $years = explode('/', $schoolYear);
+        if (count($years) != 2 || !is_numeric($years[0]) || !is_numeric($years[1])) {
+            return response()->json(['success' => false, 'message' => 'Invalid school year format'], 400);
+        }
+        list($startYear, $endYear) = $years;
+
+        $reports = EieReport::where('department', $department)
+        ->where('semester', $semester)
+        ->whereYear('created_at', '>=', (int)$startYear)
+        ->whereYear('created_at', '<=', (int)$endYear)
+        ->get();
+
+        // Build year level map
+        $studentIds = $reports->pluck('champion_student_id')->filter()->unique();
+        $yearLevelsMap = [];
+
+        $currentClassLists = ClassLists::whereIn('student_id', $studentIds)->get();
+        foreach ($currentClassLists as $record) {
+            $yearLevelsMap[$record->student_id] = $record->year_level;
+        }
+
+        $missingIds = $studentIds->diff(array_keys($yearLevelsMap));
+        if ($missingIds->isNotEmpty()) {
+            $historicalLists = HistoricalClassLists::whereIn('student_id', $missingIds)->get();
+            foreach ($historicalLists as $record) {
+                $yearLevelsMap[$record->student_id] = $record->year_level;
+            }
+        }
+
+        // Attach year_level to each report
+        $reports = $reports->map(function ($report) use ($yearLevelsMap) {
+            $report->year_level = $yearLevelsMap[$report->champion_student_id] ?? 'Unknown';
+            return $report;
+        });
+
+        $groupedReports = $reports->groupBy('year_level');
+
+        // Define all possible year levels (customize as needed)
+        $allYearLevels = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
+
+        $yearTotalChampions = [];
+
+        foreach ($allYearLevels as $yearLevel) {
+            $yearReports = $groupedReports->get($yearLevel, collect());
+
+            if ($yearReports->isEmpty()) {
+                $yearTotalChampions[$yearLevel] = null;
+            } else {
+                $championReport = $yearReports->sortByDesc('champion_epgf_average')->first();
+                $studentId = data_get($championReport, 'champion_student_id');
+                $stats = $this->getChampionStats($studentId);
+
+                // Fallback for EPGF average
+                $fallbackEpgf = $stats['average_epgf'] ?? $championReport->champion_epgf_average;
+
+                $yearTotalChampions[$yearLevel] = [
+                    'champion' => $championReport->champion,
+                    'student_id' => $studentId,
+                    'epgf_average' => $fallbackEpgf !== null ? round($fallbackEpgf, 2) : null,
+                    'times_won' => $stats['times_won'],
+                ];
+            }
+        }
+
+        // Grand Champion
+        $grandChampionReport = $reports->sortByDesc('champion_epgf_average')->first();
+        $grandChampion = null;
+
+        if ($grandChampionReport) {
+            $studentId = data_get($grandChampionReport, 'champion_student_id');
+            $stats = $this->getChampionStats($studentId);
+
+            $fallbackEpgf = $stats['average_epgf'] ?? $grandChampionReport->champion_epgf_average;
+
+            $grandChampion = [
+                'champion' => $grandChampionReport->champion,
+                'student_id' => $studentId,
+                'epgf_average' => $fallbackEpgf !== null ? round($fallbackEpgf, 2) : null,
+                'times_won' => $stats['times_won'],
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'yearTotalChampions' => $yearTotalChampions,
+            'grandChampion' => $grandChampion,
+        ]);
+    }
+
+    /**
+     * Helper method to count how many times a student has won in EieChampions
+     */
+    protected function getTimesWonCount($studentId)
+    {
+        if (!$studentId) {
+            return 0;
+        }
+
+        return EieChampions::where('student_id', $studentId)->count();
+    }
+
+    protected function getChampionStats($studentId)
+    {
+        if (!$studentId) {
+            return [
+                'times_won' => 0,
+                'average_epgf' => null,
+            ];
+        }
+
+        $stats = EieChampions::where('student_id', $studentId)
+        ->selectRaw('COUNT(*) as times_won, AVG(epgf_average) as average_epgf')
+        ->first();
+
+        return [
+            'times_won' => (int) $stats->times_won,
+            'average_epgf' => $stats->average_epgf ? round($stats->average_epgf, 2) : null,
+        ];
+    }
+
 }

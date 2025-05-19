@@ -129,11 +129,11 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
     };
 
     return (
-        <div className="eie-head-dashboard-controls">
-        <div className="eie-head-dashboard-dropdown-container">
+        <div className="college-poc-dashboard-controls">
+        <div className="college-poc-dashboard-dropdown-container">
 
-        <div className="eie-head2-reset-link-container">
-        <a href="#" className="eie-head2-reset-link" onClick={(e) => {
+        <div className="college-poc2-reset-link-container">
+        <a href="#" className="college-poc2-reset-link" onClick={(e) => {
             e.preventDefault();
             handleResetFilters();
         }}>
@@ -142,22 +142,22 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
         </div>
 
         {/* School Year Dropdown */}
-        <div className="eie-head-dashboard-dropdown-wrapper">
+        <div className="college-poc-dashboard-dropdown-wrapper">
         <button
-        className="eie-head-dashboard-dropdown-btn"
+        className="college-poc-dashboard-dropdown-btn"
         onClick={() => setIsSchoolYearOpen((prev) => !prev)}
         >
         {schoolYear ? schoolYear.replace("/", "-") : "Select School Year"}
         <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
         </button>
         {isSchoolYearOpen && (
-            <div className="eie-head-graph-dropdown-menu">
+            <div className="college-poc-dashboard-dropdown-menu">
             {schoolYears.length > 0 ? (
                 schoolYears.map((year, index) => (
                     <p
                     key={index}
-                    className={`eie-head-graph-dropdown-item ${
-                        schoolYear === year ? "eie-head-graph-selected" : ""
+                    className={`college-poc-dashboard-dropdown-item ${
+                        schoolYear === year ? "college-poc-dashboard-selected" : ""
                     }`}
                     onClick={() => handleSchoolYearSelect(year)}
                     >
@@ -165,24 +165,24 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
                     </p>
                 ))
             ) : (
-                <p className="eie-head-graph-dropdown-item">No School Years</p>
+                <p className="college-poc-dashboard-dropdown-item">No School Years</p>
             )}
             </div>
         )}
         </div>
 
         {/* Semester Dropdown */}
-        <div className="eie-head-dashboard-dropdown-wrapper">
-        <button className="eie-head-dashboard-dropdown-btn" onClick={() => setIsSemesterOpen((prev) => !prev)}>
+        <div className="college-poc-dashboard-dropdown-wrapper">
+        <button className="college-poc-dashboard-dropdown-btn" onClick={() => setIsSemesterOpen((prev) => !prev)}>
         {semester || "Select Semester"}
-        <FaChevronDown className={`eie-head-dashboard-dropdown-arrow ${isSemesterOpen ? "open" : ""}`} />
+        <FaChevronDown className={`college-poc-dashboard-dropdown-arrow ${isSemesterOpen ? "open" : ""}`} />
         </button>
         {isSemesterOpen && (
-            <div className="eie-head-dashboard-dropdown-menu">
+            <div className="college-poc-dashboard-dropdown-menu">
             {semesters.map((sem, index) => (
                 <p
                 key={index}
-                className={`eie-head-dashboard-dropdown-item ${semester === sem ? "eie-head-dashboard-selected" : ""}`}
+                className={`college-poc-dashboard-dropdown-item ${semester === sem ? "college-poc-dashboard-selected" : ""}`}
                 onClick={() => {
                     setSemester(sem);
                     setSelectedSemester(sem);
@@ -199,11 +199,11 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
         <div className="relative group">
         <button
-        className="eie-head-dashboard-refresh-btn"
+        className="college-poc-dashboard-refresh-btn"
         onClick={handleRefresh}
         disabled={loading}
         >
-        <IoRefresh className="eie-head-dashboard-refresh-icon" />
+        <IoRefresh className="college-poc-dashboard-refresh-icon" />
         {loading ? 'Refreshing...' : ''}
         </button>
         <div className="absolute bottom-full mb-2 hidden group-hover:block bg-white text-black text-sm rounded px-2 py-1 z-10 whitespace-nowrap shadow-lg right-0 mr-4">
@@ -214,6 +214,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
         {error && <p className="error-message">{error}</p>}
         </div>
     );
+
 };
 
 export default DashboardDropdown;

@@ -15,6 +15,7 @@ const ImplementingSubjectsTable = ({
   const [error, setError] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [isLoadingPocs, setIsLoadingPocs] = useState(true);
+
   const [formData, setFormData] = useState({
     course_code: "",
     employee_id: "",
@@ -25,6 +26,7 @@ const ImplementingSubjectsTable = ({
   const [csvErrors, setCsvErrors] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const employeeId = localStorage.getItem("employee_id");
+
   const fetchData = async () => {
     const employeeId = localStorage.getItem("employee_id");
     if (!employeeId) {
@@ -33,17 +35,28 @@ const ImplementingSubjectsTable = ({
       setIsLoading(false);
       return;
     }
+
     setIsLoading(true);
-    setError(null); // Reset previous error
+    setError(null);
+
     try {
       const response = await axios.get("/api/implementing-subjects", {
         headers: {
-          'X-Employee-ID': employeeId,
-          'Accept': 'application/json', // Ensure we're sending JSON
+          "X-Employee-ID": employeeId,
+          Accept: "application/json",
         },
       });
 
-      const filteredData = response.data.filter((item) => {
+      const subjects = response.data.subjects || [];
+      const droppedCounts = response.data.dropped_counts || {};
+
+      // Merge dropped student counts into subject data
+      const mergedData = subjects.map(subject => ({
+        ...subject,
+        dropped_students: droppedCounts[subject.course_code] || 0
+      }));
+
+      const filteredData = mergedData.filter((item) => {
         const matchesSearch = searchQuery
         ? [
           item.course_title,
@@ -74,17 +87,12 @@ const ImplementingSubjectsTable = ({
       setData(filteredData);
     } catch (error) {
       console.error("❌ Error fetching data:", error);
-
-      // Log full error response for better debugging
-      console.error("Error Response:", error.response?.data);
-
       setError(error.response?.data?.error || "Failed to fetch data.");
-      setData([]); // Prevent crash: ensure empty array
+      setData([]);
     } finally {
       setIsLoading(false);
     }
   };
-
 
   useEffect(() => {
     const fetchFilteredPocs = async () => {
@@ -175,8 +183,9 @@ const ImplementingSubjectsTable = ({
       { Header: "Employee ID", accessor: "employee_id" },
       { Header: "Assigned POC", accessor: "assigned_poc" },
       { Header: "Email", accessor: "email" },
+      { Header: "Officially Enrolled", accessor: "enrolled_students" },
       { Header: "Active Students", accessor: "active_students" },
-      { Header: "Enrolled Students", accessor: "enrolled_students" },
+      { Header: "Dropped Students", accessor: "dropped_students" },
       {
         Header: "Upload",
         accessor: "actions",

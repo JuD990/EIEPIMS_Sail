@@ -11,6 +11,30 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
     const [tableData, setTableData] = useState(data);
     const [semester, setSemester] = useState('');
     const [year, setYear] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
+
+    const checkIfSubmissionExists = async () => {
+        try {
+            const response = await axios.post('/api/evaluate/check-month', {
+                month
+            });
+
+            if (response.data.exists) {
+                setIsSubmitDisabled(true);
+            } else {
+                setIsSubmitDisabled(false);
+            }
+        } catch (error) {
+            console.error("Error checking submission existence:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (month) {
+            checkIfSubmissionExists();
+        }
+    }, [month]);
 
     const updateMyData = (rowIndex, columnId, value) => {
         setTableData(old =>
@@ -458,10 +482,18 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
         }, [searchQuery, setGlobalFilter]);
 
         const handleSaveOrSubmit = async (action = 'save') => {
+            if (isSubmitting) return;
+
+            if (action === 'submit') {
+                const confirmed = window.confirm("Are you sure you want to submit the data? This action may be final.");
+                if (!confirmed) return;
+            }
+
+            setIsSubmitting(true);
+
             try {
                 const csrfToken = document.head.querySelector('meta[name="csrf-token"]').content;
 
-                // Prepare data with fallback defaults
                 const dataWithTaskTitle = tableData.map(record => ({
                     ...record,
                     task_title: taskTitle || "No title",
@@ -475,9 +507,6 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
                 }));
 
                 const url = `/api/evaluate/${action}`;
-
-                console.log(`Sending data to ${url}:`, dataWithTaskTitle);
-
                 const response = await axios.post(url, { data: dataWithTaskTitle }, {
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -486,14 +515,17 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
 
                 if (response.status === 200) {
                     alert(`Data ${action === 'save' ? 'saved' : 'submitted'} successfully!`);
-                    console.log(`Data ${action === 'save' ? 'saved' : 'submitted'} successfully!`);
+                    if (action === 'submit') {
+                        setIsSubmitDisabled(true); // once submitted, disable the button
+                    }
                 } else {
                     alert(`Failed to ${action} data.`);
-                    console.error(`Failed to ${action} data:`, response);
                 }
             } catch (error) {
                 console.error(`Error during ${action} operation:`, error);
                 alert(`An error occurred while ${action === 'save' ? 'saving' : 'submitting'} the data.`);
+            } finally {
+                setIsSubmitting(false);
             }
         };
 
@@ -547,8 +579,21 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
                 <div className="clt-summary-wrapper">
                 {/* Buttons - absolutely positioned within clt-summary-wrapper */}
                 <div className="clt-buttons-absolute">
-                <button onClick={() => handleSaveOrSubmit('save')} className="clt-button">Save</button>
-                <button onClick={() => handleSaveOrSubmit('submit')} className="clt-button clt-submit">Submit</button>
+                <button
+                onClick={() => handleSaveOrSubmit('save')}
+                className="clt-button"
+                disabled={isSubmitting}
+                >
+                Save
+                </button>
+
+                <button
+                onClick={() => handleSaveOrSubmit('submit')}
+                className="clt-button clt-submit"
+                disabled={isSubmitting || isSubmitDisabled}
+                >
+                Submit
+                </button>
                 </div>
                 </div>
                 {/* Submission Status */}

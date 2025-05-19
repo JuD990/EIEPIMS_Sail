@@ -2,22 +2,32 @@ import React, { useState, useEffect } from "react";
 
 const NonGraduatingRemarks = ({ onDataChange }) => {
     const [remarks, setRemarks] = useState({
-        "PGF Specific Remarks": "",
-        "School Year Highlight": "",
-        "School Year Lowlight": "",
-        "SPARK Highlight": "",
-        "SPARK Lowlight": "",
-        "Usage in School/Online (When in School)": "",
-        "Usage Offline (Home or Outside)": "",
-        "Support Needed": ""
+        pgf_specific_remarks: "",
+        school_year_highlight: "",
+        school_year_lowlight: "",
+        spark_highlight: "",
+        spark_lowlight: "",
+        usage_in_school_online: "",
+        usage_offline: "",
+        support_needed: ""
     });
+
+    const labels = {
+        pgf_specific_remarks: "PGF Specific Remarks",
+        school_year_highlight: "School Year Highlight",
+        school_year_lowlight: "School Year Lowlight",
+        spark_highlight: "SPARK Highlight",
+        spark_lowlight: "SPARK Lowlight",
+        usage_in_school_online: "Usage in School/Online (When in School)",
+        usage_offline: "Usage Offline (Home or Outside)",
+        support_needed: "Support Needed"
+    };
 
     const handleChange = (e, key) => {
         const updated = { ...remarks, [key]: e.target.value };
         setRemarks(updated);
     };
 
-    // Inform parent whenever remarks change
     useEffect(() => {
         if (onDataChange) {
             onDataChange(remarks);
@@ -27,9 +37,9 @@ const NonGraduatingRemarks = ({ onDataChange }) => {
     return (
         <div>
         <h2 className="text-xl font-bold mb-4">Non-Graduating Student Remarks</h2>
-        {Object.entries(remarks).map(([key, value], index) => (
+        {Object.entries(remarks).map(([key, value]) => (
             <div key={key} className="mb-4">
-            <label className="block font-semibold">{`${index + 1}. ${key}`}</label>
+            <label className="block font-semibold">{labels[key]}</label>
             <textarea
             value={value}
             onChange={(e) => handleChange(e, key)}

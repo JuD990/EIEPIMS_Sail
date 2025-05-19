@@ -21,21 +21,21 @@ return(
     onClick={() => setActiveTab(1)}
     className={`tab ${activeTab === 1 ? "active-tab" : ""}`}
     >
-    <p> Freshmen EPGF Benchmark Scorecard  </p>
+    <p>   Graduating  </p>
     </div>
     <div
     onClick={() => setActiveTab(2)}
     className={`tab ${activeTab === 2 ? "active-tab" : ""}`}
     >
-    <p> Graduating EPGF Oral Diagnostics  </p>
+    <p> Non-Graduating </p>
     </div>
     </div>
 
     {/* Divider line */}
     <div className="divider-line"></div>
     {/* Display corresponding content based on active tab */}
-    {activeTab === 1 && <FreshmenReports />}
-    {activeTab === 2 && <GraduatingReports />}
+    {activeTab === 1 && <GraduatingReports />}
+    {activeTab === 2 && <FreshmenReports />}
 
 
 

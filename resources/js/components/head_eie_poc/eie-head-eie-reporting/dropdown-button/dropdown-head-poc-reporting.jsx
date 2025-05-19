@@ -107,51 +107,51 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
     };
 
     return (
-        <div className="esl-dashboard-controls">
-        <div className="esl-dashboard-dropdown-container">
+        <div className="eie-head2-dashboard-controls">
+        <div className="eie-head2-dashboard-dropdown-container">
 
         {/* School Year Dropdown */}
-        <div className="eie-head-dashboard-dropdown-wrapper">
+        <div className="eie-head2-dashboard-dropdown-wrapper">
         <button
-        className="eie-head-dashboard-dropdown-btn"
+        className="eie-head2-dashboard-dropdown-btn"
         onClick={() => setIsSchoolYearOpen((prev) => !prev)}
         >
         {schoolYear ? schoolYear.replace("/", "-") : "Select School Year"}
-        <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
+        <FaChevronDown className={`eie-head2-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
         </button>
         {isSchoolYearOpen && (
-            <div className="eie-head-graph-dropdown-menu">
+            <div className="eie-head2-graph-dropdown-menu">
             {schoolYears.length > 0 ? (
                 schoolYears.map((year, index) => (
                     <p
                     key={index}
-                    className={`eie-head-graph-dropdown-item ${
-                        schoolYear === year ? "eie-head-graph-selected" : ""
+                    className={`eie-head2-graph-dropdown-item ${
+                        schoolYear === year ? "eie-head2-graph-selected" : ""
                     }`}
                     onClick={() => handleSchoolYearSelect(year)}
                     >
-                    {year.replace("/", "-")} {/* Convert the slash to a dash */}
+                    {year.replace("/", "-")}
                     </p>
                 ))
             ) : (
-                <p className="eie-head-graph-dropdown-item">No School Years</p>
+                <p className="eie-head2-graph-dropdown-item">No School Years</p>
             )}
             </div>
         )}
         </div>
 
         {/* Semester Dropdown */}
-        <div className="esl-dashboard-dropdown-wrapper">
-        <button className="esl-dashboard-dropdown-btn" onClick={() => setIsSemesterOpen((prev) => !prev)}>
+        <div className="eie-head2-dashboard-dropdown-wrapper">
+        <button className="eie-head2-dashboard-dropdown-btn" onClick={() => setIsSemesterOpen((prev) => !prev)}>
         {semester || "Select Semester"}
-        <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSemesterOpen ? "open" : ""}`} />
+        <FaChevronDown className={`eie-head2-dashboard-dropdown-arrow ${isSemesterOpen ? "open" : ""}`} />
         </button>
         {isSemesterOpen && (
-            <div className="esl-dashboard-dropdown-menu">
+            <div className="eie-head2-dashboard-dropdown-menu">
             {semesters.map((sem, index) => (
                 <p
                 key={index}
-                className={`esl-dashboard-dropdown-item ${semester === sem ? "esl-dashboard-selected" : ""}`}
+                className={`eie-head2-dashboard-dropdown-item ${semester === sem ? "eie-head2-dashboard-selected" : ""}`}
                 onClick={() => {
                     setSemester(sem);
                     setSelectedSemester(sem);
@@ -168,21 +168,19 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
         <div className="relative group">
         <button
-        className="eie-head-dashboard-refresh-btn"
+        className="eie-head2-dashboard-refresh-btn"
         onClick={handleRefresh}
         disabled={loading}
         >
-        <IoRefresh className="eie-head-dashboard-refresh-icon" />
+        <IoRefresh className="eie-head2-dashboard-refresh-icon" />
         {loading ? 'Refreshing...' : ''}
         </button>
-        {/* Custom Tooltip */}
         <div className="absolute bottom-full mb-2 hidden group-hover:block bg-white text-black text-sm rounded px-2 py-1 z-10 whitespace-nowrap shadow-lg right-0 mr-4">
         {loading ? 'Refreshing dashboard...' : 'Click to refresh'}
         </div>
         </div>
 
         {error && <p className="error-message">{error}</p>}
-
         </div>
     );
 };

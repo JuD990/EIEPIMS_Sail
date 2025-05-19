@@ -1,0 +1,55 @@
+.mcl-table-container {
+    overflow-y: auto;
+    height: 550px;
+    margin-right: 35px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    margin-top: 20px;
+}
+
+.mcl-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.mcl-table thead tr {
+    position: sticky;
+    top: 0;
+    background: #F4F7FC;
+}
+
+.mcl-table th {
+    padding: 25px 45px;
+    text-align: center;
+    border-bottom: none;
+    font-family: Poppins;
+    font-weight: 500;
+    background-color: #F4F7FC;
+}
+
+.mcl-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    text-align: center;
+    font-family: Poppins;
+    font-weight: 500;
+}
+
+.mcl-select-button {
+    padding: 6px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: Poppins;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.mcl-select-button:hover {
+    background-color: #0056b3;
+}
+

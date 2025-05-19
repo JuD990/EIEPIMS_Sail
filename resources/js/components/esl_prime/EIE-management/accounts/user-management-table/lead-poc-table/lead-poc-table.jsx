@@ -17,6 +17,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
     employee_id: "",
     email: "",
     department: "",
+    program: "",
   });
 
   const handleCancel = () => {
@@ -28,6 +29,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
       employee_id: "",
       email: "",
       department: "",
+      program: "",
     });
   };
 
@@ -73,6 +75,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
       employee_id: collegePOC.employee_id,
       email: collegePOC.email,
       department: collegePOC.department,
+      program: collegePOC.program,
     });
     setShowModal(true);
   };
@@ -110,7 +113,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
   };
 
   const filteredCollegePOCs = (collegePOCs || []).filter((poc) => {
-    const matchesSearch = [poc.firstname, poc.lastname, poc.employee_id, poc.email, poc.department]
+    const matchesSearch = [poc.firstname, poc.lastname, poc.employee_id, poc.email, poc.department, poc.program]
     .some((field) => field?.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesDepartment = selectedDepartment === "" || poc.department === selectedDepartment;
@@ -153,6 +156,10 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
       {
         Header: "Department",
         accessor: "department",
+      },
+      {
+        Header: "Program",
+        accessor: "program",
       },
       {
         Header: "Email",
@@ -241,7 +248,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
       <div className="form-container" onClick={(e) => e.stopPropagation()}>
       <h2>Update Credentials</h2>
       <form onSubmit={handleFormSubmit}>
-      {["firstname", "middlename", "lastname", "employee_id", "email", "department"].map(
+      {["firstname", "middlename", "lastname", "employee_id", "email", "department", "program"].map(
         (field) => (
           <div key={field} style={{ marginBottom: "5px", display: "flex", flexDirection: "column" }}>
           <label style={{ fontWeight: "bold", marginBottom: "5px", textAlign: "left" }}>

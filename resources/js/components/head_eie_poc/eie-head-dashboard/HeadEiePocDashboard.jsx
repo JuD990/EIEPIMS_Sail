@@ -6,6 +6,7 @@ import TableComponent from "./table/eie-head-dashboard";
 import DashboardDropdown from "./dropdown-button/dropdown-eie-head-dashboard";
 import ImpSubjectsPerformance from "./imp-subject-performance/imp-subjects-performance";
 import EieSparkPerformance from "./eie-spark-performance/eie-spark-performance.jsx";
+import ChampionsBySemester from "./eie-champ-candidates/candidates";
 
 const HeadEiePocDashboard = () => {
   const currentMonth = new Date().getMonth(); // 0 = Jan, 11 = Dec
@@ -60,14 +61,30 @@ const HeadEiePocDashboard = () => {
     <br />
 
     <EieSparkPerformance userDepartment={userDepartment} />
-    <br />
-
+    <div className="dashboard-table-container">
+    <ChampionsBySemester
+    department={selectedDepartment}
+    schoolYear={selectedSchoolYear}
+    semester={selectedSemester}
+    />
+    </div>
     <div className="dashboard-table-container">
     <div style={{ marginBottom: "10px" }}>
     <h2 style={{ textAlign: "left", fontFamily: "Poppins", fontWeight: "700" }}>
-    Table Form - {selectedSemester}, {selectedDepartment} {selectedSchoolYear.replace('/', '-')}
+    Summary overall performance by month
     </h2>
-
+    <p
+    style={{
+      fontFamily: 'Poppins',
+      textAlign: 'left',
+      marginTop: '-10px',
+      fontSize: '0.95rem',
+      fontStyle: 'italic',
+      color: '#666666',
+    }}
+    >
+    {selectedSemester}, {selectedSchoolYear.replace('/', '-')}
+    </p>
     <DashboardDropdown
     setSelectedDepartment={setSelectedDepartment}
     setSelectedSchoolYear={setSelectedSchoolYear}

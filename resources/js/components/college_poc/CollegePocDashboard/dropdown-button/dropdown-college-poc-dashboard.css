@@ -1,4 +1,4 @@
-.eie-head-dashboard-dropdown-container {
+.college-poc-dashboard-dropdown-container {
     display: flex;
     gap: 20px;
     align-items: center;
@@ -9,11 +9,11 @@
     margin-left: 700px;
 }
 
-.eie-head-dashboard-dropdown-wrapper {
+.college-poc-dashboard-dropdown-wrapper {
     position: relative;
 }
 
-.eie-head-dashboard-dropdown-btn {
+.college-poc-dashboard-dropdown-btn {
     padding: 10px 20px;
     background-color: #FBF7F7;
     color: black;
@@ -28,11 +28,11 @@
     height: 50px;
 }
 
-.eie-head-dashboard-dropdown-btn .esl-dashboard-dropdown-arrow {
+.college-poc-dashboard-dropdown-btn .esl-dashboard-dropdown-arrow {
     margin-left: auto;
 }
 
-.eie-head-dashboard-dropdown-menu {
+.college-poc-dashboard-dropdown-menu {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -42,37 +42,37 @@
     border: 1px solid #ccc;
     padding: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 9999; /* Ensure it appears above other elements */
+    z-index: 9999;
     border-radius: 12px;
     width: 100%;
-    visibility: visible; /* Ensure visibility */
-    opacity: 1; /* Ensure it’s fully visible */
-    max-height: 200px;         /* 👈 Set the height */
-    overflow-y: auto;          /* 👈 Enable scrolling */
+    visibility: visible;
+    opacity: 1;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
-.eie-head-dashboard-dropdown-item {
+.college-poc-dashboard-dropdown-item {
     padding: 8px 12px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-.eie-head-dashboard-dropdown-item:hover {
+.college-poc-dashboard-dropdown-item:hover {
     background-color: #f0f0f0;
 }
 
-.eie-head-dashboard-dropdown-item.eie-head-dashboard-selected {
+.college-poc-dashboard-dropdown-item.college-poc-dashboard-selected {
     font-weight: bold;
     background-color: #e0e0e0;
 }
 
-.eie-head-dashboard-controls {
+.college-poc-dashboard-controls {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.eie-head-dashboard-refresh-btn {
+.college-poc-dashboard-refresh-btn {
     display: flex;
     align-items: center;
     padding: 8px 12px;
@@ -85,23 +85,21 @@
     margin-right: 55px;
 }
 
-.eie-head-dashboard-refresh-btn:hover {
+.college-poc-dashboard-refresh-btn:hover {
     background-color: #FF474A;
 }
 
-
-.eie-head2-reset-link-container {
+.college-poc2-reset-link-container {
     text-align: right;
 }
 
-.eie-head2-reset-link {
-    color: #007bff;
+.college-poc2-reset-link {
+    color: black;
     text-decoration: underline;
     cursor: pointer;
     font-size: 14px;
-    color: black;
 }
 
-.eie-head2-reset-link:hover {
+.college-poc2-reset-link:hover {
     color: #0056b3;
 }

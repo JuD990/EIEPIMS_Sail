@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
+import { IoRefresh } from "react-icons/io5";
 import axios from "axios";
 import "./graph-dropdown.css";
-
-export const semesters = ["1st Semester", "2nd Semester"]; // Export semesters for reuse
+import apiService from "@services/apiServices";
 
 const GraphDropdown = ({
     selectedSchoolYear,
@@ -14,10 +14,24 @@ const GraphDropdown = ({
     const [isSchoolYearOpen, setIsSchoolYearOpen] = useState(false);
     const [isSemesterOpen, setIsSemesterOpen] = useState(false);
     const [schoolYears, setSchoolYears] = useState([]);
+    const semesters = ["1st Semester", "2nd Semester"];
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const getDefaultSemester = () => {
-        const currentMonth = new Date().getMonth() + 1;
-        return currentMonth >= 8 && currentMonth <= 12 ? "1st Semester" : "2nd Semester";
+    const handleRefresh = async () => {
+        setLoading(true); // Start the loading state
+        setError(null); // Reset any previous error
+
+        try {
+            // Call API to refresh data
+            const reportResponse = await apiService.post('/eie-reports/store-or-update');
+            window.location.reload();  // Refreshes the page
+        } catch (reportError) {
+            console.error("Failed to update EIE Reports: ", reportError);
+            setError('Failed to update reports');
+        } finally {
+            setLoading(false); // Ensure loading state is reset after the process completes
+        }
     };
 
     const initializeDefaults = async () => {
@@ -30,9 +44,12 @@ const GraphDropdown = ({
                 const selectedYear = schoolYearList[0];
                 setSelectedSchoolYear(selectedYear);
 
-                // Only set semester if it's not set or invalid
                 if (!selectedSemester || !semesters.includes(selectedSemester)) {
-                    setSelectedSemester(getDefaultSemester());
+                    const currentMonth = new Date().getMonth() + 1;
+                    const defaultSemester = currentMonth >= 8 && currentMonth <= 12
+                    ? "1st Semester"
+                    : "2nd Semester";
+                    setSelectedSemester(defaultSemester);
                 }
             }
         } catch (error) {
@@ -42,13 +59,17 @@ const GraphDropdown = ({
 
     useEffect(() => {
         initializeDefaults();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const resetFilters = () => {
         if (schoolYears.length > 0) {
             setSelectedSchoolYear(schoolYears[0]);
-            setSelectedSemester(getDefaultSemester());
+
+            const currentMonth = new Date().getMonth() + 1;
+            const defaultSemester = currentMonth >= 8 && currentMonth <= 12
+            ? "1st Semester"
+            : "2nd Semester";
+            setSelectedSemester(defaultSemester);
         }
     };
 
@@ -87,8 +108,11 @@ const GraphDropdown = ({
         {/* School Year Dropdown */}
         <div className="eie-head-graph-dropdown-wrapper">
         <button
+        type="button"
         className="eie-head-graph-dropdown-btn"
         onClick={() => setIsSchoolYearOpen((prev) => !prev)}
+        aria-haspopup="listbox"
+        aria-expanded={isSchoolYearOpen}
         >
         {formattedSchoolYear}
         <FaChevronDown
@@ -96,7 +120,11 @@ const GraphDropdown = ({
         />
         </button>
         {isSchoolYearOpen && (
-            <div className="eie-head-graph-dropdown-menu">
+            <div
+            className="eie-head-graph-dropdown-menu"
+            role="listbox"
+            tabIndex={-1}
+            >
             {schoolYears.length > 0 ? (
                 schoolYears.map((year, index) => (
                     <p
@@ -104,7 +132,16 @@ const GraphDropdown = ({
                     className={`eie-head-graph-dropdown-item ${
                         selectedSchoolYear === year ? "eie-head-graph-selected" : ""
                     }`}
+                    role="option"
+                    aria-selected={selectedSchoolYear === year}
                     onClick={() => handleSchoolYearSelect(year)}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleSchoolYearSelect(year);
+                        }
+                    }}
                     >
                     {year.replace("/", "-")}
                     </p>
@@ -119,8 +156,11 @@ const GraphDropdown = ({
         {/* Semester Dropdown */}
         <div className="eie-head-graph-dropdown-wrapper">
         <button
+        type="button"
         className="eie-head-graph-dropdown-btn"
         onClick={() => setIsSemesterOpen((prev) => !prev)}
+        aria-haspopup="listbox"
+        aria-expanded={isSemesterOpen}
         >
         {selectedSemester || "Select Semester"}
         <FaChevronDown
@@ -128,14 +168,27 @@ const GraphDropdown = ({
         />
         </button>
         {isSemesterOpen && (
-            <div className="eie-head-graph-dropdown-menu">
+            <div
+            className="eie-head-graph-dropdown-menu"
+            role="listbox"
+            tabIndex={-1}
+            >
             {semesters.map((sem, index) => (
                 <p
                 key={index}
                 className={`eie-head-graph-dropdown-item ${
                     selectedSemester === sem ? "eie-head-graph-selected" : ""
                 }`}
+                role="option"
+                aria-selected={selectedSemester === sem}
                 onClick={() => handleSemesterSelect(sem)}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleSemesterSelect(sem);
+                    }
+                }}
                 >
                 {sem}
                 </p>
@@ -143,9 +196,30 @@ const GraphDropdown = ({
             </div>
         )}
         </div>
+
+        {/* Refresh Button */}
+        <div className="relative group-1">
+        <button
+        type="button"
+        className="eie-head-dashboard-refresh-btn-1"
+        onClick={handleRefresh}
+        disabled={loading}
+        aria-label={loading ? "Refreshing dashboard" : "Click to refresh"}
+        >
+        <IoRefresh className="eie-head-dashboard-refresh-icon-1" />
+        {loading ? 'Refreshing...' : ''}
+        </button>
+
+        {/* Tooltip */}
+        <div className="absolute bottom-full mb-2 hidden group-hover:block bg-white text-black text-sm rounded px-2 py-1 z-10 whitespace-nowrap shadow-lg right-0 mr-4">
+        {loading ? 'Refreshing dashboard...' : 'Click to refresh'}
+        </div>
+        </div>
+
         </div>
         </div>
     );
+
 };
 
 export default GraphDropdown;

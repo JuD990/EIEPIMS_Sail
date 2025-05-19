@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\EpgfRubric;
 use App\Models\EieReport;
+use App\Models\EieChampions;
 
 class ClassListController extends Controller
 {
@@ -85,28 +86,50 @@ class ClassListController extends Controller
         ]);
 
         try {
-            // Determine current year and semester based on current date
             $currentDate = Carbon::now();
-
             $year = $currentDate->year;
-
-            // Determine semester: 1st Semester Aug-Dec, 2nd Semester Jan-May
             $month = $currentDate->month;
+
             if ($month >= 8 && $month <= 12) {
                 $semester = '1st Semester';
             } elseif ($month >= 1 && $month <= 5) {
                 $semester = '2nd Semester';
             } else {
-                // If outside typical semester months, decide fallback or throw error
                 return response()->json(['message' => 'Current date is outside of defined semesters.'], 422);
             }
 
-            Excel::import(new ClassListImport($year, $semester), $request->file('file'));
+            $import = new ClassListImport($year, $semester);
+            Excel::import($import, $request->file('file'));
 
-            return response()->json(['message' => 'Class List uploaded successfully!'], 200);
+            // Update enrolled_students count per course_code (no semester/year filtering)
+            $studentCounts = ClassLists::select('course_code', DB::raw('count(*) as count'))
+            ->groupBy('course_code')
+            ->get();
+
+            foreach ($studentCounts as $entry) {
+                ImplementingSubjects::where('course_code', $entry->course_code)
+                ->update(['enrolled_students' => $entry->count]);
+            }
+
+            // Update active_students count per course_code (count where status = 'Active')
+            $activeCounts = ClassLists::select('course_code', DB::raw('count(*) as active_count'))
+            ->where('status', 'Active')
+            ->groupBy('course_code')
+            ->get();
+
+            foreach ($activeCounts as $entry) {
+                ImplementingSubjects::where('course_code', $entry->course_code)
+                ->update(['active_students' => $entry->active_count]);
+            }
+
+            $failedImports = $import->getFailedImports();
+
+            return response()->json([
+                'message' => 'Class List uploaded and enrollment counts updated successfully!',
+                'failedImports' => $failedImports,
+            ], 200);
         } catch (\Exception $e) {
             \Log::error('Error uploading class list: ' . $e->getMessage());
-
             return response()->json(['message' => 'Error uploading file: ' . $e->getMessage()], 500);
         }
     }
@@ -533,14 +556,6 @@ class ClassListController extends Controller
         ->orderBy('lastname', 'asc')
         ->get();
 
-        \Log::info('Fetching students', [
-            'course_code' => $request->course_code,
-            'month' => $month,
-            'semester' => $semester,
-            'year' => $year,
-            'count' => $results->count(),
-        ]);
-
         return response()->json([
             'semester' => $semester,
             'year' => $year,
@@ -585,7 +600,6 @@ class ClassListController extends Controller
     {
         try {
             $data = $request->input('data');
-            \Log::info('Received data for saveData:', ['data' => $data]);
 
             $now = Carbon::now();
 
@@ -668,8 +682,8 @@ class ClassListController extends Controller
     {
         $request->validate([
             'data' => 'required|array',
-            'data.*.student_id' => 'required|integer',
-            'data.*.course_code' => 'nullable|string',
+            'data.*.student_id' => 'required|string',
+            'data.*.course_code' => 'required|string',
             'data.*.task_title' => 'required|string',
         ]);
 
@@ -677,7 +691,6 @@ class ClassListController extends Controller
 
         try {
             $data = $request->input('data');
-            \Log::info('Received data for saveData:', ['data' => $data]);
 
             $now = Carbon::now();
             $month = $now->month;
@@ -721,6 +734,7 @@ class ClassListController extends Controller
                     'program' => $record['program'] ?? null,
                     'course_title' => $courseTitle,
                     'year_level' => $record['year_level'] ?? null,
+                    'change_note' => $record['month'] ?? null,
 
                     // Pronunciation
                     'consistency_descriptor' => $record['consistency_descriptor'] ?? '',
@@ -756,6 +770,7 @@ class ClassListController extends Controller
                     'course_code' => $record['course_code'],
                     'epgf_rubric_id' => $activeRubricId,
                     'task_title' => $record['task_title'],
+                    'change_note' => $record['month'],
                 ];
 
                 EieScorecardClassReport::updateOrCreate($uniqueKeys, $commonData);
@@ -779,8 +794,11 @@ class ClassListController extends Controller
                 )
                 ->first();
 
+                $proficiency = $this->getProficiencyLevel($averages->avg_epgf);
+
                 ClassLists::where('student_id', $studentId)
                 ->update([
+                    'proficiency_level'     => $proficiency,
                     'pronunciation_average' => $averages->avg_pronunciation,
                     'grammar_average'       => $averages->avg_grammar,
                     'fluency_average'       => $averages->avg_fluency,
@@ -833,7 +851,50 @@ class ClassListController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error("Error saving data: " . $e->getMessage());
-            return response()->json(['message' => 'Failed to save data'], 500);
+            \Log::error($e->getTraceAsString());
+            return response()->json(['message' => 'Failed to save data', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function storeSelectedChamp(Request $request)
+    {
+        $champion = new EieChampions();
+        $champion->student_id = $request->student_id;
+        $champion->firstname = $request->firstname;
+        $champion->middlename = $request->middlename;
+        $champion->lastname = $request->lastname;
+        $champion->email = $request->email;
+        $champion->year_level = $request->year_level;
+        $champion->department = $request->department;
+        $champion->program = $request->program;
+        $champion->gender = $request->gender;
+        $champion->epgf_average = $request->epgf_average;
+
+        // Optional fields
+        $champion->times_won = $request->times_won ?? 1; // default 1
+        $champion->semester = $request->semester ?? '1st Semester'; // default semester
+
+        $champion->save();
+
+        return response()->json(['message' => 'Champion added successfully'], 201);
+    }
+
+    public function checkMonth(Request $request)
+    {
+        try {
+            $currentYear = Carbon::now()->year;
+            $month = $request->month;
+
+            Log::info('Checking submission existence for month: ' . $month . ', year: ' . $currentYear);
+
+            $exists = EieScorecardClassReport::where('change_note', $month)
+            ->whereYear('created_at', $currentYear)
+            ->exists();
+
+            return response()->json(['exists' => $exists]);
+        } catch (\Exception $e) {
+            Log::error('Error in checkMonth: ' . $e->getMessage());
+            return response()->json(['error' => 'Server error'], 500);
         }
     }
 }

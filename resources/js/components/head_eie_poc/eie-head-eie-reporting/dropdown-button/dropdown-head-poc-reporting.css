@@ -1,4 +1,4 @@
-.esl-dashboard-dropdown-container {
+.eie-head2-dashboard-dropdown-container {
     display: flex;
     gap: 20px;
     align-items: center;
@@ -9,11 +9,11 @@
     padding: 8px;
 }
 
-.esl-dashboard-dropdown-wrapper {
+.eie-head2-dashboard-dropdown-wrapper {
     position: relative;
 }
 
-.esl-dashboard-dropdown-btn {
+.eie-head2-dashboard-dropdown-btn {
     padding: 10px 20px;
     background-color: #FBF7F7;
     color: black;
@@ -28,11 +28,11 @@
     height: 50px;
 }
 
-.esl-dashboard-dropdown-btn .esl-dashboard-dropdown-arrow {
+.eie-head2-dashboard-dropdown-btn .eie-head2-dashboard-dropdown-arrow {
     margin-left: auto;
 }
 
-.esl-dashboard-dropdown-menu {
+.eie-head2-dashboard-dropdown-menu {
     display: flex;
     flex-direction: column;
     position: absolute;
@@ -42,31 +42,37 @@
     border: 1px solid #ccc;
     padding: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 9999; /* Ensure it appears above other elements */
+    z-index: 9999;
     border-radius: 12px;
     width: 100%;
-    visibility: visible; /* Ensure visibility */
-    opacity: 1; /* Ensure it’s fully visible */
-    max-height: 200px;         /* 👈 Set the height */
-    overflow-y: auto;          /* 👈 Enable scrolling */
+    visibility: visible;
+    opacity: 1;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
-.esl-dashboard-dropdown-item {
+.eie-head2-dashboard-dropdown-item {
     padding: 8px 12px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-.esl-dashboard-dropdown-item:hover {
+.eie-head2-dashboard-dropdown-item:hover {
     background-color: #f0f0f0;
 }
 
-.esl-dashboard-dropdown-item.esl-dashboard-selected {
+.eie-head2-dashboard-dropdown-item.eie-head2-dashboard-selected {
     font-weight: bold;
     background-color: #e0e0e0;
 }
 
-.eie-head-dashboard-refresh-btn {
+.eie-head2-dashboard-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.eie-head2-dashboard-refresh-btn {
     display: flex;
     align-items: center;
     padding: 8px 12px;
@@ -79,6 +85,24 @@
     margin-right: 55px;
 }
 
-.eie-head-dashboard-refresh-btn:hover {
+.eie-head2-dashboard-refresh-btn:hover {
     background-color: #FF474A;
+}
+
+.eie-head2-dashboard-refresh-icon {
+    margin-right: 5px;
+}
+
+.eie-head2-graph-dropdown-menu {
+    /* apply same styling as menu above if needed */
+}
+
+.eie-head2-graph-dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.eie-head2-graph-selected {
+    font-weight: bold;
+    background-color: #e0e0e0;
 }

@@ -142,6 +142,17 @@
     background-color: #45A049;
 }
 
+.clt-button:disabled,
+.clt-submit:disabled {
+    opacity: 0.6;          /* Makes button look disabled */
+    cursor: not-allowed;   /* Shows "disabled" cursor */
+    pointer-events: none;  /* Prevents hover and click */
+    background-color: #ccc; /* Optional: Override background for clarity */
+    border-color: #999;     /* Optional: Gray border */
+    color: #666;            /* Optional: Dull text color */
+}
+
+
 /* ========== Buttons (Absolute Positioning) ========== */
 .clt-summary-wrapper {
     position: relative;

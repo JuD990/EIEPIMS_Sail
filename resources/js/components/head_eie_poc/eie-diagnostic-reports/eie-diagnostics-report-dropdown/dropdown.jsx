@@ -28,7 +28,7 @@ const DiagnosticsDropdown = ({
 
                 const [deptRes, userDeptRes] = await Promise.all([
                     axios.get("http://localhost:8000/api/master-class-list-department"),
-                                                                 axios.get(`http://localhost:8000/api/employee-department/${userType}/${employeeId}`)
+                    axios.get(`http://localhost:8000/api/employee-department/${userType}/${employeeId}`)
                 ]);
 
                 const departmentList = Array.isArray(deptRes.data) ? deptRes.data : [];
@@ -68,21 +68,26 @@ const DiagnosticsDropdown = ({
     const filteredSchoolYears = schoolYearList.filter(year => year.toLowerCase().includes(searchQuery.toLowerCase()));
 
     return (
-        <div className="diagnostics-dropdown-controls">
-        <div className="diagnostics-dropdown-container">
+        <div className="eie-head-diagnostics-dropdown-controls">
+        <div className="eie-head-diagnostics-dropdown-container">
 
         {/* Attendance Dropdown */}
-        <div className="diagnostics-dropdown-wrapper">
-        <button className="diagnostics-dropdown-btn" onClick={() => setIsAttendanceOpen(prev => !prev)}>
+        <div className="eie-head-diagnostics-dropdown-wrapper">
+        <button
+        className="eie-head-diagnostics-dropdown-btn"
+        onClick={() => setIsAttendanceOpen(prev => !prev)}
+        >
         {attendance || "Select Attendance"}
-        <FaChevronDown className={`diagnostics-dropdown-arrow ${isAttendanceOpen ? "open" : ""}`} />
+        <FaChevronDown
+        className={`eie-head-diagnostics-dropdown-arrow ${isAttendanceOpen ? "open" : ""}`}
+        />
         </button>
         {isAttendanceOpen && (
-            <div className="diagnostics-dropdown-menu">
+            <div className="eie-head-diagnostics-dropdown-menu">
             {attendanceOptions.map((option, index) => (
                 <p
                 key={index}
-                className={`diagnostics-dropdown-item ${attendance === option ? "diagnostics-dropdown-selected" : ""}`}
+                className={`eie-head-diagnostics-dropdown-item ${attendance === option ? "eie-head-diagnostics-dropdown-selected" : ""}`}
                 onClick={() => {
                     setAttendance(option);
                     setIsAttendanceOpen(false);
@@ -96,18 +101,23 @@ const DiagnosticsDropdown = ({
         </div>
 
         {/* School Year Dropdown */}
-        <div className="diagnostics-dropdown-wrapper">
-        <button className="diagnostics-dropdown-btn" onClick={() => setIsSchoolYearOpen(prev => !prev)}>
-        {schoolYear || "Select School Year"}
-        <FaChevronDown className={`diagnostics-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
+        <div className="eie-head-diagnostics-dropdown-wrapper">
+        <button
+        className="eie-head-eie-head-dashboard-dropdown-btn"
+        onClick={() => setIsSchoolYearOpen((prev) => !prev)}
+        >
+        {schoolYear ? schoolYear.replace("/", "-") : "Select School Year"}
+        <FaChevronDown
+        className={`eie-head-esl-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`}
+        />
         </button>
         {isSchoolYearOpen && (
-            <div className="diagnostics-dropdown-menu">
+            <div className="eie-head-diagnostics-dropdown-menu">
             {filteredSchoolYears.length > 0 ? (
                 filteredSchoolYears.map((year, index) => (
                     <p
                     key={index}
-                    className={`diagnostics-dropdown-item ${schoolYear === year ? "diagnostics-dropdown-selected" : ""}`}
+                    className={`eie-head-diagnostics-dropdown-item ${schoolYear === year ? "eie-head-diagnostics-dropdown-selected" : ""}`}
                     onClick={() => {
                         setSchoolYear(year);
                         setIsSchoolYearOpen(false);
@@ -117,20 +127,20 @@ const DiagnosticsDropdown = ({
                     </p>
                 ))
             ) : (
-                <p className="diagnostics-dropdown-item">No School Years</p>
+                <p className="eie-head-diagnostics-dropdown-item">No School Years</p>
             )}
             </div>
         )}
         </div>
 
         {/* Search Input */}
-        <div className="diagnostics-search-input-container">
+        <div className="eie-head-diagnostics-search-input-container">
         <input
         type=""
-        className="diagnostics-search-input"
+        className="eie-head-diagnostics-search-input"
         placeholder="Search..."
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)} // Use the passed setSearchQuery function
+        onChange={(e) => setSearchQuery(e.target.value)}
         />
         </div>
         </div>
