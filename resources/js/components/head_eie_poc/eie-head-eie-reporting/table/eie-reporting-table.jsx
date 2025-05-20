@@ -47,7 +47,7 @@ const TableComponent = ({ department, schoolYear, semester }) => {
     ];
 
     return (
-        <div className="eie-reporting-esl-table-container">
+        <div className="eie-reporting-esl-table-container-2">
         <table className="eie-reporting-esl-table-poc-table">
         <thead>
         <tr className="eie-reporting-esl-table-header-colored">

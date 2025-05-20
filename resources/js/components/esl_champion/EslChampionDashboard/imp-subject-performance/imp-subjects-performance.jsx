@@ -62,11 +62,11 @@ const generateEmptyChartData = (semester) => ({
     ],
 });
 
-const ImpSubjectsPerformance = ({ userFullDepartment }) => {
+const ImpSubjectsPerformance = () => {
     const currentMonth = new Date().getMonth();
     const defaultSemester = currentMonth >= 8 && currentMonth <= 12 ? "1st Semester" : "2nd Semester";
-    const defaultSchoolYear = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
 
+    const defaultSchoolYear = `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`;
     const [selectedSchoolYear, setSelectedSchoolYear] = useState(defaultSchoolYear);
     const [selectedSemester, setSelectedSemester] = useState(defaultSemester);
     const [chartData, setChartData] = useState(generateEmptyChartData(defaultSemester));
@@ -84,7 +84,7 @@ const ImpSubjectsPerformance = ({ userFullDepartment }) => {
         .then(response => {
             const fetched = Array.isArray(response.data) ? response.data : [];
             setDepartments(fetched);
-            setSelectedDepartment(fetched.length > 0 ? fetched[0].department : ''); // Default selection
+            setSelectedDepartment(fetched.length > 0 ? fetched[0].department : '');
             setLoadingDepartment(false);
         })
         .catch(error => {
@@ -191,7 +191,7 @@ const ImpSubjectsPerformance = ({ userFullDepartment }) => {
 
             } catch (error) {
                 console.error("Error fetching grand totals:", error);
-                setErrorMessage("Failed to fetch grand totals.");
+                setErrorMessage("No Data Available.");
             } finally {
                 setLoading(false);
             }
@@ -234,7 +234,7 @@ const ImpSubjectsPerformance = ({ userFullDepartment }) => {
                 min: pgfMin,
                 max: pgfMax,
                 ticks: { stepSize: 0.5, display: true },
-                title: { display: true, text: "PGF Average" },
+                title: { display: false, text: "PGF Average" },
                 grid: { drawOnChartArea: false },
             },
             y2: {
@@ -246,7 +246,7 @@ const ImpSubjectsPerformance = ({ userFullDepartment }) => {
                     stepSize: 10,
                     callback: (value) => `${value}%`,
                 },
-                title: { display: true, text: "Completion Rate (%)" },
+                title: { display: false, text: "Completion Rate (%)" },
             },
         },
     };
@@ -274,7 +274,8 @@ const ImpSubjectsPerformance = ({ userFullDepartment }) => {
             </select>
             </div>
             <p className="esl-spark-chart-title">
-            Target Completion Rate: 100%
+            Monthly Performance <br/>
+            {selectedSemester}, S/Y {selectedSchoolYear.replace('/', '-')}
             </p>
             </div>
 

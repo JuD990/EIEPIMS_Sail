@@ -170,22 +170,40 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
         }
     };
 
+    const handleResetFilters = () => {
+        if (departments.length > 0) {
+            setDepartment(departments[0]);
+            setSelectedDepartment(departments[0]);
+        }
+
+        if (schoolYears.length > 0) {
+            const defaultYear = schoolYears[0];
+            setSchoolYear(defaultYear);
+            setSelectedSchoolYear(defaultYear);
+
+            const currentMonth = new Date().getMonth() + 1;
+            const defaultSemester = (currentMonth >= 8 && currentMonth <= 12) ? "1st Semester" : "2nd Semester";
+            setSemester(defaultSemester);
+            setSelectedSemester(defaultSemester);
+        }
+    };
+
     return (
-        <div className="esl-dashboard-controls">
-        <div className="esl-champion-dashboard-dropdown-container">
+        <div className="esl-prime-dashboard-controls">
+        <div className="esl-prime-dashboard-dropdown-container">
         {/* Department Dropdown */}
-        <div className="esl-dashboard-dropdown-wrapper">
-        <button className="esl-dashboard-dropdown-btn" onClick={() => setIsDepartmentOpen((prev) => !prev)}>
+        <div className="esl-prime-dashboard-dropdown-wrapper">
+        <button className="esl-prime-dashboard-dropdown-btn" onClick={() => setIsDepartmentOpen((prev) => !prev)}>
         {department || "Select Department"}
-        <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isDepartmentOpen ? "open" : ""}`} />
+        <FaChevronDown className={`esl-prime-dashboard-dropdown-arrow ${isDepartmentOpen ? "open" : ""}`} />
         </button>
         {isDepartmentOpen && (
-            <div className="esl-dashboard-dropdown-menu">
+            <div className="esl-prime-dashboard-dropdown-menu">
             {departments.length > 0 ? (
                 departments.map((dept, index) => (
                     <p
                     key={index}
-                    className={`esl-dashboard-dropdown-item ${department === dept ? "esl-dashboard-selected" : ""}`}
+                    className={`esl-prime-dashboard-dropdown-item ${department === dept ? "esl-prime-dashboard-selected" : ""}`}
                     onClick={() => {
                         setDepartment(dept);
                         setSelectedDepartment(dept);
@@ -196,25 +214,25 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
                     </p>
                 ))
             ) : (
-                <p className="esl-dashboard-dropdown-item">No Departments</p>
+                <p className="esl-prime-dashboard-dropdown-item">No Departments</p>
             )}
             </div>
         )}
         </div>
 
         {/* School Year Dropdown */}
-        <div className="esl-dashboard-dropdown-wrapper">
-        <button className="esl-dashboard-dropdown-btn" onClick={() => setIsSchoolYearOpen((prev) => !prev)}>
+        <div className="esl-prime-dashboard-dropdown-wrapper">
+        <button className="esl-prime-dashboard-dropdown-btn" onClick={() => setIsSchoolYearOpen((prev) => !prev)}>
         {schoolYear || "Select School Year"}
-        <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
+        <FaChevronDown className={`esl-prime-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
         </button>
         {isSchoolYearOpen && (
-            <div className="esl-dashboard-dropdown-menu">
+            <div className="esl-prime-dashboard-dropdown-menu">
             {schoolYears.length > 0 ? (
                 schoolYears.map((year, index) => (
                     <p
                     key={index}
-                    className={`esl-dashboard-dropdown-item ${schoolYear === year ? "esl-dashboard-selected" : ""}`}
+                    className={`esl-prime-dashboard-dropdown-item ${schoolYear === year ? "esl-prime-dashboard-selected" : ""}`}
                     onClick={() => {
                         setSchoolYear(year);
                         setSelectedSchoolYear(year);
@@ -225,24 +243,24 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
                     </p>
                 ))
             ) : (
-                <p className="esl-dashboard-dropdown-item">No School Years</p>
+                <p className="esl-prime-dashboard-dropdown-item">No School Years</p>
             )}
             </div>
         )}
         </div>
 
         {/* Semester Dropdown */}
-        <div className="esl-dashboard-dropdown-wrapper">
-        <button className="esl-dashboard-dropdown-btn" onClick={() => setIsSemesterOpen((prev) => !prev)}>
+        <div className="esl-prime-dashboard-dropdown-wrapper">
+        <button className="esl-prime-dashboard-dropdown-btn" onClick={() => setIsSemesterOpen((prev) => !prev)}>
         {semester || "Select Semester"}
-        <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSemesterOpen ? "open" : ""}`} />
+        <FaChevronDown className={`esl-prime-dashboard-dropdown-arrow ${isSemesterOpen ? "open" : ""}`} />
         </button>
         {isSemesterOpen && (
-            <div className="esl-dashboard-dropdown-menu">
+            <div className="esl-prime-dashboard-dropdown-menu">
             {semesters.map((sem, index) => (
                 <p
                 key={index}
-                className={`esl-dashboard-dropdown-item ${semester === sem ? "esl-dashboard-selected" : ""}`}
+                className={`esl-prime-dashboard-dropdown-item ${semester === sem ? "esl-prime-dashboard-selected" : ""}`}
                 onClick={() => {
                     setSemester(sem);
                     setSelectedSemester(sem);
@@ -255,6 +273,16 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
             </div>
         )}
         </div>
+
+        <div className="esl-prime-reset-link-container">
+        <a href="#" className="esl-prime-reset-link" onClick={(e) => {
+            e.preventDefault();
+            handleResetFilters();
+        }}>
+        Reset Filters
+        </a>
+        </div>
+
         </div>
 
         <div className="flex items-center gap-x-6">

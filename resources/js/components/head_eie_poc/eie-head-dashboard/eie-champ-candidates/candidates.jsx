@@ -51,7 +51,6 @@ function ChampionsBySemester({ department, schoolYear }) {
 
     const renderChampionsTable = (data) => {
         const hasYearTotal = data?.yearTotalChampions && Object.keys(data.yearTotalChampions).length > 0;
-        const hasGrandChampion = data?.grandChampion != null;
 
         const yearTotalRows = hasYearTotal
         ? Object.entries(data.yearTotalChampions).map(([yearLevel, champ]) => (
@@ -61,21 +60,25 @@ function ChampionsBySemester({ department, schoolYear }) {
             <td>{champ?.student_id || 'N/A'}</td>
             <td>{champ?.epgf_average !== undefined ? champ.epgf_average : 'N/A'}</td>
             <td>Monthly Winner</td>
-            <td>{champ?.times_won !== undefined ? champ.times_won + "x" : 'N/A'}</td>
+            <td>{champ?.times_won !== undefined ? `${champ.times_won}x` : 'N/A'}</td>
             </tr>
         ))
         : [];
 
-        const grandChampionRow = hasGrandChampion ? (
+        const grandChampion = data?.grandChampion;
+
+        const grandChampionRow = (
             <tr key="grandChampion" className="champions-bold-row">
             <td>Semestral Total</td>
-            <td>{data.grandChampion.champion}</td>
-            <td>{data.grandChampion.student_id}</td>
-            <td>{data.grandChampion.epgf_average}</td>
+            <td>{grandChampion?.champion || 'N/A'}</td>
+            <td>{grandChampion?.student_id || 'N/A'}</td>
+            <td>{grandChampion?.epgf_average !== undefined ? grandChampion.epgf_average : 'N/A'}</td>
             <td>Semestral Champion</td>
-            <td>{data.grandChampion.times_won + "x" || 'N/A'}</td>
+            <td>{grandChampion?.times_won !== undefined ? `${grandChampion.times_won}x` : 'N/A'}</td>
             </tr>
-        ) : null;
+        );
+
+        const hasAnyData = hasYearTotal || grandChampion;
 
         return (
             <table className="champions-table">
@@ -92,7 +95,7 @@ function ChampionsBySemester({ department, schoolYear }) {
             <tbody>
             {yearTotalRows}
             {grandChampionRow}
-            {!hasYearTotal && !hasGrandChampion && (
+            {!hasAnyData && (
                 <tr>
                 <td colSpan="6" className="champions-no-data">
                 No data available.

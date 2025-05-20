@@ -59,8 +59,8 @@ const ESLSidebar = () => {
     <div className="esl-prime-pages">
     {/* Dashboard */}
     <button
-    className={`esl-dashboard-sidebar-button ${activePage === "/esl-champion-dashboard" ? "active" : ""}`}
-    onClick={() => handleNavigation("/esl-champion-dashboard")}
+    className={`esl-dashboard-sidebar-button ${activePage === "/esl-dashboard" ? "active" : ""}`}
+    onClick={() => handleNavigation("/esl-dashboard")}
     >
     <img src={dashboardiconwhite} alt="Dashboard icon" className="esl-dashboard-icon" />
     <p>Dashboard</p>

@@ -23,6 +23,7 @@ Route::get('esl/employee/{employee_id}', [EieDiagnosticReportController::class, 
 
 Route::post('/eie-reports/store-or-update', [EieReportController::class, 'storeOrUpdatePrograms']);
 Route::get('/dashboard-report', [EieReportController::class, 'getDashboardReport']);
+Route::get('/dashboard-assigned-report', [EieReportController::class, 'getDashboardAssignedReport']);
 Route::get('/eie-report', [EieReportController::class, 'getEieReporting']);
 Route::get('/eie-assigned-report', [EieReportController::class, 'getEieReportingCollegePOC']);
 Route::get('/eie-assigned-program-report', [EieReportController::class, 'getEieReportingLeadPOC']);
@@ -140,6 +141,8 @@ Route::get('/scorecards/{student_id}', [EieScorecardClassReportController::class
 
 // ClassList routes
 Route::get('/class-list', [ClassListController::class, 'getClassListByDepartment']);
+Route::get('/dropped-class-list', [ClassListController::class, 'getDroppedClassListByDepartment']);
+
 Route::post('/upload-class-list', [ClassListController::class, 'uploadClassList']);
 Route::get('/manage-class-list', [ClassListController::class, 'ManageClassList']);
 Route::put('/update-student/{class_lists_id}', [ClassListController::class, 'updateStudent']);

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('program');
             $table->string('course_title');
             $table->string('year_level');
+            $table->string('change_note')->nullable();
 
             // Pronunciation
             $table->text('consistency_descriptor');

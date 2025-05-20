@@ -29,7 +29,8 @@ ChartJS.register(
     ChartDataLabels
 );
 
-const EieSparkPerformance = ({ userDepartment }) => {
+const EieSparkPerformance = ({ userDepartment, userFullDepartment }) => {
+    console.log(userFullDepartment);
     const currentMonth = new Date().getMonth();
     const defaultSemester = currentMonth >= 8 && currentMonth <= 12 ? "1st Semester" : "2nd Semester";
     const defaultSchoolYear = `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
@@ -181,7 +182,7 @@ const EieSparkPerformance = ({ userDepartment }) => {
                 beginAtZero: true,
                 min: pgfMin,
                 max: pgfMax,
-                title: { display: true, text: 'PGF Average' },
+                title: { display: false, text: 'PGF Average' },
                 ticks: {
                     stepSize: 0.5,
                     callback: (val) => val.toFixed(2)
@@ -190,7 +191,7 @@ const EieSparkPerformance = ({ userDepartment }) => {
             y1: {
                 beginAtZero: true,
                 max: 100,
-                title: { display: true, text: 'Completion Rate (%)' },
+                title: { display: false, text: 'Completion Rate (%)' },
                 ticks: {
                     stepSize: 10,
                     callback: (val) => `${val}%`
@@ -199,7 +200,7 @@ const EieSparkPerformance = ({ userDepartment }) => {
                 grid: { drawOnChartArea: false }
             },
             x: {
-                title: { display: true, text: 'Programs' },
+                title: { display: false, text: 'Programs' },
                 stacked: false
             }
         }
@@ -212,7 +213,8 @@ const EieSparkPerformance = ({ userDepartment }) => {
         ) : (
             <>
             <div className="spark-chart-title">
-            <h2>{userDepartment} EIE Spark Performance</h2>
+            <h2>{userFullDepartment}</h2>
+            <p> Monthly EIE Spark Performance</p>
             <p>Target Completion Rate: 100%</p>
             </div>
             <GraphDropdown

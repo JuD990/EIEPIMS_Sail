@@ -43,7 +43,7 @@ const HeadEiePocDashboard = () => {
 
     fetchUserDepartment();
   }, []);
-
+  console.log(userFullDepartment);
   return (
     <div>
     <EIEHeadSidebar />
@@ -60,7 +60,11 @@ const HeadEiePocDashboard = () => {
     />
     <br />
 
-    <EieSparkPerformance userDepartment={userDepartment} />
+    <EieSparkPerformance
+    userDepartment={userDepartment}
+    userFullDepartment={userFullDepartment}
+    />
+
     <div className="dashboard-table-container">
     <ChampionsBySemester
     department={selectedDepartment}
@@ -77,7 +81,8 @@ const HeadEiePocDashboard = () => {
     style={{
       fontFamily: 'Poppins',
       textAlign: 'left',
-      marginTop: '-10px',
+      marginTop: '-5px',
+      marginBottom: '-3px',
       fontSize: '0.95rem',
       fontStyle: 'italic',
       color: '#666666',
@@ -90,6 +95,7 @@ const HeadEiePocDashboard = () => {
     setSelectedSchoolYear={setSelectedSchoolYear}
     setSelectedSemester={setSelectedSemester}
     userDepartment={userDepartment}
+    userFullDepartment={userFullDepartment}
     />
 
     <TableComponent

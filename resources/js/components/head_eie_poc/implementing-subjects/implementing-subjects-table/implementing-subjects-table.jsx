@@ -211,7 +211,7 @@ const ImplementingSubjectsTable = ({
     ) : (
       <div>
       {error && <p style={{ color: "red", marginBottom: "-25px" }}>{error}</p>}
-      <div className="table-wrapper-eie-head">
+      <div className="table-wrapper-eie-head-2">
       <table {...getTableProps()} className="data-table">
       <thead className="sticky-header">
       {headerGroups.map((headerGroup) => (

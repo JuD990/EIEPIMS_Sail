@@ -208,6 +208,7 @@ const ImplementingSubjectsTable = ({
       },
       { Header: "Code", accessor: "code" },
       { Header: "Course Code", accessor: "course_code" },
+      { Header: "Year Level", accessor: "year_level" },
       { Header: "Semester", accessor: "semester" },
       { Header: "Department", accessor: "department" },
       { Header: "Program", accessor: "program" },

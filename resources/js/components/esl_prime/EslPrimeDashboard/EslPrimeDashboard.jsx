@@ -57,8 +57,21 @@ const EslPrimeDashboard = () => {
     <div className="dashboard-table-container">
     <div style={{ marginBottom: "10px" }}>
     <h2 style={{ textAlign: "left", fontFamily: "Poppins", fontWeight: "700" }}>
-    Table Form - {selectedSemester}, {selectedDepartment} {selectedSchoolYear.replace('/', '-')}
+    Summary overall performance by month
     </h2>
+    <p
+    style={{
+      fontFamily: 'Poppins',
+      textAlign: 'left',
+      marginTop: '-5px',
+      marginBottom: '-3px',
+      fontSize: '0.95rem',
+      fontStyle: 'italic',
+      color: '#666666',
+    }}
+    >
+    {selectedSemester}, {selectedSchoolYear.replace('/', '-')}
+    </p>
     <DashboardDropdown
     setSelectedDepartment={setSelectedDepartment}
     selectedSchoolYear={selectedSchoolYear}

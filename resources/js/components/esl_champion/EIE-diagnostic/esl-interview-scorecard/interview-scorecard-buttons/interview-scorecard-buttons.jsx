@@ -9,6 +9,7 @@ const InterviewScorecardButtons = ({
     overallAverage,
     ratings,
     remarks,
+    setRemarks,
     categoryAverages,
     formData,
     setFormData,
@@ -31,87 +32,83 @@ const InterviewScorecardButtons = ({
             date_of_interview: currentDate,
             time_of_interview: currentTime,
             year_level: formData.yearLevel,
+            venue: formData.venue,
         };
     };
 
-    const remarksData = () => {
-        return remarks;  // Directly return the remarks object instead of an object with a `remarks` property
-    }
+    const studentId = formData.student_id; // use this for update !!!!!!!
 
     const handleSave = async () => {
-        // Check if required fields are empty
         const { department, yearLevel, name } = formData;
+
         if (!department || !yearLevel || !name) {
             alert("Please select Department, Year Level, and Name before saving.");
             return;
         }
 
-        // Check if any of the critical rating fields are empty
-        if (!ratings.Consistency?.descriptor || ratings.Consistency?.rating === undefined ||
-            !ratings.Clarity?.descriptor || ratings.Clarity?.rating === undefined ||
-            !ratings.Articulation?.descriptor || ratings.Articulation?.rating === undefined ||
-            !ratings["Intonation & Stress"]?.descriptor || ratings["Intonation & Stress"]?.rating === undefined ||
-            !ratings.Accuracy?.descriptor || ratings.Accuracy?.rating === undefined ||
-            !ratings["Clarity of Thought"]?.descriptor || ratings["Clarity of Thought"]?.rating === undefined ||
-            !ratings.Syntax?.descriptor || ratings.Syntax?.rating === undefined) {
-            alert("Please fill in all rating fields before saving.");
-        return;
+        const flattenRemarks = (obj) => {
+            const flat = {};
+            for (const [key, value] of Object.entries(obj)) {
+                const keyName = key.toLowerCase().replace(/\s+/g, '_');
+                if (typeof value === "object" && value !== null) {
+                    flat[`${keyName}_rating`] = value.rating || "";
+                    flat[`${keyName}_explanation`] = value.explanation || "";
+                } else {
+                    flat[keyName] = value || "";
+                }
             }
+            return flat;
+        };
 
-            // Check if any of the remarks are empty
-            if (!remarks?.["PGF Specific Remarks"] || !remarks?.["School Year Highlight"] || !remarks?.["School Year Lowlight"] ||
-                !remarks?.["SPARK Highlight"] || !remarks?.["SPARK Lowlight"] || !remarks?.["Usage in School/Online (When in School)"] ||
-                !remarks?.["Usage Offline (Home or Outside)"] || !remarks?.["Support Needed"]) {
-                alert("Please provide all remarks before saving.");
-            return;
-                }
+        const flatRemarks = flattenRemarks(remarks);
+        const flatRatings = flattenRemarks(ratings);
 
-                // Collect all necessary data for submission
-                const collectedData = {
-                    ...collectAllInputs(), // Spread in all other collected inputs
-                    consistency_descriptor: ratings.Consistency?.descriptor || 'No description provided',
-                    consistency_rating: ratings.Consistency?.rating ?? 0,
-                    clarity_descriptor: ratings.Clarity?.descriptor || 'No description provided',
-                    clarity_rating: ratings.Clarity?.rating ?? 0,
-                    articulation_descriptor: ratings.Articulation?.descriptor || 'No description provided',
-                    articulation_rating: ratings.Articulation?.rating ?? 0,
-                    intonation_and_stress_descriptor: ratings["Intonation & Stress"]?.descriptor || 'No description provided',
-                    intonation_and_stress_rating: ratings["Intonation & Stress"]?.rating ?? 0,
-                    accuracy_descriptor: ratings.Accuracy?.descriptor || 'No description provided',
-                    accuracy_rating: ratings.Accuracy?.rating ?? 0,
-                    clarity_of_thought_descriptor: ratings["Clarity of Thought"]?.descriptor || 'No description provided',
-                    clarity_of_thought_rating: ratings["Clarity of Thought"]?.rating ?? 0,
-                    syntax_descriptor: ratings.Syntax?.descriptor || 'No description provided',
-                    syntax_rating: ratings.Syntax?.rating ?? 0,
-                    grammar_average: categoryAverages?.Grammar ?? 0,
-                    pronunciation_average: categoryAverages?.Pronunciation ?? 0,
-                    fluency_average: categoryAverages?.Fluency ?? 0,
-                    quality_of_response_descriptor: ratings["Quality of Response"]?.descriptor || 'No description provided',
-                    quality_of_response_rating: ratings["Quality of Response"]?.rating ?? 0,
-                    detail_of_response_descriptor: ratings["Detail of Response"]?.descriptor || 'No description provided',
-                    detail_of_response_rating: ratings["Detail of Response"]?.rating ?? 0,
-                    "pgf_specific_remarks": remarks?.["PGF Specific Remarks"] || 'No description provided',
-                    "school_year_highlight": remarks?.["School Year Highlight"] || 'No description provided',
-                    "school_year_lowlight": remarks?.["School Year Lowlight"] || 'No description provided',
-                    "spark_highlight": remarks?.["SPARK Highlight"] || 'No description provided',
-                    "spark_lowlight": remarks?.["SPARK Lowlight"] || 'No description provided',
-                    "usage_in_school_online": remarks?.["Usage in School/Online (When in School)"] || 'No description provided',
-                    "usage_offline": remarks?.["Usage Offline (Home or Outside)"] || 'No description provided',
-                    "support_needed": remarks?.["Support Needed"] || 'No description provided',
-                    average_pgf_rating: overallAverage ?? 0,
-                    show_status: 'Showed Up', // Default value for show_status
-                };
+        const collectedData = {
+            ...collectAllInputs(),
+            ...flatRatings,
+            ...flatRemarks,
+            consistency_descriptor: ratings.Consistency?.descriptor || 'No description provided',
+            consistency_rating: ratings.Consistency?.rating ?? 0,
+            clarity_descriptor: ratings.Clarity?.descriptor || 'No description provided',
+            clarity_rating: ratings.Clarity?.rating ?? 0,
+            articulation_descriptor: ratings.Articulation?.descriptor || 'No description provided',
+            articulation_rating: ratings.Articulation?.rating ?? 0,
+            intonation_and_stress_descriptor: ratings["Intonation & Stress"]?.descriptor || 'No description provided',
+            intonation_and_stress_rating: ratings["Intonation & Stress"]?.rating ?? 0,
+            accuracy_descriptor: ratings.Accuracy?.descriptor || 'No description provided',
+            accuracy_rating: ratings.Accuracy?.rating ?? 0,
+            clarity_of_thought_descriptor: ratings["Clarity of Thought"]?.descriptor || 'No description provided',
+            clarity_of_thought_rating: ratings["Clarity of Thought"]?.rating ?? 0,
+            syntax_descriptor: ratings.Syntax?.descriptor || 'No description provided',
+            syntax_rating: ratings.Syntax?.rating ?? 0,
+            grammar_average: categoryAverages?.Grammar ?? 0,
+            pronunciation_average: categoryAverages?.Pronunciation ?? 0,
+            fluency_average: categoryAverages?.Fluency ?? 0,
+            quality_of_response_descriptor: ratings["Quality of Response"]?.descriptor || 'No description provided',
+            quality_of_response_rating: ratings["Quality of Response"]?.rating ?? 0,
+            detail_of_response_descriptor: ratings["Detail of Response"]?.descriptor || 'No description provided',
+            detail_of_response_rating: ratings["Detail of Response"]?.rating ?? 0,
+            average_pgf_rating: overallAverage ?? 0,
+            show_status: 'Showed Up',
+        };
 
-                console.log('Data to be sent to backend:', collectedData);
+        console.log('Data to be sent to backend:', collectedData);
 
-                try {
-                    const response = await axios.post('/api/eie-diagnostic-reports', collectedData);
-                    console.log('Saved:', response.data);
-                    alert("Data has been successfully saved!");  // Success alert
-                } catch (error) {
-                    console.error('Error saving:', error.response?.data || error);
-                    alert("There was an error saving the data.");  // Error alert
-                }
+        try {
+            if (yearLevel === "4th Year") {
+                // Graduating students
+                const response = await axios.post('/api/eie-diagnostic-grad-reports', collectedData);
+                console.log('Graduating student data saved:', response.data);
+            } else {
+                // Non-graduating students
+                const response = await axios.post('/api/eie-diagnostic-non-grad-reports', collectedData);
+                console.log('Non-graduating student data saved:', response.data);
+            }
+            alert("Data has been successfully saved!");
+        } catch (error) {
+            console.error('Error saving:', error.response?.data || error);
+            alert("There was an error saving the data.");
+        }
     };
 
     // Handle the onClear functionality
@@ -203,7 +200,7 @@ const InterviewScorecardButtons = ({
                         <div
                         key={idx}
                         className="custom-dropdown-option"
-                        onClick={() => handleStudentSelect(fullName)}
+                        onClick={() => handleStudentSelect(student)}
                         >
                         {fullName}
                         </div>

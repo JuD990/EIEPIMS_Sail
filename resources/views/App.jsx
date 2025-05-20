@@ -70,10 +70,10 @@ const App = () => {
     <Route path="/college-poc-student-management" element={<PrivateRoute roles={['college_poc']}><CollegePocStudentManagement /></PrivateRoute>} />
 
     {/* ESL Champion */}
-    <Route path="/esl-champion-dashboard" element={<PrivateRoute roles={eslPrimeAccessRoles}><EslChampionDashboard /></PrivateRoute>} />
+    <Route path="/esl-dashboard" element={<PrivateRoute roles={eslPrimeAccessRoles}><EslChampionDashboard /></PrivateRoute>} />
 
     {/* ESL Prime */}
-    <Route path="/esl-prime-dashboard" element={<PrivateRoute roles={eslPrimeAccessRoles}><EslPrimeDashboard /></PrivateRoute>} />
+    <Route path="/esl-dashboard" element={<PrivateRoute roles={eslPrimeAccessRoles}><EslPrimeDashboard /></PrivateRoute>} />
     <Route path="/esl-eie-reporting" element={<PrivateRoute roles={eslPrimeAccessRoles}><EslPrimeEieReporting /></PrivateRoute>} />
     <Route path="/esl-diagnostic-reports" element={<PrivateRoute roles={eslPrimeAccessRoles}><EslDiagnosticReports /></PrivateRoute>} />
     <Route path="/esl-interview-scorecard" element={<PrivateRoute roles={eslPrimeAccessRoles}><EslInterviewScorecard /></PrivateRoute>} />

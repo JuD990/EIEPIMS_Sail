@@ -274,6 +274,7 @@ const ImpSubjectsPerformance = () => {
             </select>
             </div>
             <p className="esl-spark-chart-title">
+            Monthly Performance <br/>
             {selectedSemester}, S/Y {selectedSchoolYear.replace('/', '-')}
             </p>
             </div>

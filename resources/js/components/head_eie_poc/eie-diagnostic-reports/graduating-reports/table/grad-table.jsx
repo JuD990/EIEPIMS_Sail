@@ -141,7 +141,19 @@ const Modal = ({ onClose, report }) => {
                 {label}:
                 </td>
                 <td style={{ padding: '8px 10px', textAlign: 'left', verticalAlign: 'top' }}>
-                {report[key]}
+                {typeof report[key] === 'string' &&
+                    !/^\d+(\.\d+)?$/.test(report[key]) && // Not a pure integer or decimal
+                    report[key].includes('.')
+                    ? (
+                        <div style={{ lineHeight: '1.2', margin: 0, padding: 0 }}>
+                        {report[key].split('.').map((part, i, arr) => (
+                            <React.Fragment key={i}>
+                            {part.trim()}
+                            {i < arr.length - 1 && <br />}
+                            </React.Fragment>
+                        ))}
+                        </div>
+                    ) : report[key]}
                 </td>
                 </tr>
             );

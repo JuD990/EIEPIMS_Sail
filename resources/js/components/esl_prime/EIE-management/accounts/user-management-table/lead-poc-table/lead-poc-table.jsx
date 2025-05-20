@@ -238,7 +238,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
     </div>
 
     {/* User Management Buttons Outside and Below the Table */}
-    <div className="user-management-container">
+    <div className="user-management-container-lead">
     <UserManagementButtons />
     </div>
 

@@ -123,9 +123,12 @@ const DiagnosticsDropdown = ({
 
         {/* School Year Dropdown */}
         <div className="diagnostics-dropdown-wrapper">
-        <button className="diagnostics-dropdown-btn" onClick={() => setIsSchoolYearOpen(prev => !prev)}>
-        {schoolYear || "Select School Year"}
-        <FaChevronDown className={`diagnostics-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
+        <button
+        className="esl-dashboard-dropdown-btn"
+        onClick={() => setIsSchoolYearOpen((prev) => !prev)}
+        >
+        {schoolYear ? schoolYear.replace('/', '-') : "Select School Year"}
+        <FaChevronDown className={`esl-dashboard-dropdown-arrow ${isSchoolYearOpen ? "open" : ""}`} />
         </button>
         {isSchoolYearOpen && (
             <div className="diagnostics-dropdown-menu">

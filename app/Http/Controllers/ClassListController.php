@@ -67,9 +67,29 @@ class ClassListController extends Controller
                 return response()->json(['message' => 'Employee not found in EIEHeads'], 404);
             }
 
-            // Get class lists based on department
+            // Get only ACTIVE students based on department
             $students = ClassLists::where('department', $eieHead->department)
-            ->select('class_lists_id', 'student_id', 'firstname', 'middlename', 'lastname', 'status', 'year_level', 'classification', 'gender', 'reason_for_shift_or_drop', 'course_code', 'epgf_average', 'proficiency_level', 'pronunciation_average', 'grammar_average', 'fluency_average', 'program', 'candidate_for_graduating')
+            ->where('status', 'Active') // Filter only active students
+            ->select(
+                'class_lists_id',
+                'student_id',
+                'firstname',
+                'middlename',
+                'lastname',
+                'status',
+                'year_level',
+                'classification',
+                'gender',
+                'reason_for_shift_or_drop',
+                'course_code',
+                'epgf_average',
+                'proficiency_level',
+                'pronunciation_average',
+                'grammar_average',
+                'fluency_average',
+                'program',
+                'candidate_for_graduating'
+            )
             ->get();
 
             return response()->json($students, 200);
@@ -78,6 +98,56 @@ class ClassListController extends Controller
             return response()->json(['message' => 'Error fetching class list.'], 500);
         }
     }
+
+    public function getDroppedClassListByDepartment(Request $request)
+    {
+        try {
+            // Get employee_id from the request
+            $employeeId = $request->query('employee_id');
+
+            if (!$employeeId) {
+                return response()->json(['message' => 'Employee ID is required'], 400);
+            }
+
+            // Find the department of the employee
+            $eieHead = EIEHeads::where('employee_id', $employeeId)->first();
+
+            if (!$eieHead) {
+                return response()->json(['message' => 'Employee not found in EIEHeads'], 404);
+            }
+
+            // Get only DROPPED students based on department
+            $students = ClassLists::where('department', $eieHead->department)
+            ->where('status', 'Dropped') // Filter dropped students
+            ->select(
+                'class_lists_id',
+                'student_id',
+                'firstname',
+                'middlename',
+                'lastname',
+                'status',
+                'year_level',
+                'classification',
+                'gender',
+                'reason_for_shift_or_drop',
+                'course_code',
+                'epgf_average',
+                'proficiency_level',
+                'pronunciation_average',
+                'grammar_average',
+                'fluency_average',
+                'program',
+                'candidate_for_graduating'
+            )
+            ->get();
+
+            return response()->json($students, 200);
+        } catch (\Exception $e) {
+            Log::error('Error fetching class list by department: ' . $e->getMessage());
+            return response()->json(['message' => 'Error fetching class list.'], 500);
+        }
+    }
+
 
     public function uploadClassList(Request $request)
     {
@@ -685,28 +755,25 @@ class ClassListController extends Controller
             'data.*.student_id' => 'required|string',
             'data.*.course_code' => 'required|string',
             'data.*.task_title' => 'required|string',
+            'data.*.month' => 'required|string',
         ]);
 
         DB::beginTransaction();
 
         try {
             $data = $request->input('data');
-
-            $now = Carbon::now();
-            $month = $now->month;
+            $month = $data[0]['month']; // All entries must be from the same month
 
             // Determine current semester
-            if ($month >= 8 && $month <= 12) {
-                $currentSemester = '1st Semester';
-            } elseif ($month >= 1 && $month <= 5) {
-                $currentSemester = '2nd Semester';
-            } else {
-                $currentSemester = '2nd Semester'; // June & July default
-            }
+            $now = Carbon::now();
+            $currentSemester = match(true) {
+                $now->month >= 8 && $now->month <= 12 => '1st Semester',
+                $now->month >= 1 && $now->month <= 5 => '2nd Semester',
+                default => '2nd Semester', // For June and July
+            };
 
-            // Get active rubric ID
             $activeRubric = EpgfRubric::where('status', 'active')->first();
-            $activeRubricId = $activeRubric ? $activeRubric->epgf_rubric_id : null;
+            $activeRubricId = $activeRubric?->epgf_rubric_id;
 
             $historicalData = [];
 
@@ -716,17 +783,17 @@ class ClassListController extends Controller
                 $courseTitle = null;
                 if (!empty($record['course_code'])) {
                     $subject = ImplementingSubjects::where('course_code', $record['course_code'])->first();
-                    $courseTitle = $subject ? $subject->course_title : null;
+                    $courseTitle = $subject?->course_title;
                 }
 
                 $proficiency = $this->getProficiencyLevel($epgfAverage);
 
                 $commonData = [
-                    'course_code' => $record['course_code'] ?? null,
+                    'course_code' => $record['course_code'],
                     'epgf_rubric_id' => $activeRubricId,
                     'student_id' => $record['student_id'],
                     'department' => $record['department'] ?? null,
-                    'task_title' => $record['task_title'] ?? null,
+                    'task_title' => $record['task_title'],
                     'type' => $record['type'] ?? null,
                     'comment' => $record['comment'] ?? null,
                     'epgf_average' => $epgfAverage,
@@ -734,7 +801,7 @@ class ClassListController extends Controller
                     'program' => $record['program'] ?? null,
                     'course_title' => $courseTitle,
                     'year_level' => $record['year_level'] ?? null,
-                    'change_note' => $record['month'] ?? null,
+                    'change_note' => $record['month'],
 
                     // Pronunciation
                     'consistency_descriptor' => $record['consistency_descriptor'] ?? '',
@@ -764,7 +831,7 @@ class ClassListController extends Controller
                     'fluency_average' => $record['fluency_average'] ?? 0,
                 ];
 
-                // Upsert scorecard class report
+                // Upsert EieScorecardClassReport
                 $uniqueKeys = [
                     'student_id' => $record['student_id'],
                     'course_code' => $record['course_code'],
@@ -775,17 +842,20 @@ class ClassListController extends Controller
 
                 EieScorecardClassReport::updateOrCreate($uniqueKeys, $commonData);
 
-                // Prepare for batch insert into HistoricalScorecard
+                // Collect for batch insert into HistoricalScorecard
                 $historicalData[] = $commonData;
             }
 
-            // Insert all historical records in one batch
             HistoricalScorecard::insert($historicalData);
 
-            // === Update ClassLists student averages ===
-            $studentIds = HistoricalClassLists::distinct()->pluck('student_id');
-            foreach ($studentIds as $studentId) {
-                $averages = HistoricalClassLists::where('student_id', $studentId)
+            // === Update ClassLists and EieScorecardClassReport (per student per course) ===
+            $studentCourses = HistoricalClassLists::select('student_id', 'course_code')
+            ->distinct()
+            ->get();
+
+            foreach ($studentCourses as $entry) {
+                $averages = HistoricalClassLists::where('student_id', $entry->student_id)
+                ->where('course_code', $entry->course_code)
                 ->select(
                     DB::raw('AVG(COALESCE(pronunciation_average, 0)) as avg_pronunciation'),
                          DB::raw('AVG(COALESCE(grammar_average, 0)) as avg_grammar'),
@@ -796,22 +866,23 @@ class ClassListController extends Controller
 
                 $proficiency = $this->getProficiencyLevel($averages->avg_epgf);
 
-                ClassLists::where('student_id', $studentId)
+                ClassLists::where('student_id', $entry->student_id)
+                ->where('course_code', $entry->course_code)
                 ->update([
-                    'proficiency_level'     => $proficiency,
+                    'proficiency_level' => $proficiency,
                     'pronunciation_average' => $averages->avg_pronunciation,
-                    'grammar_average'       => $averages->avg_grammar,
-                    'fluency_average'       => $averages->avg_fluency,
-                    'epgf_average'          => $averages->avg_epgf,
+                    'grammar_average' => $averages->avg_grammar,
+                    'fluency_average' => $averages->avg_fluency,
+                    'epgf_average' => $averages->avg_epgf,
                 ]);
 
-                // ✅ Also update EieScorecardClassReport per student
-                EieScorecardClassReport::where('student_id', $studentId)
+                EieScorecardClassReport::where('student_id', $entry->student_id)
+                ->where('course_code', $entry->course_code)
                 ->update([
                     'pronunciation_average' => $averages->avg_pronunciation,
-                    'grammar_average'       => $averages->avg_grammar,
-                    'fluency_average'       => $averages->avg_fluency,
-                    'epgf_average'          => $averages->avg_epgf,
+                    'grammar_average' => $averages->avg_grammar,
+                    'fluency_average' => $averages->avg_fluency,
+                    'epgf_average' => $averages->avg_epgf,
                 ]);
             }
 
@@ -840,19 +911,17 @@ class ClassListController extends Controller
 
                 EieReport::where('course_code', $courseCode)
                 ->update([
-                    'epgf_average'    => $averages->avg_epgf,
+                    'epgf_average' => $averages->avg_epgf,
                     'completion_rate' => $completionRate,
                 ]);
             }
 
             DB::commit();
-            return response()->json(['message' => 'Data saved successfully!'], 200);
-
+            return response()->json(['message' => 'Data submitted successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error("Error saving data: " . $e->getMessage());
-            \Log::error($e->getTraceAsString());
-            return response()->json(['message' => 'Failed to save data', 'error' => $e->getMessage()], 500);
+            Log::error('Error in submitData: ' . $e->getMessage());
+            return response()->json(['error' => 'Server error'], 500);
         }
     }
 
@@ -884,12 +953,15 @@ class ClassListController extends Controller
         try {
             $currentYear = Carbon::now()->year;
             $month = $request->month;
+            $courseCode = $request->courseCode; // from frontend (camelCase)
 
-            Log::info('Checking submission existence for month: ' . $month . ', year: ' . $currentYear);
+            Log::info('Checking submission existence for month: ' . $month . ', year: ' . $currentYear . ', course_code: ' . $courseCode);
 
-            $exists = EieScorecardClassReport::where('change_note', $month)
+            $query = EieScorecardClassReport::where('change_note', $month)
             ->whereYear('created_at', $currentYear)
-            ->exists();
+            ->where('course_code', $courseCode); // exact column name match
+
+            $exists = $query->exists();
 
             return response()->json(['exists' => $exists]);
         } catch (\Exception $e) {

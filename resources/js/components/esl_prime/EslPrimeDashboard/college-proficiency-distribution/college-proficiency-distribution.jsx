@@ -252,6 +252,7 @@ const CollegeProficiencyChart = () => {
         <div className="cpd-chart-header">
         <h2 className="cpd-chart-title">College Proficiency Distribution</h2>
         <p className="cpd-chart-subtitle">
+        Monthly Performance <br/>
         {selectedSemester || 'All Semesters'}, S/Y {selectedSchoolYear.replace('/', '-')}
         </p>
         </div>

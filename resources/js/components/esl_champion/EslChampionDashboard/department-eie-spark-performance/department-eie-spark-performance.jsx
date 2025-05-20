@@ -28,13 +28,12 @@ ChartJS.register(
     ChartDataLabels
 );
 
-const EieSparkPerformance = () => {
-    const currentMonth = new Date().getMonth();
-    const defaultSemester = currentMonth >= 8 && currentMonth <= 12 ? "1st Semester" : "2nd Semester";
-    const defaultSchoolYear = `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`;
+const semesters = ["1st Semester", "2nd Semester"];
 
+const EieSparkPerformance = ({semester}) => {
+    const defaultSchoolYear = `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`;
     const [selectedSchoolYear, setSelectedSchoolYear] = useState(defaultSchoolYear);
-    const [selectedSemester, setSelectedSemester] = useState(defaultSemester);
+    const [selectedSemester, setSelectedSemester] = useState(semester || "");
     const [chartData, setChartData] = useState({ labels: [], datasets: [] });
     const [loading, setLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
@@ -43,6 +42,23 @@ const EieSparkPerformance = () => {
     const [departments, setDepartments] = useState([]);
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const chartRef = useRef(null);
+    const [loadingDepartment, setLoadingDepartment] = useState(true);
+
+    useEffect(() => {
+        axios.get('/api/get-full-departments')
+        .then(response => {
+            const fetched = Array.isArray(response.data) ? response.data : [];
+            setDepartments(fetched);
+            setSelectedDepartment(fetched.length > 0 ? fetched[0].department : '');
+            setLoadingDepartment(false);
+        })
+        .catch(error => {
+            console.error(error);
+            setDepartments([]);
+            setErrorMessage('Failed to load departments');
+            setLoadingDepartment(false);
+        });
+    }, []);
 
     const yearColorMap = {
         "1st Year": "#66bb6a",
@@ -50,25 +66,6 @@ const EieSparkPerformance = () => {
         "3rd Year": "#42a5f5",
         "4th Year": "#ef5350"
     };
-
-    useEffect(() => {
-        axios.get('/api/get-departments')
-        .then(response => {
-            const fetched = Array.isArray(response.data)
-            ? response.data
-            : response.data?.departments || [];
-
-            setDepartments(fetched);
-            setSelectedDepartment(fetched[0] || '');
-            setLoading(false);
-        })
-        .catch(error => {
-            console.error(error);
-            setDepartments([]); // Safe fallback
-            setErrorMessage('Failed to load departments');
-            setLoading(false);
-        });
-    }, []);
 
     useEffect(() => {
         const fetchPGFAverages = async () => {
@@ -92,18 +89,26 @@ const EieSparkPerformance = () => {
         const fetchYearTotals = async () => {
             setLoading(true);
             try {
+                // Prepare params object outside of axios call
+                const params = {
+                    department: selectedDepartment,
+                    schoolYear: selectedSchoolYear,
+                };
+
+                if (selectedSemester && semesters.includes(selectedSemester)) {
+                    params.semester = selectedSemester;
+                }
+
                 const { data } = await axios.get("http://127.0.0.1:8000/api/dashboard-report-year-totals", {
-                    params: {
-                        department: selectedDepartment,
-                        semester: selectedSemester,
-                        schoolYear: selectedSchoolYear,
-                    },
+                    params,
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                     },
                 });
+
                 console.log(data);
+
                 const { programs, yearProgramTotals } = data;
                 if (!programs || !yearProgramTotals) {
                     setErrorMessage("No data found.");
@@ -136,21 +141,21 @@ const EieSparkPerformance = () => {
                     : 0;
                 });
 
-            const lineDataset = {
-                type: 'line',
-                label: 'PGF Average',
-                data: pgfAverages,
-                borderColor: "#ab47bc",
-                backgroundColor: "#ab47bc",
-                fill: false,
-                tension: 0.4,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                pointBackgroundColor: "#ab47bc",
-                pointBorderColor: "#ab47bc",
-                yAxisID: "y",
-                order: 1,
-                datalabels: { display: true }
+                const lineDataset = {
+                    type: 'line',
+              label: 'PGF Average',
+              data: pgfAverages,
+              borderColor: "#000000",
+              backgroundColor: "#FFFFFF",
+              fill: false,
+              tension: 0.4,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+              pointBackgroundColor: "#000000",
+              pointBorderColor: "#000000",
+              yAxisID: "y",
+              order: 1,
+              datalabels: { display: true }
                 };
 
                 setChartData({
@@ -203,7 +208,7 @@ const EieSparkPerformance = () => {
                 beginAtZero: true,
                 min: pgfMin,
                 max: pgfMax,
-                title: { display: true, text: 'PGF Average' },
+                title: { display: false, text: 'PGF Average' },
                 ticks: {
                     stepSize: 0.5,
                     callback: (val) => val.toFixed(2)
@@ -212,7 +217,7 @@ const EieSparkPerformance = () => {
             y1: {
                 beginAtZero: true,
                 max: 100,
-                title: { display: true, text: 'Completion Rate (%)' },
+                title: { display: false, text: 'Completion Rate (%)' },
                 ticks: {
                     stepSize: 10,
                     callback: (val) => `${val}%`
@@ -221,7 +226,7 @@ const EieSparkPerformance = () => {
                 grid: { drawOnChartArea: false }
             },
             x: {
-                title: { display: true, text: 'Programs' },
+                title: { display: false, text: 'Programs' },
                 stacked: false
             },
         }
@@ -243,14 +248,15 @@ const EieSparkPerformance = () => {
             className="department-dropdown text-gray-800 text-sm"
             >
             {departments.map((dept, idx) => (
-                <option key={idx} value={dept}>
-                {dept} EIE Spark Performance
+                <option key={idx} value={dept.department}>
+                {dept.full_department}
                 </option>
             ))}
             </select>
             </div>
             <p className="esl-spark-chart-title">
-            Target Completion Rate: 100%
+            Monthly EIE Spark Performance <br/>
+            {selectedSemester}, S/Y {selectedSchoolYear.replace('/', '-')}
             </p>
             </div>
 

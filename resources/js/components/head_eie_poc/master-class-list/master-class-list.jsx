@@ -3,6 +3,7 @@ import EIEHeadSidebar from '../sidebar/eie-head-sidebar';
 import UserInfo from '@user-info/User-info';
 import StudentManagementDropdown from './dropdown-button/student-management-dropdown';
 import StudentManagementTable from './student-management-table/student-management-table';
+import StudentRemovedTable from './removed-from-list/remove-from-list-table';
 
 const MasterClassList = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,6 +66,11 @@ const MasterClassList = () => {
     selectedCode={selectedCode}
     selectedYearLevel={selectedYearLevel}  // <-- passing selectedYearLevel
     />
+    <br /><br /><br />
+    <h1 style={{ fontFamily: 'Epilogue', fontWeight: 800, marginLeft: '350px', color: '#383838' }}>
+    Removed from the List
+    </h1>
+    <StudentRemovedTable/>
     <br />
     </div>
   );

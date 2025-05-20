@@ -37,43 +37,6 @@ const eslPrimeDiagnostics = () => {
         detailOfResponse: "",
     });
 
-    const [remarks, setRemarks] = useState({
-        "PGF Specific Remarks": "",
-        "School Year Highlight": "",
-        "School Year Lowlight": "",
-        "SPARK Highlight": "",
-        "SPARK Lowlight": "",
-        "Usage in School/Online (When in School)": "",
-        "Usage Offline (Home or Outside)": "",
-        "Support Needed": ""
-    });
-
-    const handleClear = () => {
-        setRatings({});
-        setOverallAverage("0.00");
-        setDropdownValues({
-            consistency: "",
-            clarity: "",
-            articulation: "",
-            intonationAndStress: "",
-            accuracy: "",
-            clarityOfThought: "",
-            syntax: "",
-            qualityOfResponse: "",
-            detailOfResponse: "",
-        });
-        setRemarks({
-            "PGF Specific Remarks": "",
-            "School Year Highlight": "",
-            "School Year Lowlight": "",
-            "SPARK Highlight": "",
-            "SPARK Lowlight": "",
-            "Usage in School/Online (When in School)": "",
-                   "Usage Offline (Home or Outside)": "",
-                   "Support Needed": ""
-        });
-    };
-
     useEffect(() => {
         const fetchVersionAndOptions = async () => {
             try {
@@ -144,12 +107,49 @@ const eslPrimeDiagnostics = () => {
         setCategoryAverages(averages);
     };
 
+    const [remarks, setRemarks] = useState({
+        "PGF Specific Remarks": "",
+        "School Year Highlight": "",
+        "School Year Lowlight": "",
+        "SPARK Highlight": "",
+        "SPARK Lowlight": "",
+        "Usage in School/Online (When in School)": "",
+        "Usage Offline (Home or Outside)": "",
+        "Support Needed": ""
+    });
+
+    const handleClear = () => {
+        setRatings({});
+        setOverallAverage("0.00");
+        setDropdownValues({
+            consistency: "",
+            clarity: "",
+            articulation: "",
+            intonationAndStress: "",
+            accuracy: "",
+            clarityOfThought: "",
+            syntax: "",
+            qualityOfResponse: "",
+            detailOfResponse: "",
+        });
+        setRemarks({
+            "PGF Specific Remarks": "",
+            "School Year Highlight": "",
+            "School Year Lowlight": "",
+            "SPARK Highlight": "",
+            "SPARK Lowlight": "",
+            "Usage in School/Online (When in School)": "",
+            "Usage Offline (Home or Outside)": "",
+            "Support Needed": ""
+        });
+    };
+
     const [formData, setFormData] = useState({
         name: "",
         student_id: "",
         yearLevel: "",
         interviewer: "",
-        venue: "",
+        venue: "Online",
         program: "",
         department: "",
         date: "",
@@ -204,23 +204,24 @@ const eslPrimeDiagnostics = () => {
         return fullName.includes(nameSearch.toLowerCase());
     });
 
-    const handleStudentSelect = (fullName) => {
-        const selectedStudent = students.find(student =>
-        `${student.firstname} ${student.middlename || ""} ${student.lastname}`.trim() === fullName
-        );
+    const handleStudentSelect = (student) => {
+        const fullName = `${student.firstname} ${student.middlename || ""} ${student.lastname}`.trim();
 
-        if (selectedStudent) {
-            setFormData(prev => ({
-                ...prev,
-                name: fullName,
-                student_id: selectedStudent.student_id,
-                program: selectedStudent.program,
-                year_level: selectedStudent.year_level,
-            }));
-        }
+        setFormData(prev => ({
+            ...prev,
+            name: fullName,
+            student_id: student.student_id,
+            program: student.program,
+            year_level: student.year_level,
+        }));
+
+        console.log("Selected Student ID:", student.student_id);
+
         setIsDropdownOpen(false);
         setNameSearch("");
     };
+
+
 
     useEffect(() => {
         const fetchStudents = async () => {
@@ -232,6 +233,10 @@ const eslPrimeDiagnostics = () => {
                             yearLevel: formData.yearLevel,
                         }
                     });
+
+                    // Debug log to see student_id of each student
+                    console.log("Fetched student IDs:", response.data.map(student => student.student_id));
+
                     setStudents(response.data);
                 } catch (error) {
                     console.error("Error fetching students:", error);
@@ -262,7 +267,8 @@ const eslPrimeDiagnostics = () => {
             [name]: value
         }));
     };
-
+    const studenId = formData.student_id;
+    console.log(studenId); // use this for update !!!!!!!
 
     return (
         <div>
@@ -285,6 +291,7 @@ const eslPrimeDiagnostics = () => {
         overallAverage={overallAverage}
         ratings={ratings}
         remarks={remarks}
+        setRemarks={setRemarks}
         categoryAverages={categoryAverages}
         formData={formData}
         setFormData={setFormData}
@@ -301,9 +308,6 @@ const eslPrimeDiagnostics = () => {
         handleStudentSelect={handleStudentSelect}
         />
 
-
-
-
         <Table
         options={options}
         onOverallAverageChange={handleOverallAverageChange}
@@ -313,7 +317,9 @@ const eslPrimeDiagnostics = () => {
         dropdownValues={dropdownValues}
         setDropdownValues={setDropdownValues}
         onCategoryAveragesChange={handleCategoryAveragesChange}
+        studenId={studenId}
         />
+
         <RemarksDropdown remarks={remarks} setRemarks={setRemarks} yearLevel={formData.yearLevel} />
 
         </div>

@@ -215,7 +215,7 @@ const ImpSubjectsPerformance = ({ userFullDepartment, userDepartment }) => {
                 min: pgfMin,
                 max: pgfMax,
                 ticks: { stepSize: 0.5, display: true },
-                title: { display: true, text: "PGF Average" },
+                title: { display: false, text: "PGF Average" },
                 grid: { drawOnChartArea: false },
             },
             y2: {
@@ -227,7 +227,7 @@ const ImpSubjectsPerformance = ({ userFullDepartment, userDepartment }) => {
                     stepSize: 10,
                     callback: (value) => `${value}%`,
                 },
-                title: { display: true, text: "Completion Rate (%)" },
+                title: { display: false, text: "Completion Rate (%)" },
             },
         },
     };
@@ -240,6 +240,7 @@ const ImpSubjectsPerformance = ({ userFullDepartment, userDepartment }) => {
                 <>
                     <div className="chart-title">
                         <h2>{userFullDepartment}</h2>
+                        <p> Monthly Performance</p>
                         <p>Target Completion Rate: 100%</p>
                     </div>
                     <GraphDropdown

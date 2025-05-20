@@ -13,11 +13,11 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
     const [year, setYear] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
-
     const checkIfSubmissionExists = async () => {
         try {
             const response = await axios.post('/api/evaluate/check-month', {
-                month
+                month,
+                courseCode
             });
 
             if (response.data.exists) {

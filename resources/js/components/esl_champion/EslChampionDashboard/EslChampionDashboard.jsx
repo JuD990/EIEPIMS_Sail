@@ -7,20 +7,22 @@ import CollegeProficiencyChart from "./college-proficiency-distribution/college-
 import DepartmentEieSparkPerformance from "./department-eie-spark-performance/department-eie-spark-performance";
 import DepartmentPerformance from "./imp-subject-performance/imp-subjects-performance";
 
-
 const EslPrimeDashboard = () => {
-  const currentMonth = new Date().getMonth(); // 0 for January, 11 for December
+  const currentMonth = new Date().getMonth(); // 0 to 11
+  const currentYear = new Date().getFullYear();
 
-  // Default values based on logic in DashboardDropdown
+  // Defaults based on your dropdown's logic
   const defaultSemester = currentMonth >= 8 && currentMonth <= 12 ? "1st Semester" : "2nd Semester";
-  const defaultSchoolYear = `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+  const defaultSchoolYear = `${currentYear}-${currentYear + 1}`;
 
+  // You might want to initialize department to something valid if you have a list to avoid empty string issues
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedSchoolYear, setSelectedSchoolYear] = useState(defaultSchoolYear);
   const [selectedSemester, setSelectedSemester] = useState(defaultSemester);
+  const [fullDepartment, setFullDepartment] = useState("");
 
   useEffect(() => {
-    // You can also manage side-effects here if necessary
+    // Optionally reset or fetch data on change of filters
   }, [selectedDepartment, selectedSchoolYear, selectedSemester]);
 
   return (
@@ -31,23 +33,52 @@ const EslPrimeDashboard = () => {
     <h1 style={{ fontFamily: 'Epilogue', fontWeight: 800, marginLeft: '340px', color: '#383838' }}>
     Dashboard
     </h1>
-    <CollegeProficiencyChart />
+    {/* Pass filters if these components rely on them */}
+    <CollegeProficiencyChart
+    department={selectedDepartment}
+    schoolYear={selectedSchoolYear}
+    semester={selectedSemester}
+    />
     <br />
-    <DepartmentPerformance />
+    <DepartmentPerformance
+    department={selectedDepartment}
+    schoolYear={selectedSchoolYear}
+    semester={selectedSemester}
+    fullDepartment={fullDepartment}
+    />
     <br />
-    <DepartmentEieSparkPerformance/>
+    <DepartmentEieSparkPerformance
+    department={selectedDepartment}
+    schoolYear={selectedSchoolYear}
+    semester={selectedSemester}
+    fullDepartment={fullDepartment}
+    />
     <br />
     <div className="dashboard-table-container">
     <div style={{ marginBottom: "10px" }}>
-    {/* Pass state setters to Dropdown */}
-    <h2 style={{ textAlign: "left", fontFamily: "Poppins", fontWeight: "700" }}>Table Form - {selectedSemester}, {selectedDepartment} {selectedSchoolYear.replace('/', '-')}</h2>
+    <h2 style={{ textAlign: "left", fontFamily: "Poppins", fontWeight: "700" }}>
+    Summary overall performance by month
+    </h2>
+    <p
+    style={{
+      fontFamily: 'Poppins',
+      textAlign: 'left',
+      marginTop: '-5px',
+      marginBottom: '-3px',
+      fontSize: '0.95rem',
+      fontStyle: 'italic',
+      color: '#666666',
+    }}
+    >
+    {selectedSemester}, {selectedSchoolYear.replace('/', '-')}
+    </p>
     <DashboardDropdown
     setSelectedDepartment={setSelectedDepartment}
+    selectedSchoolYear={selectedSchoolYear}
     setSelectedSchoolYear={setSelectedSchoolYear}
+    selectedSemester={selectedSemester}
     setSelectedSemester={setSelectedSemester}
     />
-
-    {/* Pass selected values to TableComponent */}
     <TableComponent
     department={selectedDepartment}
     schoolYear={selectedSchoolYear}

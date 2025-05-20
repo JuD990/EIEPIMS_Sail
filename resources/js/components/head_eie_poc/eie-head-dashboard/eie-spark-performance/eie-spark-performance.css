@@ -12,10 +12,11 @@
 .spark-chart-title p {
     font-family: 'Poppins';
     text-align: left;
-     margin-top: -10px;
+     margin-top: 10px;
     font-size: 0.95rem;
     font-style: italic;
     color: #666666;
+    margin-bottom: 5px;
 }
 
 .spark-chart-title h2 {

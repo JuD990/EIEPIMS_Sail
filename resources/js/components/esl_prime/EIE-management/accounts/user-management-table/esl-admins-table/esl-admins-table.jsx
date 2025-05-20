@@ -211,7 +211,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
 
   return (
     <div>
-    <div className="table-container">
+    <div className="table-container-esl">
     <table {...getTableProps()} className="non-sticky-table">
     <thead>
     {headerGroups.map((headerGroup) => (

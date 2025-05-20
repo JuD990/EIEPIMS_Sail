@@ -263,7 +263,7 @@ const UserManagementTable = ({
 
   return (
     <div>
-    <div className="table-container">
+    <div className="table-container-student">
     <table {...getTableProps()} className="non-sticky-table">
     <thead>
     {headerGroups.map((headerGroup) => (

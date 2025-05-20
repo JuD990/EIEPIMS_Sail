@@ -10,7 +10,7 @@ use App\Models\EpgfGrammar;
 use App\Models\EpgfFluency;
 use App\Models\ClassLists;
 use App\Models\ImplementingSubjects;
-use App\Models\HistoricalScorecard;
+use App\Models\EieScorecardClassReport;
 use Carbon\Carbon;
 
 class StudentController extends Controller
@@ -50,14 +50,14 @@ class StudentController extends Controller
     {
         try {
             // Check if student has any records
-            $hasRecord = HistoricalScorecard::where('student_id', $student_id)->exists();
+            $hasRecord = EieScorecardClassReport::where('student_id', $student_id)->exists();
 
             if (!$hasRecord) {
                 return response()->json(['message' => 'Student not found'], 404);
             }
 
             // Calculate average of epgf_average column for this student
-            $average = HistoricalScorecard::where('student_id', $student_id)
+            $average = EieScorecardClassReport::where('student_id', $student_id)
             ->avg('epgf_average');
 
             return response()->json([
@@ -77,7 +77,7 @@ class StudentController extends Controller
             return response()->json(['error' => 'student_id is required'], 400);
         }
 
-        $yearLevels = HistoricalScorecard::where('student_id', $studentId)
+        $yearLevels = EieScorecardClassReport::where('student_id', $studentId)
         ->pluck('year_level')
         ->unique()
         ->values(); // Ensures numeric keys
@@ -113,7 +113,7 @@ class StudentController extends Controller
             $monthNumber = $semesterStartMonth + $index;  // Get the actual month number for query
 
             // Fetch data for the current month
-            $data = HistoricalScorecard::where('year_level', $yearLevel)
+            $data = EieScorecardClassReport::where('year_level', $yearLevel)
             ->where('student_id', $studentId)
             ->whereMonth('created_at', '=', $monthNumber)
             ->get();
@@ -155,7 +155,7 @@ class StudentController extends Controller
         // Loop through each year level and calculate the average epgf_average
         foreach ($yearLevels as $yearLevel) {
             // Fetch all data for the selected student and year level
-            $data = HistoricalScorecard::where('year_level', $yearLevel)
+            $data = EieScorecardClassReport::where('year_level', $yearLevel)
             ->where('student_id', $studentId)
             ->get();
 

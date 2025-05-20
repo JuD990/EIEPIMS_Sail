@@ -18,9 +18,16 @@ const TableComponent = ({ department, schoolYear, semester }) => {
     }, [department, schoolYear, semester]);
 
     const fetchTableData = async () => {
+        const employeeId = localStorage.getItem("employee_id");
+
         try {
-            const response = await axios.get('/api/dashboard-report', {
-                params: { department, semester, schoolYear }
+            const response = await axios.get('/api/dashboard-assigned-report', {
+                params: {
+                    department,
+                    semester,
+                    schoolYear,
+                    employee_id: employeeId
+                }
             });
 
             if (response.data.success) {

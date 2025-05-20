@@ -1,4 +1,4 @@
-.dashboard-esl-champion-container {
+.dashboard-esl-prime-container {
     overflow-x: auto;
     overflow-y: auto;
     height: 680px;
@@ -9,7 +9,7 @@
     white-space: nowrap;
 }
 
-.dashboard-esl-table {
+.dashboard-esl-prime-table {
     width: 100%;
     border-collapse: collapse;
     background-color: #fff;
@@ -23,7 +23,7 @@
     text-align: center;
 }
 
-.dashboard-esl-table th {
+.dashboard-esl-prime-table th {
     background-color: #F4F7FC;
     font-weight: bold;
     position: sticky;
@@ -31,11 +31,11 @@
     z-index: 1;
 }
 
-.dashboard-esl-table thead tr:first-child th {
+.dashboard-esl-prime-table thead tr:first-child th {
     top: 0;
 }
 
-.dashboard-esl-table thead tr:nth-child(2) th {
+.dashboard-esl-prime-table thead tr:nth-child(2) th {
     top: 40px;
 }
 
@@ -85,22 +85,28 @@
 }
 
 .export-button {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
+    position: fixed;
+    margin-right: 15px;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    padding: 12px 20px;
     background-color: #DC2626;
     color: white;
     border: none;
-    padding: 8px 16px;
     border-radius: 6px;
-    cursor: pointer;
     font-size: 14px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: background-color 0.3s;
-    margin-right: 25px;
-    font-family: 'Poppins';
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
 }
 
 .export-button:hover {
-    background-color: #0056b3;
+    background-color: #ad1d1d;
+}
+
+/* Align Course Title column to the left */
+.dashboard-esl-prime-table th:nth-child(5), /* Header for Course Title */
+.dashboard-esl-prime-table td:nth-child(5) { /* Data for Course Title */
+    text-align: left;
 }

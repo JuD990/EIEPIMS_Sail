@@ -161,8 +161,6 @@ const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }
         ),
       },
       { Header: "Course Title", accessor: "course_title" },
-      { Header: "Code", accessor: "code" },
-      { Header: "Course Code", accessor: "course_code" },
       { Header: "Semester", accessor: "semester" },
       { Header: "Year Level", accessor: "year_level" },
       { Header: "Department", accessor: "department" },

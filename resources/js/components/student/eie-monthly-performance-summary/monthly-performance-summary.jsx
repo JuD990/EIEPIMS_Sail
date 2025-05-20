@@ -49,7 +49,7 @@ const getCEFRLevel = (epgfAverage) => {
     } else if (epgfAverage >= 3.00 && epgfAverage < 4.00) {
         return { level: "C1", category: "Proficient" };
     } else if (epgfAverage >= 4.00) {
-        return { level: "C2", category: "Advamced/Native" };
+        return { level: "C2", category: "Advanced/Native" };
     } else {
         return { level: "?", category: "?" };
     }
@@ -90,6 +90,7 @@ const MonthlyPerformanceSummary = () => {
 
                 // Extract the months data from the response
                 const monthsData = response.data.months || {};
+                console.log('Data received:', response.data);
 
                 // Prepare data for table rendering, but exclude rows with null epgf_average
                 const tableData = months.map(month => {
