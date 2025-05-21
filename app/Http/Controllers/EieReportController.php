@@ -818,7 +818,6 @@ class EieReportController extends Controller
         }
     }
 
-
     public function getDashboardReportGrandTotals(Request $request)
     {
         $department = $request->input('department');

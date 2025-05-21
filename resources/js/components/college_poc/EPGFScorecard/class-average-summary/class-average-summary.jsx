@@ -20,17 +20,17 @@ const ClassAverageSummary = ({ course_code, average, studentCount, evaluatedCoun
     { threshold: 4.00, level: 'Native/Bilingual', color: '#00008B' },
   ];
 
-  const getProficiencyLevel = (epgfAverage) => {
+  const getProficiencyLevel = (average) => {
     const sorted = [...epgfProficiencyLevels].sort((a, b) => b.threshold - a.threshold);
     for (let level of sorted) {
-      if (epgfAverage >= level.threshold) {
+      if (average >= level.threshold) {
         return { level: level.level, color: level.color };
       }
     }
     return { level: 'Unknown', color: 'black' };
   };
 
-  const { level, color } = getProficiencyLevel(epgfAverage);
+  const { level, color } = getProficiencyLevel(average);
 
   // Calculate Completion Rate based on studentCount and evaluatedCount
   const completionRate = studentCount > 0 ? ((evaluatedCount / studentCount) * 100).toFixed(0) : 0;
