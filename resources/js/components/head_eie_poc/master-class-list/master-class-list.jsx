@@ -21,13 +21,26 @@ const MasterClassList = () => {
     setSelectedCode(code);
   };
 
+  const getCurrentSemester = () => {
+    const month = new Date().getMonth() + 1; // getMonth is 0-based
+    if (month >= 8 && month <= 12) {
+      return '1st Semester';
+    } else if (month >= 1 && month <= 5) {
+      return '2nd Semester';
+    } else {
+      return 'Semester Break'; // June & July
+    }
+  };
+
+  const currentSemester = getCurrentSemester();
+
   return (
     <div style={{ overflow: "hidden" }}>
     <EIEHeadSidebar />
     <UserInfo />
     <br /><br /><br /><br />
     <h1 style={{ fontFamily: 'Epilogue', fontWeight: 800, marginLeft: '350px', color: '#383838' }}>
-    Master Class List
+    Master Class List - {currentSemester}
     </h1>
 
     <div style={{

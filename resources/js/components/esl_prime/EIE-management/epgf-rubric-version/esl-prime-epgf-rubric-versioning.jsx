@@ -66,7 +66,7 @@ const EslPrimeEPGFRubricVersion = () => {
     <EPGFrubricVersionDropdown />
     <div style={{ marginRight: '35px', marginBottom: '60px' }} >
     <UploadCSVButton
-    label="Upload CSV"
+    label="Upload New"
     onFileUpload={(file) => handleFileUpload(file, "CSV")}
     />
     </div>

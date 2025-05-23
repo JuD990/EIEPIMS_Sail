@@ -60,6 +60,19 @@ const ChampionCandidates = () => {
         // Do something with selected student...
     };
 
+    const getCurrentSemester = () => {
+        const month = new Date().getMonth() + 1; // getMonth is 0-based
+        if (month >= 8 && month <= 12) {
+            return '1st Semester';
+        } else if (month >= 1 && month <= 5) {
+            return '2nd Semester';
+        } else {
+            return 'Semester Break'; // June & July
+        }
+    };
+
+    const currentSemester = getCurrentSemester();
+
     return (
         <div>
         <EIEHeadSidebar />
@@ -67,7 +80,7 @@ const ChampionCandidates = () => {
         <br /><br /><br /><br />
         <div className="eie-champ-container">
             <h1>
-                Select Monthly Champion
+                Select Monthly Champion - {currentSemester}
             </h1>
             <ChampListTable
             data={topChampions}

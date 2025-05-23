@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\ClassLists;
 use App\Models\Students;
+use App\Models\MasterClassList;
 use App\Models\StudentsToDiagnose;
 use App\Models\HistoricalClassLists;
 use Maatwebsite\Excel\Concerns\ToModel;

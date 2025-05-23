@@ -18,6 +18,19 @@ const EIEHeadStudentManagement = () => {
     seniors: { total: 0, active: 0, active_percentage: 0, subjects: [] },
   });
 
+  const getCurrentSemester = () => {
+    const month = new Date().getMonth() + 1; // getMonth is 0-based
+    if (month >= 8 && month <= 12) {
+      return '1st Semester';
+    } else if (month >= 1 && month <= 5) {
+      return '2nd Semester';
+    } else {
+      return 'Semester Break'; // June & July
+    }
+  };
+
+  const currentSemester = getCurrentSemester();
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -134,7 +147,9 @@ const summaryItems = [
     <br /><br /><br /><br />
     <h1 className="student-management-title">Student Management</h1>
     <br /><br /><br />
-    <h1 className="student-summary-title">Summary of Students</h1>
+    <h1 className="student-summary-title">
+    Summary of Students - {currentSemester}
+    </h1>
 
     <div className="student-summary-boxes">
     {summaryItems.map((item, index) => {

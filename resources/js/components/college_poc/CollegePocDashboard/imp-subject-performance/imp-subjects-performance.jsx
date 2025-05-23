@@ -92,8 +92,13 @@ const ImpSubjectsPerformance = ({ schoolYear, semester }) => {
 
                 if (classResponse.data.success) {
                     const data = classResponse.data.classData;
+                    console.log(data);
                     setClassData(data);
-                    setChartTitle(prev => prev || (data[0]?.course_code ?? ""));
+                    if (data.length > 0) {
+                        setChartTitle(data[0].course_code); // Always reset to the first course in the new data
+                    } else {
+                        setChartTitle('');
+                    }
                 } else {
                     setErrorMessage(classResponse.data.message);
                 }
@@ -127,8 +132,13 @@ const ImpSubjectsPerformance = ({ schoolYear, semester }) => {
                         school_year: schoolYear,
                     },
                 });
+                console.log("chartTitle:", chartTitle);
+                console.log("semester:", semester);
+                console.log("schoolYear:", schoolYear);
 
+                console.log(reportResponse);
                 if (!reportResponse.data.success || reportResponse.data.data.length === 0) {
+
                     setErrorMessage(reportResponse.data.message || "No data found.");
                     setChartData(generateEmptyChartData(semesterMonths[semester]));
                     return;
@@ -142,12 +152,25 @@ const ImpSubjectsPerformance = ({ schoolYear, semester }) => {
                 reportData.forEach((monthData) => {
                     labels.push(monthData.month);
 
-                    if (!monthData.data || monthData.data.length === 0 || !monthData.data[0].epgf_average) {
+                    if (!monthData.data || monthData.data.length === 0) {
                         completionRate.push(0);
                         pgfAverage.push("0.00");
                     } else {
-                        const compRate = monthData.data.reduce((sum, item) => sum + parseFloat(item.completion_rate || 0), 0) / monthData.data.length;
-                        const epgfAvg = monthData.data.reduce((sum, item) => sum + parseFloat(item.epgf_average || 0), 0) / monthData.data.length;
+                        const validCompletionRates = monthData.data
+                        .map(item => parseFloat(item.completion_rate))
+                        .filter(val => !isNaN(val));
+
+                        const validEPGF = monthData.data
+                        .map(item => parseFloat(item.epgf_average))
+                        .filter(val => !isNaN(val));
+
+                        const compRate = validCompletionRates.length
+                        ? validCompletionRates.reduce((sum, val) => sum + val, 0) / validCompletionRates.length
+                        : 0;
+
+                        const epgfAvg = validEPGF.length
+                        ? validEPGF.reduce((sum, val) => sum + val, 0) / validEPGF.length
+                        : 0;
 
                         completionRate.push(parseFloat(compRate.toFixed(2)));
                         pgfAverage.push(epgfAvg.toFixed(2));

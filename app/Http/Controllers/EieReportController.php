@@ -760,30 +760,29 @@ class EieReportController extends Controller
             'school_year' => 'required|string',
         ]);
 
-        [$startYear, $endYear] = explode('/', $request->school_year);
+        // Use query() to get GET parameters properly
+        [$startYear, $endYear] = explode('/', $request->query('school_year'));
 
         $semesterMonths = [
             '1st Semester' => ['August', 'September', 'October', 'November', 'December'],
             '2nd Semester' => ['January', 'February', 'March', 'April', 'May'],
         ];
 
-        $months = $semesterMonths[$request->semester];
+        $months = $semesterMonths[$request->query('semester')];
 
         try {
             $monthlyReports = [];
 
-            foreach ($months as $index => $month) {
-                $monthIndex = $index + 1;
-                $monthIndexPadded = str_pad($monthIndex, 2, '0', STR_PAD_LEFT);
+            foreach ($months as $month) {
+                $monthIndex = date('m', strtotime($month));
 
-                // Adjust year for 2nd semester (Jan-May)
                 $year = in_array($month, ['January', 'February', 'March', 'April', 'May']) ? $endYear : $startYear;
 
-                $startDate = "$year-$monthIndexPadded-01";
+                $startDate = "$year-$monthIndex-01";
                 $endDate = date("Y-m-t", strtotime($startDate));
 
-                $reports = EieReport::where('course_code', $request->course_code)
-                ->where('semester', $request->semester)
+                $reports = EieReport::where('course_code', $request->query('course_code'))
+                ->where('semester', $request->query('semester'))
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->get([
                     'eie_report_id',
@@ -817,6 +816,7 @@ class EieReportController extends Controller
             ], 500);
         }
     }
+
 
     public function getDashboardReportGrandTotals(Request $request)
     {
@@ -957,7 +957,7 @@ class EieReportController extends Controller
         }
 
         // Fetch programs based on the department and school_year, no semester filter
-        $programs = HistoricalClassLists::where('department', $department)
+        $programs = ClassLists::where('department', $department)
         ->whereBetween('created_at', [$startDate, $endDate])
         ->pluck('program')
         ->unique()
@@ -995,7 +995,7 @@ class EieReportController extends Controller
                 ->avg('completion_rate'); // Fetch the average completion rate for the program
 
                 // Fetch the average epgf_average for the program
-                $epgfAverage = HistoricalClassLists::where('year_level', $yearLevel)
+                $epgfAverage = ClassLists::where('year_level', $yearLevel)
                 ->where('program', $program)
                 ->where('department', $department)
                 ->whereBetween('created_at', [$startDate, $endDate])
