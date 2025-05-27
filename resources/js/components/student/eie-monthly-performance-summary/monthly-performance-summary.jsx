@@ -51,7 +51,7 @@ const getCEFRLevel = (epgfAverage) => {
     } else if (epgfAverage >= 4.00) {
         return { level: "C2", category: "Advanced/Native" };
     } else {
-        return { level: "?", category: "?" };
+        return { level: "A1", category: "Beginner" };
     }
 };
 
