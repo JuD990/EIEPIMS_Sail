@@ -1,7 +1,7 @@
 import React, { useMemo, useEffect, useState } from "react";
 import { useTable, useGlobalFilter } from "react-table";
 import './ClassListTable.css';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import ClassAverageSummary from '../class-average-summary/class-average-summary';
 
 const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, studentCount, studentCountActive, evaluatedCount }) => {
@@ -15,7 +15,7 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
     const [isSubmitDisabled, setIsSubmitDisabled] = useState(false);
     const checkIfSubmissionExists = async () => {
         try {
-            const response = await axios.post('/api/evaluate/check-month', {
+            const response = await apiService.post('/evaluate/check-month', {
                 month,
                 courseCode
             });
@@ -105,7 +105,7 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
     useEffect(() => {
         const fetchVersion = async () => {
             try {
-                const res = await axios.get('/api/rubric/active-version');
+                const res = await apiService.get('/rubric/active-version');
                 const versionString = res.data.version;
                 const match = versionString?.match(/^v(\d+)/);
                 if (match) setVersion(match[1]);
@@ -125,7 +125,7 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
             const newOptions = {};
             try {
                 await Promise.all(categories.map(async (cat) => {
-                    const res = await axios.get(`/api/${cat}/${version}`);
+                    const res = await apiService.get(`/${cat}/${version}`);
                     newOptions[cat] = res.data.map(item => ({
                         id: item.id,
                         rating: item.rating,
@@ -147,7 +147,7 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
                 if (!month || !courseCode) return;
                 setLoading(true);
                 try {
-                    const res = await axios.get('/api/classlists', {
+                    const res = await apiService.get('/classlists', {
                         params: { course_code: courseCode, month }
                     });
                     const records = res.data.records || [];
@@ -506,8 +506,8 @@ const ClassListTable = ({ data = [], searchQuery, month, courseCode, taskTitle, 
                     month: month || "",
                 }));
 
-                const url = `/api/evaluate/${action}`;
-                const response = await axios.post(url, { data: dataWithTaskTitle }, {
+                const url = `/evaluate/${action}`;
+                const response = await apiService.post(url, { data: dataWithTaskTitle }, {
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
                     }

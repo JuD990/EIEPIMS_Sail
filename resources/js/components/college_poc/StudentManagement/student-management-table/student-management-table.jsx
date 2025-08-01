@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTable } from "react-table";
+import apiService from "@services/apiServices";
 
 const StudentManagementTable = ({
   searchQuery,
@@ -31,19 +32,17 @@ const StudentManagementTable = ({
       return;
     }
 
-    fetch(`http://localhost:8000/api/manage-class-list?employee_id=${storedEmployeeId}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((data) => {
-      setStudents(data);
-    })
-    .catch((error) => console.error("Error fetching data:", error.message));
-  }, []);  // This will run only on mount
-
+    apiService
+      .get("/manage-class-list", {
+        params: { employee_id: storedEmployeeId },
+      })
+      .then((response) => {
+        setStudents(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error.message);
+      });
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

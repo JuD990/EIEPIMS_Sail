@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import studentnoicon from "@assets/student-no.png";
-import axios from "axios";
 import "./implementing-subject.css";
-import SemestralMonths from "../months-semesters/month-semeseters";
+import apiService from "@services/apiServices";
 
 const ImplementingSubjects = ({ semester }) => {
   const [employeeId, setEmployeeId] = useState(null);
@@ -33,8 +32,8 @@ const ImplementingSubjects = ({ semester }) => {
     const fetchClassData = async () => {
       setLoading(true); // optionally start loading here to show spinner on semester changes
       try {
-        const response = await axios.get(
-          `/api/implementing-subject/${storedEmployeeId}?semester=${encodeURIComponent(semester)}`
+        const response = await apiService.get(
+          `/implementing-subject/${storedEmployeeId}?semester=${encodeURIComponent(semester)}`
         );
         if (response.data.success) {
           setUserClasses(response.data.classData);
@@ -69,8 +68,8 @@ const ImplementingSubjects = ({ semester }) => {
 
   const fetchActiveStudents = async (course_code) => {
     try {
-      const response = await axios.get(
-        `/api/active-students?course_code=${course_code}`
+      const response = await apiService.get(
+        `/active-students?course_code=${course_code}`
       );
       if (response.data.success) {
         setActiveStudentCounts((prevCounts) => ({
@@ -154,7 +153,7 @@ const ImplementingSubjects = ({ semester }) => {
           </div>
           </div>
 
-          {/* 🔻 class-performance moved outside implementing-subject-1 */}
+          {/* class-performance moved outside implementing-subject-1 */}
           <div className="class-performance">
           <div className="eie-averages">
           <div className="pgf-average">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import './candidates.css';
 
 function ChampionsBySemester({ department, schoolYear }) {
@@ -12,7 +12,7 @@ function ChampionsBySemester({ department, schoolYear }) {
 
     const fetchChampions = async (semester) => {
         try {
-            const response = await axios.get('/api/champions-report', {
+            const response = await apiService.get('/champions-report', {
                 params: { department, semester, schoolYear },
             });
             if (response.data.success) {

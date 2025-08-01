@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import './class-average-summary.css';
 
 const ClassAverageSummary = ({ course_code, average, studentCount, evaluatedCount, studentCountActive, month }) => {
@@ -39,7 +39,7 @@ const ClassAverageSummary = ({ course_code, average, studentCount, evaluatedCoun
   useEffect(() => {
     const sendDataToBackend = async () => {
       try {
-        const response = await axios.post('/api/store-class-data-month', {
+        const response = await apiService.post('/store-class-data-month', {
           course_code,
           completionRate,
           proficiencyLevel: level,

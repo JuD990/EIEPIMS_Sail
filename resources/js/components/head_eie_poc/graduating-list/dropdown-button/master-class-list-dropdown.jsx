@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import { FaChevronDown } from "react-icons/fa";
 import "./master-class-list-dropdown.css";
 
@@ -16,7 +16,7 @@ const MasterClassListDropdown = ({
     const fetchData = async () => {
       try {
         const employeeId = localStorage.getItem('employee_id');
-        const response = await axios.get(`http://127.0.0.1:8000/api/master-class-list-department`, {
+        const response = await apiService.get(`/master-class-list-department`, {
           params: {
             employee_id: employeeId
           }

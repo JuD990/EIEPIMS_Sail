@@ -13,7 +13,7 @@ import {
 import { Chart } from "react-chartjs-2";
 import "./imp-subjects-performance.css";
 import GraphDropdown from '../graph-dropdown/graph-dropdown';
-import axios from "axios";
+import apiService from "@services/apiServices";
 
 ChartJS.register(
     CategoryScale,
@@ -80,7 +80,7 @@ const ImpSubjectsPerformance = ({ userFullDepartment, userDepartment }) => {
         const fetchPGFAverages = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get("http://127.0.0.1:8000/api/performance-summary-rating");
+                const response = await apiService.get("/performance-summary-rating");
                 const ratingsData = response.data.ratings;
                 const pgfValues = ratingsData.map(r => parseFloat(r)).filter(val => !isNaN(val));
 
@@ -114,8 +114,7 @@ const ImpSubjectsPerformance = ({ userFullDepartment, userDepartment }) => {
             setLoading(true);
             try {
                 const formattedSchoolYear = selectedSchoolYear.replace('-', '/');
-                const baseUrl = window.env?.API_BASE_URL || "http://127.0.0.1:8000";
-                const response = await axios.get(`${baseUrl}/dashboard-report-grand-totals`, {
+                const response = await apiService.get(`/dashboard-report-grand-totals`, {
                     params: {
                         department: userDepartment,
                         semester: selectedSemester,

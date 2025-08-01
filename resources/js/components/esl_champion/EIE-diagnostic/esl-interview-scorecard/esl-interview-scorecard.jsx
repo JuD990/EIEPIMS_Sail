@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import Sidebar from "../../sidebar/esl-sidebar";
 import UserInfo from '@user-info/User-info';
 import "./esl-interview-scorecard.css";
@@ -40,7 +40,7 @@ const eslPrimeDiagnostics = () => {
     useEffect(() => {
         const fetchVersionAndOptions = async () => {
             try {
-                const versionResponse = await axios.get('/api/rubric/active-version');
+                const versionResponse = await apiService.get('/rubric/active-version');
                 const versionString = versionResponse.data.version;
 
                 if (!versionString) {
@@ -72,7 +72,7 @@ const eslPrimeDiagnostics = () => {
             try {
                 await Promise.all(
                     categories.map(async (category) => {
-                        const response = await axios.get(`/api/${category}/${version}`);
+                        const response = await apiService.get(`/${category}/${version}`);
                         if (response.status === 200 && Array.isArray(response.data)) {
                             newOptions[category] = response.data.map(item => ({
                                 id: item.id,
@@ -184,7 +184,7 @@ const eslPrimeDiagnostics = () => {
         const employeeId = localStorage.getItem("employee_id");
 
         if (employeeId) {
-            axios.get(`/api/esl/employee/${employeeId}`)
+            apiService.get(`/esl/employee/${employeeId}`)
             .then((response) => {
                 if (response.data.full_name) {
                     setFormData((prev) => ({
@@ -227,7 +227,7 @@ const eslPrimeDiagnostics = () => {
         const fetchStudents = async () => {
             if (formData.department && formData.yearLevel) {
                 try {
-                    const response = await axios.get("http://localhost:8000/api/master-class-list-students", {
+                    const response = await apiService.get("/master-class-list-students", {
                         params: {
                             department: formData.department,
                             yearLevel: formData.yearLevel,
@@ -250,7 +250,7 @@ const eslPrimeDiagnostics = () => {
     useEffect(() => {
         const fetchDepartments = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/api/master-class-list-department");
+                const response = await apiService.get("/master-class-list-department");
                 setDepartments(response.data);
             } catch (error) {
                 console.error("Error fetching departments:", error);

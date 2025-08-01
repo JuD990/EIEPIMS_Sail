@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { IoRefresh } from "react-icons/io5";
-import axios from "axios";
-import "./dropdown-lead-poc-reporting.css";
 import apiService from "@services/apiServices";
+import "./dropdown-lead-poc-reporting.css";
 
 const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSelectedSemester }) => {
     const [loading, setLoading] = useState(false);
@@ -20,7 +19,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get("http://localhost:8000/api/getDepartmentsOptions");
+            const response = await apiService.get("/getDepartmentsOptions");
             const departmentList = Array.isArray(response.data) ? response.data : [];
             setDepartments(departmentList);
 
@@ -29,8 +28,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
             if (employeeId && userType) {
                 try {
-                    const userDeptResponse = await axios.get(
-                        `http://localhost:8000/api/employee-department/${userType}/${employeeId}`
+                    const userDeptResponse = await apiService.get(`/employee-department/${userType}/${employeeId}`
                     );
                     const userDepartment = userDeptResponse.data.department;
 
@@ -60,7 +58,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
     const fetchSchoolYears = async (currentMonth) => {
         try {
-            const response = await axios.get("http://localhost:8000/api/getSchoolYears");
+            const response = await apiService.get("/getSchoolYears");
             const schoolYearList = response.data;
             setSchoolYears(schoolYearList);
 

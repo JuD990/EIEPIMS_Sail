@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import './user-management-buttons.css';
 
 const UserManagementButtons = () => {
@@ -28,7 +28,7 @@ const UserManagementButtons = () => {
     formData.append('csv_file', file);
 
     try {
-      const response = await axios.post('/api/import-head-poc', formData, {
+      const response = await apiService.post('/import-head-poc', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -83,7 +83,7 @@ const UserManagementButtons = () => {
     }
 
     try {
-      await axios.post('/api/store-head-poc', formData);
+      await apiService.post('/store-head-poc', formData);
       alert('Account added successfully!');
       handleCloseModal();
       window.location.reload();

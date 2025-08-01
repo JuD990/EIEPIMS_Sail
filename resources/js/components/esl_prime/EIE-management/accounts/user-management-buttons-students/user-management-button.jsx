@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import './user-management-buttons.css';
 
 const UserManagementButtons = () => {
@@ -26,7 +26,7 @@ const UserManagementButtons = () => {
       formData.append('csv_file', file);
 
       try {
-        const response = await axios.post('/api/import-students', formData, {
+        const response = await apiService.post('/import-students', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -83,7 +83,7 @@ const UserManagementButtons = () => {
     };
 
     try {
-      const response = await axios.post('/api/store-students', payload);
+      const response = await apiService.post('/store-students', payload);
       alert(`Account added successfully.`);
       handleCloseModal();
       window.location.reload();
@@ -94,9 +94,7 @@ const UserManagementButtons = () => {
   };
 
   useEffect(() => {
-    axios
-    .get("http://127.0.0.1:8000/api/getDepartmentsOptionsForPOCs")
-    .then((response) => {
+    apiService.get("/getDepartmentsOptionsForPOCs").then((response) => {
       setDepartments(response.data);
     })
     .catch((error) => {

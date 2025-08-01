@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { IoRefresh } from "react-icons/io5";
-import axios from "axios";
-import "./dropdown-esl-dashboard.css";
 import apiService from "@services/apiServices";
+import "./dropdown-esl-dashboard.css";
 import settingsIcon from "@assets/settings.png";
-import exportIcon from "@assets/export-icon.png";
 
 const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSelectedSemester }) => {
     const [loading, setLoading] = useState(false);
@@ -24,7 +22,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
     const fetchDepartments = async () => {
         try {
-            const response = await axios.get("http://localhost:8000/api/getDepartmentsOptions");
+            const response = await apiService.get("/getDepartmentsOptions");
             const departmentList = Array.isArray(response.data) ? response.data : [];
             setDepartments(departmentList);
 
@@ -33,8 +31,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
             if (employeeId && userType) {
                 try {
-                    const userDeptResponse = await axios.get(
-                        `http://localhost:8000/api/employee-department/${userType}/${employeeId}`
+                    const userDeptResponse = await apiService.get(`/employee-department/${userType}/${employeeId}`
                     );
                     const userDepartment = userDeptResponse.data.department;
 
@@ -64,7 +61,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
 
     const fetchSchoolYears = async (currentMonth) => {
         try {
-            const response = await axios.get("http://localhost:8000/api/getSchoolYears");
+            const response = await apiService.get("/getSchoolYears");
             const schoolYearList = response.data;
             setSchoolYears(schoolYearList);
 
@@ -123,7 +120,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
         if (!isConfirmed) return; // If user cancels, don't proceed
 
         try {
-            await axios.delete("http://localhost:8000/api/data-settings/class-lists");
+            await apiService.delete("/data-settings/class-lists");
             alert("Class lists deleted successfully.");
         } catch (error) {
             console.error("Error deleting class lists:", error);
@@ -136,7 +133,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
         if (!isConfirmed) return; // If user cancels, don't proceed
 
         try {
-            await axios.put("http://localhost:8000/api/data-settings/class-lists/nullify-scores");
+            await apiService.put("/data-settings/class-lists/nullify-scores");
             alert("Student score columns nullified successfully.");
         } catch (error) {
             console.error("Error nullifying student scores:", error);
@@ -149,7 +146,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
         if (!isConfirmed) return; // If user cancels, don't proceed
 
         try {
-            await axios.put("http://localhost:8000/api/data-settings/implementing-subjects/nullify-scores");
+            await apiService.put("/data-settings/implementing-subjects/nullify-scores");
             alert("Implementing subject scores nullified successfully.");
         } catch (error) {
             console.error("Error nullifying subject scores:", error);
@@ -162,7 +159,7 @@ const DashboardDropdown = ({ setSelectedDepartment, setSelectedSchoolYear, setSe
         if (!isConfirmed) return; // If user cancels, don't proceed
 
         try {
-            await axios.delete("http://localhost:8000/api/data-settings/scorecard");
+            await apiService.delete("/data-settings/scorecard");
             alert("Scorecards deleted successfully.");
         } catch (error) {
             console.error("Error deleting scorecards:", error);

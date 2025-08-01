@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useTable } from "react-table";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import EIEHeadSidebar from '../sidebar/eie-head-sidebar';
 import UserInfo from '@user-info/User-info';
 import "./eie-champs.css";
@@ -15,35 +14,38 @@ const ChampionCandidates = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        const employeeId = localStorage.getItem("employee_id");
-        if (!employeeId) return;
+  useEffect(() => {
+    const employeeId = localStorage.getItem("employee_id");
+    if (!employeeId) return;
 
-        setLoading(true);
-        setError("");
+    setLoading(true);
+    setError("");
 
-        fetch(`/api/top-epgf?employee_id=${employeeId}`)
-        .then((res) => {
-            if (!res.ok) throw new Error("Failed to fetch top students.");
-            return res.json();
-        })
-        .then((data) => {
-            // Flatten grouped data and format year level
-            const allStudents = Object.entries(data).flatMap(([year, students]) => {
-                return students.map(student => ({
-                    ...student,
-                    year_level_display: formatYearLevel(student.year_level)
-                }));
-            });
+    apiService
+      .get("/top-epgf", {
+        params: { employee_id: employeeId },
+      })
+      .then((response) => {
+        const data = response.data;
 
-            setTopChampions(allStudents);
-        })
-        .catch((err) => {
-            console.error(err);
-            setError("Unable to load top students.");
-        })
-        .finally(() => setLoading(false));
-    }, []);
+        // Flatten grouped data and format year level
+        const allStudents = Object.entries(data).flatMap(([year, students]) =>
+          students.map((student) => ({
+            ...student,
+            year_level_display: formatYearLevel(student.year_level),
+          }))
+        );
+
+        setTopChampions(allStudents);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Unable to load top students.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
     // Helper function for "1st Year", "2nd Year", etc.
     const formatYearLevel = (value) => {

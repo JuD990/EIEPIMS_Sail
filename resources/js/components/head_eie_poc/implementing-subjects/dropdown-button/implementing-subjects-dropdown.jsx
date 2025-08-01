@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";  // Import Axios
+import apiService from "@services/apiServices";
 import "./implementing-subjects-dropdown.css";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -33,7 +33,7 @@ const ImplementingSubjectDropdown = ({
     const fetchData = async () => {
       try {
         const employeeId = localStorage.getItem('employee_id');
-        const response = await axios.get(`http://127.0.0.1:8000/api/implementing-subjects/specific-dropdown`, {
+        const response = await apiService.get(`/implementing-subjects/specific-dropdown`, {
           params: { employee_id: employeeId }
         });
 

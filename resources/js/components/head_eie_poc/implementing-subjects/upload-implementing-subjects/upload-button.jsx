@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./UploadImplementingSubjectsButton.css";
 import classListLogo from "@assets/Upload.png";
 
@@ -23,8 +23,7 @@ const UploadingButton = () => {
     formData.append("file", file);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/upload-class-list",
+      const response = await apiService.post("/upload-class-list",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

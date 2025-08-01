@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTable, useRowSelect } from "react-table";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./implementing-subjects-table.css";
 
 const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }) => {
@@ -35,7 +35,7 @@ const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }
 
     setIsLoading(true);
     try {
-      const response = await axios.get("/api/esl-implementing-subjects", {
+      const response = await apiService.get("/esl-implementing-subjects", {
         headers: { employee_id: employeeId },
       });
 
@@ -91,8 +91,7 @@ const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(
-        `/api/esl-update-implementing-subjects/${formData.courseCode}`,
+      const response = await apiService.put(`/esl-update-implementing-subjects/${formData.courseCode}`,
         formData
       );
       if (response.status === 200) {
@@ -112,7 +111,7 @@ const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }
 
     try {
       // Sending selected data to the backend for archiving
-      const response = await axios.post("/api/archive-implementing-subjects", {
+      const response = await apiService.post("/archive-implementing-subjects", {
         subjects: selectedData,
       });
 

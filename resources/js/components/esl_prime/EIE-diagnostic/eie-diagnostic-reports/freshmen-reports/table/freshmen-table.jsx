@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import './freshmen-table.css';
 
 // Mapping column names to data object keys
@@ -144,7 +144,7 @@ const Table = ({ department, attendance, schoolYear, searchQuery }) => {
 
     const fetchReports = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/reports/first-year-diagnostic-report', {
+            const response = await apiService.get('/reports/first-year-diagnostic-report', {
                 params: {
                     department,
                     status: attendance,

@@ -5,7 +5,7 @@ import LandscapeCertificate from "./LandscapeCertificate";
 import "./EIEDiagnostics.css";
 import uncLogo from "@assets/unc-logo.png";
 import DiagnosticsDropdown from "./DiagnosticsDropdown";
-import axios from "axios";
+import apiService from "@services/apiServices";
 
 const EIEDiagnostics = () => {
     const [department, setDepartment] = useState("");
@@ -20,7 +20,7 @@ const EIEDiagnostics = () => {
             const employee_id = localStorage.getItem("employee_id");
 
             // If employee_id exists, proceed to fetch data
-            const response = await axios.get("/api/diagnostics-students", {
+            const response = await apiService.get("/diagnostics-students", {
                 params: {
                     search: searchQuery,
                     department,

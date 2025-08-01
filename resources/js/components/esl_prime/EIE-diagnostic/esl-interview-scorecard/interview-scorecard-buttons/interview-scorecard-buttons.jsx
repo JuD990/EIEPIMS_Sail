@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt, faClock } from "@fortawesome/free-solid-svg-icons";
 import RemarksDropdown from '../remarks-templates/dropdown-remarks';
@@ -97,11 +97,11 @@ const InterviewScorecardButtons = ({
         try {
             if (yearLevel === "4th Year") {
                 // Graduating students
-                const response = await axios.post('/api/eie-diagnostic-grad-reports', collectedData);
+                const response = await apiService.post('/eie-diagnostic-grad-reports', collectedData);
                 console.log('Graduating student data saved:', response.data);
             } else {
                 // Non-graduating students
-                const response = await axios.post('/api/eie-diagnostic-non-grad-reports', collectedData);
+                const response = await apiService.post('/eie-diagnostic-non-grad-reports', collectedData);
                 console.log('Non-graduating student data saved:', response.data);
             }
             alert("Data has been successfully saved!");
@@ -140,7 +140,7 @@ const InterviewScorecardButtons = ({
         };
 
         try {
-            const response = await axios.post('/api/eie-diagnostic-reports', collectedData);
+            const response = await apiService.post('/eie-diagnostic-reports', collectedData);
             console.log('No Show tagged:', response.data);
             alert("No Show has been successfully tagged!");
         } catch (error) {

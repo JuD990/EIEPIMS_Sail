@@ -1,0 +1,115 @@
+/* User Management Buttons Styles */
+.user-management-buttons-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-right: 20px;
+}
+
+.user-management-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+.upload-csv-button {
+  border: 2px solid #6B6D76;
+  color: #383838;
+  background-color: transparent;
+  padding: 15px 10px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.upload-csv-button label{
+  margin: 0;
+}
+
+.add-account-button {
+  background-color: #6B6D76;
+  color: #ffffff;
+  padding: 10px 10px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+/* Modal Styles */
+.form-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-container {
+  background-color: #ffffff;
+  width: 600px;
+  height: 800px;
+  border-radius: 5px;
+  padding: 20px;
+  border: 1px solid black;
+  overflow-y: auto;
+  font-family: 'Poppins', sans-serif;
+}
+
+h2 {
+  color: #333333;
+  font-size: 32px;
+  font-family: 'Epilogue', sans-serif;
+  font-weight: extrabold;
+  text-align: center;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 25px;
+  gap: 10px;
+}
+
+.cancel-button {
+  background-color: #DC2626;
+  color: #ffffff;
+  padding: 10px 20px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.add-button {
+  background-color: #6B6D76;
+  color: #ffffff;
+  padding: 10px 20px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}

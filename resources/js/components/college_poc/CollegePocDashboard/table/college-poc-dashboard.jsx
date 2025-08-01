@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./college-poc-dashboard.css";
 
 const TableComponent = ({ department, schoolYear, semester }) => {
@@ -21,7 +21,7 @@ const TableComponent = ({ department, schoolYear, semester }) => {
         const employeeId = localStorage.getItem("employee_id");
 
         try {
-            const response = await axios.get('/api/dashboard-assigned-report', {
+            const response = await apiService.get('/dashboard-assigned-report', {
                 params: {
                     department,
                     semester,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./esl-prime-account-management-dropdown.css";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -31,8 +31,8 @@ const UserManagementDropdown = ({
     const fetchDropdownData = async () => {
       try {
         const [mainData, departmentData] = await Promise.all([
-          axios.get("http://127.0.0.1:8000/api/implementing-subjects/dropdown"),
-          axios.get("http://127.0.0.1:8000/api/getDepartmentsOptionsForPOCs"),
+          apiService.get("/implementing-subjects/dropdown"),
+          apiService.get("/getDepartmentsOptionsForPOCs"),
         ]);
 
         if (mainData.status === 200) {

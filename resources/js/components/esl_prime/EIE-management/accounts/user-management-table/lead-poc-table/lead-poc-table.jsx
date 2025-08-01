@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import { useTable } from "react-table";
 import "./lead-poc-table.css";
 import UserManagementButtons from "../../user-management-buttons-lead-poc/user-management-button";
@@ -37,7 +37,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
   useEffect(() => {
     const fetchCollegePOCs = async () => {
       try {
-        const response = await axios.get("/api/lead-pocs");
+        const response = await apiService.get("/lead-pocs");
         setCollegePOCs(response.data.data);
       } catch (error) {
         console.error("Error fetching College POCs:", error);
@@ -53,11 +53,11 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
   const handleResetPassword = async (employeeId) => {
     try {
       const confirmReset = window.confirm(
-        "Are you sure you want to reset the password for this College POC?"
+        "Are you sure you want to reset the password for this POC?"
       );
       if (!confirmReset) return;
 
-      await axios.put(`/api/lead-poc/${employeeId}/reset-password`);
+      await apiService.put(`/lead-poc/${employeeId}/reset-password`);
       alert("Password reset successfully!");
     } catch (error) {
       console.error("Error resetting password:", error);
@@ -93,8 +93,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.put(
-        `/api/update-lead-poc/${formData.id}`,
+      const response = await apiService.put(`/update-lead-poc/${formData.id}`,
         formData
       );
       if (response.status === 200) {
@@ -126,7 +125,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`/api/delete-lead-pocs/${employee_id}`);
+      await apiService.delete(`/delete-lead-pocs/${employee_id}`);
       setCollegePOCs((prevPOCs) =>
       prevPOCs.filter((poc) => poc.employee_id !== employee_id)
       );
@@ -211,7 +210,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
 
   return (
     <div>
-    <div className="table-container">
+    <div className="table-container-lead">
     <table {...getTableProps()} className="non-sticky-table">
     <thead>
     {headerGroups.map((headerGroup) => (

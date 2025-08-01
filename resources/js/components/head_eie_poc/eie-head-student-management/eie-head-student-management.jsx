@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import EIEHeadSidebar from '../sidebar/eie-head-sidebar';
 import UserInfo from '@user-info/User-info';
 import nonSeniorIcon from "@assets/lowLevel.png"; // 1st to 3rd Year
@@ -35,7 +35,7 @@ const EIEHeadStudentManagement = () => {
     const fetchStats = async () => {
       try {
         const employeeId = localStorage.getItem("employee_id");
-        const response = await axios.get(`http://127.0.0.1:8000/api/student-statistics?employee_id=${employeeId}`);
+        const response = await apiService.get(`/student-statistics?employee_id=${employeeId}`);
         console.log(response.data);
         setStats(response.data);
       } catch (error) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTable } from "react-table";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./implementing-subjects-table.css";
 import UploadButton from '../upload-implementing-subjects/upload-button';
 
@@ -40,7 +40,7 @@ const ImplementingSubjectsTable = ({
     setError(null);
 
     try {
-      const response = await axios.get("/api/implementing-subjects", {
+      const response = await apiService.get("/implementing-subjects", {
         headers: {
           "X-Employee-ID": employeeId,
           Accept: "application/json",
@@ -97,7 +97,7 @@ const ImplementingSubjectsTable = ({
   useEffect(() => {
     const fetchFilteredPocs = async () => {
       try {
-        const response = await axios.get("/api/filtered-pocs", {
+        const response = await apiService.get("/filtered-pocs", {
           params: { employee_id: employeeId },
         });
         setPocs(response.data);
@@ -152,8 +152,7 @@ const ImplementingSubjectsTable = ({
     e.preventDefault();
     setIsUpdating(true);
     try {
-      const response = await axios.put(
-        `/api/update-implementing-subjects/${formData.course_code}`,
+      const response = await apiService.put(`/update-implementing-subjects/${formData.course_code}`,
         {
           assigned_poc: formData.assigned_poc.trim() || null,
           employee_id: formData.employee_id.trim() || null,

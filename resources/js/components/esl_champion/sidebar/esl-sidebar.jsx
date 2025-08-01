@@ -15,7 +15,6 @@ import diagnosticReportsIcon from "@assets/EIEDiagnosticReports.png";
 import uncLogo from "@assets/unc-logo.png";
 import implementingSubjectIcon from "@assets/implementing-subject-icon.png";
 import assignPOC from "@assets/assign-poc.png";
-import graduating from "@assets/graduating.png";
 
 const ESLSidebar = () => {
   const navigate = useNavigate();

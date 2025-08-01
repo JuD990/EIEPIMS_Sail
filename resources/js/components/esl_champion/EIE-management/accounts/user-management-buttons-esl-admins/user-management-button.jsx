@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import './user-management-buttons.css';
 
 const UserManagementButtons = () => {
@@ -24,7 +24,7 @@ const UserManagementButtons = () => {
       formData.append('csv_file', file);
 
       try {
-        const response = await axios.post('/api/import-esl-admins', formData, {
+        const response = await apiService.post('/api/import-esl-admins', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
 
@@ -81,7 +81,7 @@ const UserManagementButtons = () => {
     };
 
     try {
-      await axios.post('/api/store-esl-admins', payload, {
+      await apiService.post('/store-esl-admins', payload, {
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       });
 

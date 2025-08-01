@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./student-management-dropdown.css";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -14,7 +14,7 @@ const StudentManagementDropdown = ({ selectedTitle, selectedCode, selectedProgra
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const response = await axios.get("/api/classlists/departments");
+        const response = await apiService.get("/classlists/departments");
 
         if (response.data && response.data.programs) {
           setPrograms(response.data.programs);
@@ -28,7 +28,7 @@ const StudentManagementDropdown = ({ selectedTitle, selectedCode, selectedProgra
     const fetchCourses = async () => {
       try {
         const employeeId = localStorage.getItem("employee_id");
-        const response = await axios.get("/api/get-courses-by-department-poc", {
+        const response = await apiService.get("/get-courses-by-department-poc", {
           headers: { 'X-Employee-ID': employeeId, },
         });
 

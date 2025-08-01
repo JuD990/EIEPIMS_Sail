@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import EIEHeadSidebar from '../sidebar/eie-head-sidebar';
 import UserInfo from '@user-info/User-info';
 import TableComponent from "./table/eie-head-dashboard";
@@ -27,7 +27,7 @@ const HeadEiePocDashboard = () => {
 
       if (employeeId && userType) {
         try {
-          const res = await axios.get(`http://localhost:8000/api/employee-department/${userType}/${employeeId}`);
+          const res = await apiService.get(`/employee-department/${userType}/${employeeId}`);
           const dept = res.data?.department;
           const fullDept = res.data?.full_department;
 

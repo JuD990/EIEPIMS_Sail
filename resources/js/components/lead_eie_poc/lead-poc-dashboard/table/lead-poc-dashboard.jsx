@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./lead-poc-dashboard.css";
 
 const TableComponent = ({ department, schoolYear, semester }) => {
@@ -19,7 +19,7 @@ const TableComponent = ({ department, schoolYear, semester }) => {
 
     const fetchTableData = async () => {
         try {
-            const response = await axios.get('/api/dashboard-report', {
+            const response = await apiService.get('/dashboard-report', {
                 params: { department, semester, schoolYear }
             });
 

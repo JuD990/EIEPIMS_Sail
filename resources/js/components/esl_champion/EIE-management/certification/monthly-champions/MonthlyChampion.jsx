@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTable } from "react-table";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import { pdf } from "@react-pdf/renderer";
 import Certificate from "./MonthlyCertificate"; // Import the Certificate component
 import MonthlyChampionDropdown from "./dropdown/dropdown-monthly-champs";
@@ -16,7 +16,7 @@ const MonthlyChampion = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("/api/class-lists");
+                const response = await apiService.get("/class-lists");
 
                 // Sorting the data from highest to lowest epgf_average
                 const sortedData = response.data.sort((a, b) => b.epgf_average - a.epgf_average);
@@ -52,7 +52,7 @@ const MonthlyChampion = () => {
         }
 
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/certificate/${rowData.class_lists_id}`);
+            const response = await apiService.get(`/certificate/${rowData.class_lists_id}`);
 
             if (!response.data || Object.keys(response.data).length === 0) {
                 console.error("ERROR: Empty API response!");

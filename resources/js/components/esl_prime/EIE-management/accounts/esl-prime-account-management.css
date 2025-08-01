@@ -1,0 +1,12 @@
+.dashboard-container {
+    display: flex;
+  }
+  
+  .dashboard-page-title {
+    color: #0187F1;
+    font-family: 'Epilogue';
+    font-weight: 800;
+    margin-top: 120px;
+    margin-left: 320px;
+  }
+  

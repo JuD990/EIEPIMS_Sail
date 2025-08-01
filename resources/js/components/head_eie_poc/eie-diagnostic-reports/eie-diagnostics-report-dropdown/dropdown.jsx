@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./dropdown.css";
 
 const DiagnosticsDropdown = ({
@@ -27,8 +27,8 @@ const DiagnosticsDropdown = ({
                 const userType = localStorage.getItem("userType");
 
                 const [deptRes, userDeptRes] = await Promise.all([
-                    axios.get("http://localhost:8000/api/master-class-list-department"),
-                    axios.get(`http://localhost:8000/api/employee-department/${userType}/${employeeId}`)
+                    apiService.get("/master-class-list-department"),
+                    apiService.get(`/employee-department/${userType}/${employeeId}`)
                 ]);
 
                 const departmentList = Array.isArray(deptRes.data) ? deptRes.data : [];
@@ -47,7 +47,7 @@ const DiagnosticsDropdown = ({
 
         const fetchSchoolYears = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/api/master-class-list-school-year");
+                const response = await apiService.get("/master-class-list-school-year");
                 const schoolYearList = response.data;
                 setSchoolYearList(schoolYearList);
 

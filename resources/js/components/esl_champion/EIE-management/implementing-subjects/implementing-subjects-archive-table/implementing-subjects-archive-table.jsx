@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTable, useRowSelect } from "react-table";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./implementing-subjects-archive-table.css";
 
 const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }) => {
@@ -36,7 +36,7 @@ const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }
 
     setIsLoading(true);
     try {
-      const response = await axios.get("/api/esl-archived-implementing-subjects", {
+      const response = await apiService.get("/esl-archived-implementing-subjects", {
         headers: { employee_id: employeeId },
       });
 
@@ -93,8 +93,7 @@ const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(
-        `/api/esl-update-archived-implementing-subjects/${formData.courseCode}`,
+      const response = await apiService.put(`/esl-update-archived-implementing-subjects/${formData.courseCode}`,
         formData
       );
       if (response.status === 200) {
@@ -114,7 +113,7 @@ const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }
 
     try {
       // Sending selected data to the backend for restoring
-      const response = await axios.post("/api/restore-implementing-subjects", {
+      const response = await apiService.post("/restore-implementing-subjects", {
         subjects: selectedData,
       });
 
@@ -157,7 +156,7 @@ const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }
 
     try {
       // Sending selected data to the backend for permanent deletion
-      const response = await axios.post("/api/delete-implementing-subjects", {
+      const response = await apiService.post("/delete-implementing-subjects", {
         subjects: selectedData,
       });
 

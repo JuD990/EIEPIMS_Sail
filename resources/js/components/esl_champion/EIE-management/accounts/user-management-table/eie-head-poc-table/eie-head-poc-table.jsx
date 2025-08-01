@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import { useTable } from "react-table";
 import "./eie-head-poc-table.css";
 import UserManagementButtons from "../../user-management-buttons-eie-head/user-management-button";
@@ -37,7 +37,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
   useEffect(() => {
     const fetchCollegePOCs = async () => {
       try {
-        const response = await axios.get("/api/eie-head-pocs");
+        const response = await apiService.get("/eie-head-pocs");
         setCollegePOCs(response.data.data);
       } catch (error) {
         console.error("Error fetching College POCs:", error);
@@ -57,7 +57,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
       );
       if (!confirmReset) return;
 
-      await axios.put(`/api/head-poc/${employeeId}/reset-password`);
+      await apiService.put(`/head-poc/${employeeId}/reset-password`);
       alert("Password reset successfully!");
     } catch (error) {
       console.error("Error resetting password:", error);
@@ -93,8 +93,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.put(
-        `/api/update-head-poc/${formData.id}`,
+      const response = await apiService.put(`/update-head-poc/${formData.id}`,
         formData
       );
       if (response.status === 200) {
@@ -126,7 +125,7 @@ const UserManagementTable = ({ searchQuery, selectedDepartment }) => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`/api/delete-head-pocs/${employee_id}`);
+      await apiService.delete(`/delete-head-pocs/${employee_id}`);
       setCollegePOCs((prevPOCs) =>
       prevPOCs.filter((poc) => poc.employee_id !== employee_id)
       );

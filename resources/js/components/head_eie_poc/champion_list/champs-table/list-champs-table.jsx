@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import { useTable } from "react-table";
 import "./list-champs-table.css";
 
@@ -20,7 +20,7 @@ const ChampListTable = ({
                 semester: semester,
             };
 
-            await axios.post("api/store-eie-champions", payload);
+            await apiService.post("/store-eie-champions", payload);
             alert(`${student.firstname} ${student.lastname} has been selected as one of the EIE Champions!`);
         } catch (error) {
             console.error("Error saving champion:", error);

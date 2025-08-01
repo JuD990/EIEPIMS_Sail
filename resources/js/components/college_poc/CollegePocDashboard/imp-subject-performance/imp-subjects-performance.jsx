@@ -12,7 +12,7 @@ import {
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
 import "./imp-subjects-performance.css";
-import axios from "axios";
+import apiService from "@services/apiServices";
 
 ChartJS.register(
     CategoryScale,
@@ -86,8 +86,8 @@ const ImpSubjectsPerformance = ({ schoolYear, semester }) => {
                     semester: semester,
                 });
 
-                const classResponse = await axios.get(
-                    `/api/implementing-subject-graph/${employee_id}?${queryParams}`
+                const classResponse = await apiService.get(
+                    `/implementing-subject-graph/${employee_id}?${queryParams}`
                 );
 
                 if (classResponse.data.success) {
@@ -116,7 +116,7 @@ const ImpSubjectsPerformance = ({ schoolYear, semester }) => {
 
             setLoading(true);
             try {
-                const ratingsResponse = await axios.get(`http://127.0.0.1:8000/api/performance-summary-rating`);
+                const ratingsResponse = await apiService.get(`/performance-summary-rating`);
                 const ratingsData = ratingsResponse.data.ratings;
                 const pgfValues = ratingsData.map(r => parseFloat(r)).filter(val => !isNaN(val));
 
@@ -125,7 +125,7 @@ const ImpSubjectsPerformance = ({ schoolYear, semester }) => {
                     setPgfMax(Math.ceil(Math.max(...pgfValues) * 10) / 10);
                 }
                 
-                const reportResponse = await axios.get(`/api/fetch-filtered-eie-reports`, {
+                const reportResponse = await apiService.get(`/fetch-filtered-eie-reports`, {
                     params: {
                         course_code: chartTitle,
                         semester: semester,

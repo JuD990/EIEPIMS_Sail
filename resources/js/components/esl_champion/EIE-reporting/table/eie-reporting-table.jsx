@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./TableComponent.css"; // Import the CSS file
-import axios from "axios";
+import apiService from "@services/apiServices";
 import Papa from "papaparse";
 
 const TableComponent = ({ department, schoolYear, semester }) => {
@@ -23,7 +23,7 @@ const TableComponent = ({ department, schoolYear, semester }) => {
 
     const fetchTableData = async () => {
         try {
-            const response = await axios.get('/api/eie-report', {
+            const response = await apiService.get('/eie-report', {
                 params: { department, semester, schoolYear }
             });
 

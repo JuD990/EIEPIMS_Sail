@@ -6,7 +6,6 @@ import LogoutButton from "@logout/Logout";
 import logoutIcon from "@assets/logout_icon.png";
 import profileIcon from "@assets/profile.png";
 import bcrypt from "bcryptjs";
-import axios from 'axios';
 import defaultProfile from "@profilePics/default_logo.png";
 
 const UserInfo = () => {
@@ -203,10 +202,8 @@ const UserInfo = () => {
       formData.append("student_id", user.student_id);
 
       try {
-        const response = await axios.post(
-          "http://localhost:8000/api/upload-profile-picture",
-          formData,
-          {
+        const response = await apiService.post("/upload-profile-picture", formData,
+          { 
             headers: {
               "Content-Type": "multipart/form-data",
               "Authorization": `Bearer ${token}`,

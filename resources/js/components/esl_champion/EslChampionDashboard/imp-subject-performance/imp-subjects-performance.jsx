@@ -13,7 +13,7 @@ import {
 import { Chart } from "react-chartjs-2";
 import "./imp-subjects-performance.css";
 import GraphDropdown from '../graph-dropdown/graph-dropdown';
-import axios from "axios";
+import apiService from "@services/apiServices";
 
 ChartJS.register(
     CategoryScale,
@@ -79,9 +79,7 @@ const ImpSubjectsPerformance = () => {
     const [selectedDepartment, setSelectedDepartment] = useState('');
     const chartRef = useRef(null);
 
-    useEffect(() => {
-        axios.get('/api/get-full-departments')
-        .then(response => {
+    useEffect(() => { apiService.get('/get-full-departments').then(response => {
             const fetched = Array.isArray(response.data) ? response.data : [];
             setDepartments(fetched);
             setSelectedDepartment(fetched.length > 0 ? fetched[0].department : '');
@@ -99,7 +97,7 @@ const ImpSubjectsPerformance = () => {
         const fetchPGFAverages = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get("http://127.0.0.1:8000/api/performance-summary-rating");
+                const response = await apiService.get("/performance-summary-rating");
                 const ratingsData = response.data.ratings;
                 const pgfValues = ratingsData.map(r => parseFloat(r)).filter(val => !isNaN(val));
 

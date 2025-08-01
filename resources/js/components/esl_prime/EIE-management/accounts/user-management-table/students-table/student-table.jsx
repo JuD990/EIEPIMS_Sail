@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import { useTable } from "react-table";
 import "./student-table.css";
 import UserManagementButtons from "../../user-management-buttons-students/user-management-button";
@@ -45,7 +45,7 @@ const UserManagementTable = ({
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await axios.get("/api/students");
+        const response = await apiService.get("/students");
         setStudents(response.data.data);
       } catch (error) {
         console.error("Error fetching students:", error.response?.data || error.message);
@@ -64,7 +64,7 @@ const UserManagementTable = ({
       );
       if (!confirmReset) return;
 
-      await axios.put(`/api/students/${studentId}/reset-password`);
+      await apiService.put(`/students/${studentId}/reset-password`);
       alert("Password reset successfully!");
 
       // Optionally refresh the student list or update the UI
@@ -107,7 +107,7 @@ const UserManagementTable = ({
     setIsSubmitting(true);
 
     try {
-      const response = await axios.put(`/api/update-students/${formData.id}`, formData);
+      const response = await apiService.put(`/update-students/${formData.id}`, formData);
       if (response.status === 200) {
         setStudents((prevStudents) =>
         prevStudents.map((student) =>
@@ -163,7 +163,7 @@ const UserManagementTable = ({
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`/api/delete-students/${student_id}`);
+      await apiService.delete(`/delete-students/${student_id}`);
       setStudents((prevStudents) =>
       prevStudents.filter((student) => student.student_id !== student_id)
       );
@@ -180,7 +180,7 @@ const UserManagementTable = ({
       {
         Header: "No.",
         accessor: (_row, index) => index + 1,
-                                id: "rowNumber",
+        id: "rowNumber",
       },
       {
         Header: "Name",

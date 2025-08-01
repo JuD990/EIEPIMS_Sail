@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./TableComponent.css";
 
 const TableComponent = ({ department, schoolYear, semester }) => {
@@ -22,7 +22,7 @@ const TableComponent = ({ department, schoolYear, semester }) => {
 
     const fetchTableData = async (employeeId) => {
         try {
-            const response = await axios.get('/api/eie-assigned-report', {
+            const response = await apiService.get('/eie-assigned-report', {
                 params: { department, semester, schoolYear, employee_id: employeeId }  // Pass employee_id
             });
 

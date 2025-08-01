@@ -5,9 +5,7 @@ import CollegePOCsidebar from "../sidebar/college-poc-sidebar";
 import UserInfo from '@user-info/User-info';
 import { FaChevronLeft } from 'react-icons/fa';
 import Table from "./table/scorecard-table-1";
-import Button from './buttons/submit-button';
-import ClassAverageSummary from './class-average-summary/class-average-summary';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 
 const EPGFScorecard = () => {
   const [taskTitle, setTaskTitle] = useState('');
@@ -24,14 +22,14 @@ const EPGFScorecard = () => {
 
   useEffect(() => {
     if (course_code) {
-      axios.all([
-        axios.get(`/api/epgf-scorecard?course_code=${course_code}`),
-                axios.get(`/api/get-student-count?course_code=${course_code}`),
-                axios.get(`/api/get-student-count-active?course_code=${course_code}`),
-                axios.get(`/api/get-evaluated-count?course_code=${course_code}`),
-                axios.get(`/api/get-class-average?course_code=${course_code}`)
+      apiService.all([
+        apiService.get(`/epgf-scorecard?course_code=${course_code}`),
+                apiService.get(`/get-student-count?course_code=${course_code}`),
+                apiService.get(`/get-student-count-active?course_code=${course_code}`),
+                apiService.get(`/get-evaluated-count?course_code=${course_code}`),
+                apiService.get(`/get-class-average?course_code=${course_code}`)
       ])
-      .then(axios.spread((courseDetails, studentCountResponse, activeStudentCountResponse, evaluatedCountResponse, classAverageResponse) => {
+      .then(apiService.spread((courseDetails, studentCountResponse, activeStudentCountResponse, evaluatedCountResponse, classAverageResponse) => {
         if (courseDetails.data.success) {
           setCourseTitle(courseDetails.data.course_title);
         } else {

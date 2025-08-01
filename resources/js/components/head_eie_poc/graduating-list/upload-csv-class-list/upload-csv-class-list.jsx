@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import './upload-csv-class-list.css';
 
 const UploadClassListButton = () => {
@@ -12,7 +12,7 @@ const UploadClassListButton = () => {
             formData.append('file', file);
 
             try {
-                const response = await axios.post('http://localhost:8000/api/import-master-class-list', formData, {
+                const response = await apiService.post('/import-master-class-list', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

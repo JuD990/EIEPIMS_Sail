@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
-import axios from "axios";
-import "./graph-dropdown.css";
 import apiService from "@services/apiServices";
+import "./graph-dropdown.css";
 
 const GraphDropdown = ({
     selectedSchoolYear,
@@ -17,7 +16,7 @@ const GraphDropdown = ({
 
     const initializeDefaults = async () => {
         try {
-            const response = await axios.get("http://localhost:8000/api/getSchoolYears");
+            const response = await apiService.get("/getSchoolYears");
             const schoolYearList = response.data;
             setSchoolYears(schoolYearList);
 

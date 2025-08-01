@@ -15,7 +15,7 @@ import {
 import { Bar } from 'react-chartjs-2';
 import "./eie-spark-performance.css";
 import GraphDropdown from '../graph-dropdown/graph-dropdown';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 
 ChartJS.register(
     CategoryScale,
@@ -54,7 +54,7 @@ const EieSparkPerformance = ({ userDepartment, userFullDepartment }) => {
     useEffect(() => {
         const fetchPGFAverages = async () => {
             try {
-                const response = await axios.get("http://127.0.0.1:8000/api/performance-summary-rating");
+                const response = await apiService.get("/performance-summary-rating");
                 const pgfValues = response.data.ratings.map(r => parseFloat(r)).filter(val => !isNaN(val));
                 if (pgfValues.length) {
                     setPgfMin(Math.floor(Math.min(...pgfValues) * 10) / 10);
@@ -73,7 +73,7 @@ const EieSparkPerformance = ({ userDepartment, userFullDepartment }) => {
         const fetchYearTotals = async () => {
             setLoading(true);
             try {
-                const { data } = await axios.get("http://127.0.0.1:8000/api/dashboard-report-year-totals", {
+                const { data } = await apiService.get("/dashboard-report-year-totals", {
                     params: {
                         department: userDepartment,
                         semester: selectedSemester,

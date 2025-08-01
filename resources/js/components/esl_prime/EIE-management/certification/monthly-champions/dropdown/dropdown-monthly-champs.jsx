@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./dropdown-monthly-champs.css";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -25,7 +25,7 @@ const MonthlyChampsDropdown = ({
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://127.0.0.1:8000/api/implementing-subjects/dropdown");
+                const response = await apiService.get("/implementing-subjects/dropdown");
                 if (response.status === 200) {
                     const data = response.data;
                     setPrograms(data.programs || []);
@@ -65,7 +65,7 @@ const MonthlyChampsDropdown = ({
                 formData.append("department", selectedDropdownValue);
 
                 try {
-                    const response = await axios.post("http://127.0.0.1:8000/api/upload-department-logo", formData, {
+                    const response = await apiService.post("/upload-department-logo", formData, {
                         headers: {
                             "Content-Type": "multipart/form-data",
                         },

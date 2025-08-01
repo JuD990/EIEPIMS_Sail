@@ -309,12 +309,48 @@ useEffect(() => {
           { Header: "Pronunciation", accessor: "pronunciation" },
           { Header: "Pronunciation-Descriptor", accessor: "pronunciationDescriptor" },
           { Header: "Rating", accessor: "pronunciationRating" },
+          {
+            Header: "Action",
+            accessor: "pronunciationUpdate",
+            Cell: ({ row }) => (
+              <button
+              onClick={() => handlePronunciationUpdate(row.original.id, "Pronunciation")}
+              className="rubric-update-button"
+              >
+              Update
+              </button>
+            ),
+          },
           { Header: "Grammar", accessor: "grammar" },
           { Header: "Grammar-Descriptor", accessor: "grammarDescriptor" },
           { Header: "Rating", accessor: "grammarRating" },
+          {
+            Header: "Action",
+            accessor: "grammarUpdate",
+            Cell: ({ row }) => (
+              <button
+              onClick={() => handleGrammarUpdate(row.original.id, "Grammar")}
+              className="rubric-update-button"
+              >
+              Update
+              </button>
+            ),
+          },
           { Header: "Fluency", accessor: "fluency" },
           { Header: "Fluency-Descriptor", accessor: "fluencyDescriptor" },
           { Header: "Rating", accessor: "fluencyRating" },
+          {
+            Header: "Action",
+            accessor: "fluencyUpdate",
+            Cell: ({ row }) => (
+              <button
+              onClick={() => handleFluencyUpdate(row.original.id, "Fluency")}
+              className="rubric-update-button"
+              >
+              Update
+              </button>
+            ),
+          },
         ],
       },
     ],

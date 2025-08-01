@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 
 const columnToKeyMapping = {
     // Basic Info
@@ -176,7 +176,7 @@ const Table = ({ department, attendance, schoolYear, searchQuery }) => {
 
     const fetchReports = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/reports/fourth-year-diagnostic-report', {
+            const response = await apiService.get('/reports/fourth-year-diagnostic-report', {
                 params: {
                     department,
                     status: attendance,

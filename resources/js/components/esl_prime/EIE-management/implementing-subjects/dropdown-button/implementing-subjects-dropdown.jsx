@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";  // Import Axios
+import apiService from "@services/apiServices";
 import "./implementing-subjects-dropdown.css";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -32,7 +32,7 @@ const ImplementingSubjectDropdown = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/implementing-subjects/dropdown');
+        const response = await apiService.get('/implementing-subjects/dropdown');
 
         if (response.status === 200) {
           const data = response.data;

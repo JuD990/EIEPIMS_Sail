@@ -13,8 +13,6 @@ const EIEreporting = () => {
   const currentMonth = new Date().getMonth(); // 0 for January, 11 for December
 
   // Check if current month is between August (7) and December (11) or January (0) and May (4)
-  const isSecondSemester = currentMonth >= 7 && currentMonth <= 11; // August to December
-  const isFirstSemester = currentMonth >= 0 && currentMonth <= 4; // January to May
 
   return (
     <div>

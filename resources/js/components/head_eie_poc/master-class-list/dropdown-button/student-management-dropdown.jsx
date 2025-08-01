@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./student-management-dropdown.css";
 import { FaChevronDown } from "react-icons/fa";
 
@@ -24,10 +24,10 @@ const StudentManagementDropdown = ({
         const employeeId = localStorage.getItem("employee_id");
 
         const [courseRes, yearLevelRes] = await Promise.all([
-          axios.get("/api/get-courses-by-department", {
+          apiService.get("/get-courses-by-department", {
             headers: { 'X-Employee-ID': employeeId },
           }),
-          axios.get("/api/classlists/departments") // Your backend route
+          apiService.get("/classlists/departments")
         ]);
 
         // Process Courses

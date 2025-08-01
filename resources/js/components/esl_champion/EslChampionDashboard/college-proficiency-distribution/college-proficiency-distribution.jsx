@@ -12,7 +12,7 @@ import {
     PointElement,
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import './college-proficiency-distribution.css';
 import GraphDropdown from '../graph-dropdown/graph-dropdown';
 
@@ -89,7 +89,7 @@ const CollegeProficiencyChart = () => {
     useEffect(() => {
         const fetchPGFAverages = async () => {
             try {
-                const response = await axios.get("http://127.0.0.1:8000/api/performance-summary-rating");
+                const response = await apiService.get("/performance-summary-rating");
                 const pgfValues = response.data.ratings.map(r => parseFloat(r)).filter(val => !isNaN(val));
                 if (pgfValues.length) {
                     setPgfMin(Math.floor(Math.min(...pgfValues) * 10) / 10);
@@ -106,8 +106,7 @@ const CollegeProficiencyChart = () => {
         const fetchProficiencyDistribution = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(
-                    'http://127.0.0.1:8000/api/department-proficiency-distribution'
+                const response = await apiService.get('/department-proficiency-distribution'
                 );
 
                 if (response.data.success && response.data.data.length > 0) {
