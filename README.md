@@ -7,9 +7,9 @@ Full-stack web application developed over 12 months in collaboration with univer
 
 ## ✨ Key Features
 - **Role-Based Access Control**: 6-tier user hierarchy (Students, Instructors, Program Heads, Department Heads, ESL Champions, Admins)
-- **Hierarchical Analytics**: Performance aggregation across 4 organizational levels
+- **Hierarchical Analytics**: Performance aggregation across organizational levels
 - **Immutable Audit System**: Version-controlled rubrics with locked scorecards
-- **Real-time Dashboards**: Role-specific views for 500+ students across 4 departments
+- **Real-time Dashboards**: Role-specific views for 500+ students across college departments
 - **Subject Management**: Assignment workflows for instructors and curriculum distribution
 
 ## 🏗️ Architecture
