@@ -25,5 +25,4 @@ Capstone project completed from **June 2024 to May 2025**.
 
 ## 👨‍💻 Developer
 **Jude Adolfo**  
-GitHub: https://github.com/JuD990  
 Email: judea3264@gmail.com
