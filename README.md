@@ -3,7 +3,7 @@
 An enterprise management system for tracking English proficiency performance across college departments.
 
 ## 🎯 Overview
-EIEPIMS is a full-stack web application developed over 12 months in collaboration with university administrators and faculty. It streamlines evaluation workflows, generates analytics, and maintains audit-ready academic records.
+EIEPIMS is a full-stack web application developed in collaboration with university administrators and faculty. It streamlines evaluation workflows, generates analytics, and maintains audit-ready performance records for the EIE program in the University of Nueva Caceres.
 
 ## ✨ Features
 - 6-tier role-based access control (Laravel Sanctum)
