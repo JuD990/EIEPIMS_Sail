@@ -45,7 +45,7 @@ docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/htm
 ```
 
 ### 2. Automation
-We have included a custom script to launch the Docker containers and the Vite development server simultaneously:
+I have included a custom script to launch the Docker containers and the Vite development server simultaneously:
 ```bash
 chmod +x start.sh
 ./start.sh
