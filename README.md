@@ -51,7 +51,7 @@ chmod +x start.sh
 ./start.sh
 ```
 
-## Web Access: **http://localhost**
+### 3. Web Access: **http://localhost**
 Alias Tip: It is recommended to add: 
 ```bash
 alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
