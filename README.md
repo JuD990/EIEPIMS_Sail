@@ -32,6 +32,7 @@ To run this version of the project, you need **Docker Desktop** and **WSL2** ins
 # Clone and enter the repo
 git clone [https://github.com/JuD990/EIEPIMS_Sail.git](https://github.com/JuD990/EIEPIMS_Sail.git)
 cd EIEPIMS_Sail
+```
 ---
 # Setup Environment
 cp .env.example .env
@@ -44,16 +45,17 @@ We have included a custom script to launch the Docker containers and the Vite de
 ```bash
 chmod +x start.sh
 ./start.sh
-'''
+```
 ---
 Web Access: http://localhost
-Alias Tip: It is recommended to add alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail' to your ~/.bashrc.
-
-📊 Project Scale
+Alias Tip: It is recommended to add **alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'** to your **~/.bashrc**.
+---
+# 📊 Project Scale
 Designed to support 500+ students and 20+ faculty across 8+ college departments.
-
-🎓 Project Context
+---
+#🎓 Project Context
 Capstone project completed from June 2024 to May 2025.
-
-👨‍💻 Developer
+---
+#👨‍💻 Developer
 Jude Adolfo Email: judea3264@gmail.com
+---
