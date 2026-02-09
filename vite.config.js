@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import path from 'path';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [
@@ -8,6 +9,7 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.jsx'],
             refresh: true,
         }),
+        react(), 
     ],
     resolve: {
         alias: {
@@ -23,6 +25,15 @@ export default defineConfig({
         sourcemap: true,
     },
     server: {
+        // --- ADDED FOR SAIL ---
+        host: '0.0.0.0',
+        hmr: {
+            host: 'localhost',
+        },
+        watch: {
+            usePolling: true,
+        },
+        // -------------------------
         fs: {
             strict: true,
         },

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTable } from 'react-table';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import "./monthly-performance-summary.css";
 import DropdownStudent from "./dropdown-student/dropdown-student";
 
@@ -72,7 +72,7 @@ const MonthlyPerformanceSummary = () => {
             setError(null); // Reset error before fetching
 
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/get-monthly-performance-data', {
+                const response = await apiService.get('/get-monthly-performance-data', {
                     params: {
                         year_level: selectedYearLevel || "",
                         semester: selectedSemester || "",

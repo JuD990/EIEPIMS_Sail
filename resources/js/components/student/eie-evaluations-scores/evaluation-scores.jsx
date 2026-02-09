@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./evaluation-scores.css";
+import apiService from "@services/apiServices";
 
 const EvaluationScores = () => {
     const navigate = useNavigate();
@@ -13,7 +13,7 @@ const EvaluationScores = () => {
     useEffect(() => {
         const studentId = localStorage.getItem("student_id");
         if (studentId) {
-            axios.get(`http://127.0.0.1:8000/api/get-courses?student_id=${studentId}`)
+            apiService.get(`/get-courses?student_id=${studentId}`)
             .then(response => {
                 const coursesData = response.data.courses || [];
                 const recordsData = response.data.records || []; // Fetch full task records

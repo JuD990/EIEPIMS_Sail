@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./student-current-subject.css";
+import apiService from "@services/apiServices";
 import SomeLogo from "@assets/someLogo.png";
 
 // Updated proficiency levels with color information
@@ -61,27 +62,22 @@ const CurrentSubjects = () => {
     const student_id = localStorage.getItem("student_id");
 
     useEffect(() => {
-        if (student_id) {
-            fetch(`http://127.0.0.1:8000/api/current-subjects/${student_id}`)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
+        if (!student_id) {
+            setError("Student ID not found in local storage.");
+            setIsLoading(false);
+            return; // Exit early
+        }
+
+        apiService.getCurrentSubjects(student_id)
             .then((data) => {
                 setSubjectData(data);
                 setIsLoading(false);
             })
             .catch((error) => {
-                setError(`No Current Subjects`);
+                setError("No Current Subjects");
                 setIsLoading(false);
                 console.error("Error fetching subject data:", error);
             });
-        } else {
-            setError("Student ID not found in local storage.");
-            setIsLoading(false);
-        }
     }, [student_id]);
 
     // Calculate proficiency level and CEFR level if epgf_average exists

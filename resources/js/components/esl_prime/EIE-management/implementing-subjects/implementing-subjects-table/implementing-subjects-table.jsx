@@ -38,7 +38,7 @@ const ImplementingSubjectsTable = ({ searchQuery, program, yearLevel, semester }
       const response = await apiService.get("/esl-implementing-subjects", {
         headers: { employee_id: employeeId },
       });
-
+      
       const filteredData = response.data.filter((item) => {
         const matchesProgram = program ? item.program.toLowerCase() === program.toLowerCase() : true;
         const matchesYearLevel = yearLevel ? item.year_level.toLowerCase() === yearLevel.toLowerCase() : true;

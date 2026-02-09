@@ -155,9 +155,9 @@ class AuthController extends Controller
                 $student = Students::where('student_id', $studentId)->first();
                 if ($student) {
                     $yearLevel = $student->year_level;
-                    Log::info("✅ Year Level Found in Students Table", ['student_id' => $studentId, 'year_level' => $yearLevel]);
+                    Log::info("Year Level Found in Students Table", ['student_id' => $studentId, 'year_level' => $yearLevel]);
                 } else {
-                    Log::info("❌ No year_level found for student_id: " . $studentId);
+                    Log::info("No year_level found for student_id: " . $studentId);
                 }
             }
         }

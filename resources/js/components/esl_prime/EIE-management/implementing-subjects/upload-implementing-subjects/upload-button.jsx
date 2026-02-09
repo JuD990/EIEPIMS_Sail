@@ -1,8 +1,7 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import apiService from "@services/apiServices";
 import "./UploadImplementingSubjectsButton.css";
 import uploadLogo from "@assets/Upload.png";
-import archiveLogo from "@assets/Archive.png";
 import questionMark from "@assets/question-mark.png";
 
 const UploadingButton = ({ onArchiveClick }) => {
@@ -23,23 +22,38 @@ const UploadingButton = ({ onArchiveClick }) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    try {
+try {
+      setSubjectLoading(true); // Start loading state
       const response = await apiService.post("/upload-subjects", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+
+      // Log success response
+      console.log("Upload Success:", response.data);
       alert("Subject file uploaded successfully!");
-      console.log(response.data);
-      window.location.reload(); // Refresh the page
+      
+      window.location.reload(); 
     } catch (error) {
+      // 1. Fixed: Log the error specifically
       console.error("Error uploading subject file:", error.response?.data || error.message);
+      
+      // 2. Access the error response if it exists
+      if (error.response) {
+         console.log("Server Error Data:", error.response.data);
+         console.log("Server Status:", error.response.status);
+      }
+
       alert("Failed to upload subject file.");
     } finally {
       setSubjectLoading(false);
-      event.target.value = ""; // Clear the file input after upload
+      // Ensure 'event' is passed into your main function
+      if (event?.target) {
+        event.target.value = ""; 
+      }
     }
-  };
+  }
 
   // Handle button click for archived subjects (you can replace with actual logic)
   const handleArchivedSubjectsButtonClick = () => {

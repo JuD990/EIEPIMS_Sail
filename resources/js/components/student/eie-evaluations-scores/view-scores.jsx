@@ -5,7 +5,7 @@ import UserInfo from "@user-info/User-info";
 import BackIcon from "@assets/Prev.png";
 import DropdownLogo from "@assets/dropdown-logo-login.png";
 import "./view-scores.css";
-import axios from "axios";
+import apiService from "@services/apiServices";
 
 const epgfProficiencyLevels = [
 { threshold: 0.00, level: 'Beginning', color: 'red' },
@@ -73,8 +73,8 @@ const ViewScores = () => {
     };
 
     useEffect(() => {
-        axios
-        .get(`http://127.0.0.1:8000/api/get-course-details?historical_scorecards_id=${historicalScorecardId}`)
+        apiService
+        .get(`/get-course-details?historical_scorecards_id=${historicalScorecardId}`)
         .then((response) => {
             setScoreDetails(response.data);
         })

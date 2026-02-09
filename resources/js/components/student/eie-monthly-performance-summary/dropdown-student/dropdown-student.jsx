@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiService from "@services/apiServices";
 import './dropdown-student.css';
 
 const DropdownStudent = ({ onYearLevelChange, onSemesterChange }) => {
@@ -26,7 +26,7 @@ const DropdownStudent = ({ onYearLevelChange, onSemesterChange }) => {
             return;
         }
 
-        axios.get('http://127.0.0.1:8000/api/student-year-level-options', {
+        apiService.get('/student-year-level-options', {
             params: { student_id: studentId }
         })
         .then((response) => {

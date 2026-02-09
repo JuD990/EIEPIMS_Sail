@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
-import axios from "axios";
+import apiService from "@services/apiServices";
 import "./eie-performance-summary.css";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -16,7 +16,7 @@ const PerformanceSummary = () => {
     useEffect(() => {
         if (studentId) {
             // Fetch performance summary
-            axios.get(`http://127.0.0.1:8000/api/get-performance-summary?student_id=${studentId}`)
+            apiService.get(`/get-performance-summary?student_id=${studentId}`)
             .then((response) => {
                 const data = response.data.performance_summary;
                 const yearLabels = Object.keys(data); // ['1st Year', '2nd Year', '3rd Year', '4th Year']
@@ -30,7 +30,7 @@ const PerformanceSummary = () => {
                 setPerformanceSummary(data);
 
                 // Fetch ratings summary
-                axios.get(`http://127.0.0.1:8000/api/performance-summary-rating`)
+                apiService.get(`/performance-summary-rating`)
                 .then((ratingsResponse) => {
                     const ratingsData = ratingsResponse.data.ratings;
                     setRatings(ratingsData);
