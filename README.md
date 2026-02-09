@@ -60,7 +60,7 @@ To your:
 ```bash
 ~/.bashrc
 ```
-Instead of typing **./vendor/bin/sail up**, you type **sail up**
+Instead of typing "**./vendor/bin/sail up**", you type "**sail up**"
 
 ## 📊 Project Scale
 Designed to support 500+ students and 20+ faculty across 8+ college departments.
