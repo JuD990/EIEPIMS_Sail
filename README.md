@@ -34,20 +34,20 @@ git clone [https://github.com/JuD990/EIEPIMS_Sail.git](https://github.com/JuD990
 cd EIEPIMS_Sail
 ```
 ---
-# Setup Environment
+## Setup Environment
 cp .env.example .env
 ---
-# Install dependencies (if PHP is not installed locally)
+## Install dependencies (if PHP is not installed locally)
 docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html laravelsail/php8.3-composer:latest composer install --ignore-platform-reqs
 
-# 2. Automation
+### 2. Automation
 We have included a custom script to launch the Docker containers and the Vite development server simultaneously:
 ```bash
 chmod +x start.sh
 ./start.sh
 ```
 
-Web Access: **http://localhost**
+## Web Access: **http://localhost**
 Alias Tip: It is recommended to add **alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'** to your **~/.bashrc**.
 
 📊 Project Scale
