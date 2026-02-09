@@ -30,7 +30,7 @@ To run this version of the project, you need **Docker Desktop** and **WSL2** ins
 ### 1. Setup
 ```bash
 # Clone and enter the repo
-git clone [https://github.com/JuD990/EIEPIMS_Sail.git](https://github.com/JuD990/EIEPIMS_Sail.git)
+git clone https://github.com/JuD990/EIEPIMS_Sail.git
 cd EIEPIMS_Sail
 ```
 ---
