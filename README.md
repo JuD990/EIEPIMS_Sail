@@ -69,6 +69,6 @@ Designed to support 500+ students and 20+ faculty across 8+ college departments.
 Capstone project completed from June 2024 to May 2025.
 
 ## 👨‍💻 Developer
-**Jude Adolfo**
+**Jude Adolfo**  
 Email: judea3264@gmail.com
 
