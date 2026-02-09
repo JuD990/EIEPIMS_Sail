@@ -54,7 +54,11 @@ chmod +x start.sh
 ## Web Access: **http://localhost**
 Alias Tip: It is recommended to add: 
 ```bash
-**alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'** to your **~/.bashrc**.
+alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
+```
+To your:
+```bash
+~/.bashrc
 ```
 
 ## 📊 Project Scale
