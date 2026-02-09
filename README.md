@@ -39,23 +39,23 @@ cp .env.example .env
 ---
 # Install dependencies (if PHP is not installed locally)
 docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html laravelsail/php8.3-composer:latest composer install --ignore-platform-reqs
----
+
 # 2. Automation
 We have included a custom script to launch the Docker containers and the Vite development server simultaneously:
 ```bash
 chmod +x start.sh
 ./start.sh
 ```
----
+
 Web Access: **http://localhost**
 Alias Tip: It is recommended to add **alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'** to your **~/.bashrc**.
----
+
 📊 Project Scale
 Designed to support 500+ students and 20+ faculty across 8+ college departments.
----
+
 🎓 Project Context
 Capstone project completed from June 2024 to May 2025.
----
+
 👨‍💻 Developer
 Jude Adolfo Email: judea3264@gmail.com
----
+
