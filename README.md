@@ -25,7 +25,7 @@ EIEPIMS is a full-stack web application developed in collaboration with universi
 
 ## 🚀 Quick Start (Sail Environment)
 
-To run this version of the project, you need **Docker Engine** and **WSL2** installed.
+To run this version of the project, you need is **Docker Engine** installed in **WSL2**.
 
 ### 1. Setup
 ```bash
