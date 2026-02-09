@@ -47,15 +47,15 @@ chmod +x start.sh
 ./start.sh
 ```
 ---
-Web Access: http://localhost
+Web Access: **http://localhost**
 Alias Tip: It is recommended to add **alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'** to your **~/.bashrc**.
 ---
-# 📊 Project Scale
+📊 Project Scale
 Designed to support 500+ students and 20+ faculty across 8+ college departments.
 ---
-#🎓 Project Context
+🎓 Project Context
 Capstone project completed from June 2024 to May 2025.
 ---
-#👨‍💻 Developer
+👨‍💻 Developer
 Jude Adolfo Email: judea3264@gmail.com
 ---
