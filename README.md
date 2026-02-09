@@ -33,16 +33,6 @@ To run this version of the project, you need is **Docker Engine** installed in *
 git clone https://github.com/JuD990/EIEPIMS_Sail.git
 cd EIEPIMS_Sail
 ```
----
-#### Setup Environment
-```bash
-cp .env.example .env
-```
-
-#### Install dependencies (if PHP is not installed locally)
-```bash
-docker run --rm -u "$(id -u):$(id -g)" -v "$(pwd):/var/www/html" -w /var/www/html laravelsail/php8.3-composer:latest composer install --ignore-platform-reqs
-```
 
 ### 2. Automation
 I have included a custom script to launch the Docker containers and the Vite development server simultaneously:
